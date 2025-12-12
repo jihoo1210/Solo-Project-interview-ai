@@ -1,0 +1,125 @@
+spring:
+  profiles:
+    active: local
+
+  application:
+    name: interview-ai-backend
+
+---
+# Local Profile (H2 Database)
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  datasource:
+    url: jdbc:h2:mem:interviewai;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: 8080
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-key-here-must-be-at-least-32-characters-long}
+  access-token-validity: 3600000      # 1 hour
+  refresh-token-validity: 604800000   # 7 days
+
+# OpenAI Configuration
+openai:
+  api-key: ${OPENAI_API_KEY:your-openai-api-key}
+  model: gpt-4
+  timeout: 60
+
+# OAuth2 Configuration
+oauth2:
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:your-google-client-id}
+    client-secret: ${GOOGLE_CLIENT_SECRET:your-google-client-secret}
+  kakao:
+    client-id: ${KAKAO_CLIENT_ID:your-kakao-client-id}
+    client-secret: ${KAKAO_CLIENT_SECRET:your-kakao-client-secret}
+
+# SpringDoc (Swagger) Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.interviewai: DEBUG
+    org.hibernate.SQL: DEBUG
+
+---
+# Production Profile (MariaDB)
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: jdbc:mariadb://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:interviewai}
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:password}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+server:
+  port: ${SERVER_PORT:8080}
+
+logging:
+  level:
+    root: WARN
+    com.interviewai: INFO
