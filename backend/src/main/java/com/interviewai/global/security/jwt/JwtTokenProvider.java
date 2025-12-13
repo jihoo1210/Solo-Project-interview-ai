@@ -2,6 +2,7 @@ package com.interviewai.global.security.jwt;
 
 import java.util.Base64;
 import java.util.Date;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -47,6 +48,10 @@ public class JwtTokenProvider {
                 .expiration(validity)
                 .signWith(key)
                 .compact();
+    }
+
+    public String createRefreshToken() {
+        return UUID.randomUUID().toString();
     }
 
     public String resolveToken(HttpServletRequest request) {

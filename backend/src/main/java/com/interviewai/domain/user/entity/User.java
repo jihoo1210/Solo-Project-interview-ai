@@ -67,4 +67,8 @@ public class User extends BaseTimeEntity {
     @Column(name = "last_interview_date")
     private LocalDate lastInterviewDate;
 
+    public void verifyEmail() {
+        this.emailVerified = true;
+        this.emailVerifiedAt = LocalDateTime.now();
+    }
 }
