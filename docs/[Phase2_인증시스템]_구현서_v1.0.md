@@ -1,14 +1,14 @@
 # [Phase 2] 인증 시스템 구현서 v1.0
 
 > 작성일: 2024-12-12
-> 버전: 1.0 (Task 1~2 완료)
+> 버전: 1.2 (Task 1~7 완료)
 > 작성자: AI Interview Simulator Team
 
 ---
 
 ## 1. 개요
 
-Phase 2에서는 AI 기술 면접 시뮬레이터의 인증 시스템을 구현합니다. 본 문서는 Task 1~2 (엔티티, JWT 설정) 완료 시점의 구현 내용을 다룹니다.
+Phase 2에서는 AI 기술 면접 시뮬레이터의 인증 시스템을 구현합니다. 본 문서는 Task 1~7 완료 시점의 구현 내용을 다룹니다.
 
 ### 1.1 완료된 Task
 
@@ -16,11 +16,11 @@ Phase 2에서는 AI 기술 면접 시뮬레이터의 인증 시스템을 구현�
 |------|------|------|
 | Task 1 | User, EmailVerification 엔티티 및 Repository | ✅ 완료 |
 | Task 2 | Spring Security + JWT 설정 (Access Token) | ✅ 완료 |
-| Task 3 | 회원가입 API | ⏳ 대기 |
-| Task 4 | 이메일 발송 서비스 | ⏳ 대기 |
-| Task 5 | 이메일 인증 API | ⏳ 대기 |
-| Task 6 | 로그인/로그아웃 API | ⏳ 대기 |
-| Task 7 | 토큰 갱신 API (Refresh Token) | ⏳ 대기 |
+| Task 3 | 회원가입 API | ✅ 완료 |
+| Task 4 | 이메일 발송 서비스 | ✅ 완료 |
+| Task 5 | 이메일 인증 API | ✅ 완료 |
+| Task 6 | 로그인/로그아웃 API | ✅ 완료 |
+| Task 7 | 토큰 갱신 API (Refresh Token) | ✅ 완료 |
 | Task 8 | Google OAuth 연동 | ⏳ 대기 |
 | Task 9 | Naver OAuth 연동 | ⏳ 대기 |
 | Task 10-16 | 프론트엔드 UI | ⏳ 대기 |
@@ -50,6 +50,50 @@ Phase 2에서는 AI 기술 면접 시뮬레이터의 인증 시스템을 구현�
 | `global/security/UserPrincipal.java` | 인증된 사용자 정보 (UserDetails 구현) |
 | `global/config/SecurityConfig.java` | Spring Security 설정 (수정) |
 | `application.yml` | JWT 설정 추가 (수정) |
+
+### 2.3 Task 3: 회원가입 API
+
+| 파일 경로 | 설명 |
+|----------|------|
+| `domain/user/dto/SignupRequest.java` | 회원가입 요청 DTO |
+| `domain/user/dto/SignupResponse.java` | 회원가입 응답 DTO |
+| `domain/user/dto/UserResponse.java` | 사용자 정보 응답 DTO |
+| `domain/user/service/AuthService.java` | 인증 서비스 |
+| `domain/user/controller/AuthController.java` | 인증 컨트롤러 |
+
+### 2.4 Task 4: 이메일 발송 서비스
+
+| 파일 경로 | 설명 |
+|----------|------|
+| `infra/mail/EmailService.java` | 이메일 발송 서비스 |
+
+### 2.5 Task 5: 이메일 인증 API
+
+| 파일 경로 | 설명 |
+|----------|------|
+| `domain/user/dto/ResendVerificationRequest.java` | 인증 메일 재발송 요청 DTO |
+
+### 2.6 Task 6: 로그인/로그아웃 API
+
+| 파일 경로 | 설명 |
+|----------|------|
+| `domain/user/dto/LoginRequest.java` | 로그인 요청 DTO |
+| `domain/user/dto/LoginResponse.java` | 로그인 응답 DTO (accessToken, refreshToken, email, nickname) |
+| `domain/user/service/AuthService.java` | `login()` 메서드 추가 (수정) |
+| `domain/user/controller/AuthController.java` | `/login`, `/logout` 엔드포인트 추가 (수정) |
+
+### 2.7 Task 7: 토큰 갱신 API (Refresh Token)
+
+| 파일 경로 | 설명 |
+|----------|------|
+| `global/config/RedisConfig.java` | Redis 연결 및 RedisTemplate 설정 |
+| `infra/redis/RefreshTokenRepository.java` | Refresh Token 저장/조회/삭제 |
+| `domain/user/dto/TokenRefreshRequest.java` | 토큰 갱신 요청 DTO |
+| `domain/user/dto/TokenRefreshResponse.java` | 토큰 갱신 응답 DTO |
+| `global/security/jwt/JwtTokenProvider.java` | `createRefreshToken()` 메서드 추가 (수정) |
+| `domain/user/dto/LoginResponse.java` | `refreshToken` 필드 추가 (수정) |
+| `domain/user/service/AuthService.java` | `refresh()`, `logout()` 메서드 추가 (수정) |
+| `domain/user/controller/AuthController.java` | `/refresh` 엔드포인트 추가 (수정) |
 
 ---
 
@@ -85,324 +129,339 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private SubscriptionType subscriptionType;  // FREE, PREMIUM
 
-    @Column(name = "daily_interview_count")
-    private int dailyInterviewCount;
-
-    @Column(name = "last_interview_date")
-    private LocalDate lastInterviewDate;
+    // 비즈니스 메서드
+    public void verifyEmail() {
+        this.emailVerified = true;
+        this.emailVerifiedAt = LocalDateTime.now();
+    }
 }
 ```
 
 **설명**:
 - `@Table(name = "users")`: 실제 DB 테이블명 지정 (user는 예약어)
 - `@Enumerated(EnumType.STRING)`: Enum을 문자열로 저장 (가독성 + 안정성)
-- `BaseTimeEntity` 상속: `createdAt`, `updatedAt` 자동 관리
+- `verifyEmail()`: 이메일 인증 완료 처리 메서드
 
 ---
 
-### 3.2 EmailVerification 엔티티
+### 3.2 AuthService (회원가입)
 
 ```java
-// 위치: domain/user/entity/EmailVerification.java
+// 위치: domain/user/service/AuthService.java
 
-@Entity
-public class EmailVerification {
-
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @Column(length = 100)
-    private String token;
-
-    @Column(name = "expires_at")
-    private LocalDateTime expiresAt;
-
-    @Column
-    private boolean used;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-}
-```
-
-**설명**:
-- `@ManyToOne`: 한 User가 여러 인증 토큰을 가질 수 있음 (재발송 시)
-- `used`: 토큰 사용 여부 (중복 사용 방지)
-- `expiresAt`: 토큰 만료 시간
-
----
-
-### 3.3 JwtTokenProvider (JWT 토큰 관리)
-
-```java
-// 위치: global/security/jwt/JwtTokenProvider.java
-
+@RequiredArgsConstructor
 @Service
-public class JwtTokenProvider {
+@Transactional(readOnly = true)
+public class AuthService {
 
-    @Value("${jwt.secret}") private String envKey;
-    @Value("${jwt.access-token-validity}") private long envExpired;
+    @Transactional(readOnly = false)
+    public SignupResponse signup(SignupRequest request) {
+        // 1. 이메일 중복 검사
+        if(emailDuplicateCheck(email)) throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
 
-    private SecretKey key;
-    private long expired;
+        // 2. 비밀번호 암호화
+        String encodedPassword = encodePassword(password);
 
-    @PostConstruct
-    public void init() {
-        String encodedKey = Base64.getEncoder().encodeToString(envKey.getBytes());
-        key = Keys.hmacShaKeyFor(encodedKey.getBytes());
-        expired = envExpired;
-    }
+        // 3. User 저장
+        SignupResponse response = createAndSaveUser(email, encodedPassword, nickname);
 
-    // JWT 토큰 생성
-    public String createJWT(Long userId, String email, SubscriptionType subscriptionType) {
-        Date now = new Date();
-        Date validity = new Date(now.getTime() + expired);
+        // 4. 토큰 생성
+        String token = emailService.generateVerificationEmailToken();
 
-        return Jwts.builder()
-                .subject(String.valueOf(userId))
-                .claim("email", email)
-                .claim("subscriptionType", subscriptionType)
-                .issuedAt(now)
-                .expiration(validity)
-                .signWith(key)
-                .compact();
-    }
+        // 5. 인증 이메일 발송
+        emailService.sendVerificationEmail(email, token);
 
-    // 요청 헤더에서 토큰 추출
-    public String resolveToken(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        if(!StringUtils.isBlank(header) && header.startsWith("Bearer ")) {
-            return header.substring(7);
-        }
-        return null;
-    }
-
-    // 토큰 유효성 검증
-    public boolean validateToken(String token) {
-        try {
-            getClaims(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
-    }
-
-    // 토큰에서 Claims 추출
-    public Claims getClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        // 6. 응답 반환
+        return response;
     }
 }
 ```
 
 **설명**:
-- `@PostConstruct`: Bean 생성 후 초기화 (SecretKey 생성)
-- `createJWT()`: userId, email, subscriptionType을 담은 JWT 생성
-- `resolveToken()`: "Bearer xxx" 형식에서 토큰만 추출
-- `validateToken()`: 토큰 파싱 시 예외 발생 여부로 유효성 판단
+- `@Transactional(readOnly = true)`: 클래스 레벨 읽기 전용
+- `@Transactional(readOnly = false)`: 쓰기 메서드에서 오버라이드
+- 회원가입 시 자동으로 인증 이메일 발송
 
 ---
 
-### 3.4 JwtAuthenticationFilter (인증 필터)
+### 3.3 이메일 인증 검증
 
 ```java
-// 위치: global/security/jwt/JwtAuthenticationFilter.java
+// 위치: domain/user/service/AuthService.java
+
+@Transactional(readOnly = false)
+public void verifyEmail(String token) {
+    EmailVerification emailVerification = emailVerificationRepository
+        .findByToken(token)
+        .orElseThrow(() -> new CustomException(ErrorCode.INVALID_VERIFICATION_TOKEN));
+
+    // 만료 또는 사용됨 확인
+    if(LocalDateTime.now().isAfter(emailVerification.getExpiresAt())
+        || emailVerification.isUsed()) {
+        throw new CustomException(ErrorCode.TOKEN_EXPIRED);
+    }
+
+    emailVerification.getUser().verifyEmail();
+    emailVerification.markAsUsed();
+}
+```
+
+**설명**:
+- `LocalDateTime.now().isAfter(expiresAt)`: 현재 시간이 만료 시간을 지났는지 확인
+- `markAsUsed()`: 토큰 재사용 방지 (Soft Delete)
+
+---
+
+### 3.4 EmailService (이메일 발송)
+
+```java
+// 위치: infra/mail/EmailService.java
 
 @RequiredArgsConstructor
-@Component
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+@Service
+public class EmailService {
 
-    private final JwtTokenProvider jwtTokenProvider;
-    private final UserDetailsService userDetailsService;
+    public void sendVerificationEmail(String email, String token) {
+        // 1. 이메일 발송
+        MimeMessage message = javaMailSender.createMimeMessage();
+        MimeMessageHelper messageHelper = new MimeMessageHelper(message);
+        messageHelper.setTo(email);
+        messageHelper.setSubject("[INTERVIEW AI] 회원가입 이메일 인증");
+        messageHelper.setText(getRegistrationEmailHtml(token), true);
+        javaMailSender.send(message);
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
-            throws ServletException, IOException {
+        // 2. EmailVerification 저장
+        EmailVerification emailVerification = EmailVerification.builder()
+            .user(user)
+            .token(token)
+            .expiresAt(LocalDateTime.now().plusMinutes(10))
+            .build();
+        emailVerificationRepository.save(emailVerification);
+    }
 
-        String token = jwtTokenProvider.resolveToken(request);
-
-        if(!StringUtils.isBlank(token)) {
-            UserDetails userDetails = userDetailsService
-                .loadUserByUsername(jwtTokenProvider.getUserEmail(token));
-
-            if(userDetails != null && jwtTokenProvider.validateToken(token)) {
-                UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(
-                    new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+    public String generateVerificationEmailToken() {
+        StringBuilder values = new StringBuilder();
+        do {
+            values.delete(0, values.length());
+            for(int i = 0; i < 6; i++) {
+                int value = (int) (Math.random() * 10);
+                values.append(value);
             }
-        }
-        filterChain.doFilter(request, response);
+        } while (emailVerificationRepository.existsByToken(values.toString()));
+        return values.toString();
     }
 }
 ```
 
 **설명**:
-- `OncePerRequestFilter`: 요청당 한 번만 실행되는 필터
-- 흐름: 토큰 추출 → 사용자 조회 → 토큰 검증 → SecurityContext에 인증 정보 저장
-- `SecurityContextHolder`: 현재 스레드의 인증 정보 저장소
+- `MimeMessageHelper`: HTML 이메일 발송 지원
+- 토큰 중복 검사 후 유니크한 6자리 토큰 생성
+- 만료 시간: 10분
 
 ---
 
-### 3.5 UserPrincipal (인증된 사용자 정보)
+### 3.5 AuthController (API 엔드포인트)
 
 ```java
-// 위치: global/security/UserPrincipal.java
+// 위치: domain/user/controller/AuthController.java
 
 @RequiredArgsConstructor
-public class UserPrincipal implements UserDetails {
+@RestController
+@RequestMapping("/api/v1/auth")
+public class AuthController {
 
-    private final User user;
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-
-        if(user.getSubscriptionType().equals(SubscriptionType.FREE)) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_FREE"));
-        } else if(user.getSubscriptionType().equals(SubscriptionType.PREMIUM)) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_PREMIUM"));
-            authorities.add(new SimpleGrantedAuthority("ROLE_FREE"));
-        }
-        return authorities;
+    @PostMapping("/signup")
+    public ApiResponse<SignupResponse> signup(@RequestBody @Valid SignupRequest request) {
+        return ApiResponse.<SignupResponse>success(authService.signup(request));
     }
 
-    @Override
-    public String getPassword() {
-        return user.getPassword();
+    @GetMapping("/verify-email")
+    public ApiResponse<Void> verifyEmail(@RequestParam String token) {
+        authService.verifyEmail(token);
+        return ApiResponse.success();
     }
 
-    @Override
-    public String getUsername() {
-        return user.getEmail();
+    @PostMapping("/resend-verification")
+    public ApiResponse<Void> resendVerification(@RequestBody @Valid ResendVerificationRequest request) {
+        authService.resendVerificationEmail(request.getEmail());
+        return ApiResponse.success();
+    }
+}
+```
+
+---
+
+### 3.6 AuthService (로그인)
+
+```java
+// 위치: domain/user/service/AuthService.java
+
+public LoginResponse login(LoginRequest request) {
+    String email = request.getEmail();
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
+
+    // 1. 비밀번호 일치 검사 (이메일 존재 여부 노출 방지)
+    if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
+    }
+
+    // 2. 이메일 인증된 회원 검사
+    if(!user.isEmailVerified()) {
+        throw new CustomException(ErrorCode.EMAIL_NOT_VERIFIED);
+    }
+
+    // 3. 토큰 발급
+    String token = jwtTokenProvider.createJWT(user.getId(), email, user.getSubscriptionType());
+
+    return LoginResponse.of(user, token);
+}
+```
+
+**설명**:
+- 비밀번호 검사를 먼저 수행하여 이메일 존재 여부 노출 방지
+- 이메일 미인증 사용자는 로그인 차단
+- `LoginResponse.of()`: 정적 팩토리 메서드로 응답 생성
+
+---
+
+### 3.7 LoginResponse (정적 팩토리 메서드)
+
+```java
+// 위치: domain/user/dto/LoginResponse.java
+
+@Builder
+@Value
+public class LoginResponse {
+    String email;
+    String nickname;
+    String accessToken;
+
+    public static LoginResponse of(User user, String accessToken) {
+        return LoginResponse.builder()
+            .email(user.getEmail())
+            .nickname(user.getNickname())
+            .accessToken(accessToken)
+            .build();
     }
 }
 ```
 
 **설명**:
-- `UserDetails` 구현: Spring Security가 인증 정보를 다루는 표준 인터페이스
-- `getAuthorities()`: 사용자 권한 반환 (PREMIUM은 FREE 권한도 포함)
-- `getUsername()`: 이메일을 username으로 사용
+- `of()`: 여러 파라미터(User 객체 + String)를 조합하여 생성
+- `from()` vs `of()`: 단일 객체 변환은 `from`, 여러 값 조합은 `of`
 
 ---
 
-### 3.6 SecurityConfig (보안 설정)
+### 3.8 RedisConfig (Redis 설정)
 
 ```java
-// 위치: global/config/SecurityConfig.java
+// 위치: global/config/RedisConfig.java
 
 @Configuration
-@EnableWebSecurity
-@RequiredArgsConstructor
-public class SecurityConfig {
-
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    private static final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/auth/**",
-            "/api/v1/oauth/**",
-            "/h2-console/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/api-docs/**",
-            "/v3/api-docs/**"
-    };
+public class RedisConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                .anyRequest().authenticated())
-            .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
-            .addFilterAfter(jwtAuthenticationFilter, CorsFilter.class);
-
-        return http.build();
+    public RedisConnectionFactory redisConnectionFactory() {
+        return new LettuceConnectionFactory();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, String> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new StringRedisSerializer());
+        return template;
     }
 }
 ```
 
 **설명**:
-- `SessionCreationPolicy.STATELESS`: JWT 사용으로 세션 비활성화
-- `PUBLIC_ENDPOINTS`: 인증 없이 접근 가능한 경로
-- `addFilterAfter()`: CORS 필터 다음에 JWT 필터 추가
-- `BCryptPasswordEncoder`: 비밀번호 암호화
+- `LettuceConnectionFactory`: Redis 연결을 위한 Lettuce 클라이언트 사용
+- `StringRedisSerializer`: Key/Value를 문자열로 직렬화 (가독성, 디버깅 용이)
 
 ---
 
-### 3.7 application.yml (JWT 설정)
+### 3.9 RefreshTokenRepository (Redis 저장소)
 
-```yaml
-# JWT Configuration
-jwt:
-  secret: ${JWT_SECRET:your-256-bit-secret-key-here-must-be-at-least-32-characters-long}
-  access-token-validity: 3600000      # 1 hour (밀리초)
-  refresh-token-validity: 604800000   # 7 days (밀리초)
+```java
+// 위치: infra/redis/RefreshTokenRepository.java
+
+@RequiredArgsConstructor
+@Repository
+public class RefreshTokenRepository {
+
+    private final RedisTemplate<String, String> redisTemplate;
+
+    @Value("${jwt.refresh-token-validity}") Long ttl;
+
+    public void save(String refreshToken, Long userId) {
+        redisTemplate.opsForValue().set(refreshToken, userId.toString(), ttl, TimeUnit.MILLISECONDS);
+    }
+
+    public String findByRefreshToken(String refreshToken) {
+        return redisTemplate.opsForValue().get(refreshToken);
+    }
+
+    public boolean deleteByRefreshToken(String refreshToken) {
+        return redisTemplate.delete(refreshToken);
+    }
+}
 ```
 
 **설명**:
-- `secret`: JWT 서명에 사용할 비밀 키 (환경변수 우선)
-- `access-token-validity`: Access Token 유효 시간 (1시간)
-- `refresh-token-validity`: Refresh Token 유효 시간 (7일) - Task 7에서 사용
+- Key: Refresh Token (UUID), Value: userId
+- TTL 자동 설정으로 만료 시 자동 삭제
+- RT를 Key로 사용하여 userId 없이도 조회 가능 (보안)
 
 ---
 
-## 4. JWT 인증 흐름도
+### 3.10 AuthService (토큰 갱신)
 
+```java
+// 위치: domain/user/service/AuthService.java
+
+public TokenRefreshResponse refresh(TokenRefreshRequest request) {
+    String userId = refreshTokenRepository.findByRefreshToken(request.getRefreshToken());
+    if(userId == null) throw new CustomException(ErrorCode.INVALID_TOKEN);
+
+    User user = userRepository.findById(Long.parseLong(userId))
+        .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
+
+    String accessToken = jwtTokenProvider.createJWT(user.getId(), user.getEmail(), user.getSubscriptionType());
+    String refreshToken = jwtTokenProvider.createRefreshToken();
+
+    // Rotation: 이전 RT 삭제 후 새 RT 저장
+    refreshTokenRepository.deleteByRefreshToken(request.getRefreshToken());
+    refreshTokenRepository.save(refreshToken, user.getId());
+
+    return TokenRefreshResponse.of(accessToken, refreshToken);
+}
+
+public void logout(TokenRefreshRequest request) {
+    if(!refreshTokenRepository.deleteByRefreshToken(request.getRefreshToken())) {
+        throw new CustomException(ErrorCode.INVALID_TOKEN);
+    }
+}
 ```
-[클라이언트 요청]
-        │
-        ▼
-┌─────────────────────────────────────┐
-│     JwtAuthenticationFilter         │
-│  ┌───────────────────────────────┐  │
-│  │ 1. resolveToken()             │  │
-│  │    → Authorization 헤더에서   │  │
-│  │      "Bearer xxx" 토큰 추출   │  │
-│  └───────────────────────────────┘  │
-│                 │                   │
-│                 ▼                   │
-│  ┌───────────────────────────────┐  │
-│  │ 2. validateToken()            │  │
-│  │    → 토큰 서명/만료 검증      │  │
-│  └───────────────────────────────┘  │
-│                 │                   │
-│                 ▼                   │
-│  ┌───────────────────────────────┐  │
-│  │ 3. loadUserByUsername()       │  │
-│  │    → DB에서 사용자 조회       │  │
-│  └───────────────────────────────┘  │
-│                 │                   │
-│                 ▼                   │
-│  ┌───────────────────────────────┐  │
-│  │ 4. SecurityContextHolder      │  │
-│  │    → 인증 정보 저장           │  │
-│  └───────────────────────────────┘  │
-└─────────────────────────────────────┘
-        │
-        ▼
-[컨트롤러 → 서비스 → 응답]
-```
+
+**설명**:
+- **Refresh Token Rotation**: 갱신 시 새 RT 발급 (탈취 대응)
+- 로그아웃 시 Redis에서 RT 즉시 삭제 (AT는 짧은 만료로 처리)
+
+---
+
+## 4. API 명세
+
+| Method | Endpoint | Request | Response | 설명 |
+|--------|----------|---------|----------|------|
+| POST | `/api/v1/auth/signup` | `SignupRequest` | `SignupResponse` | 회원가입 |
+| GET | `/api/v1/auth/verify-email` | `?token=xxx` | - | 이메일 인증 |
+| POST | `/api/v1/auth/resend-verification` | `ResendVerificationRequest` | - | 인증 메일 재발송 |
+| POST | `/api/v1/auth/login` | `LoginRequest` | `LoginResponse` | 로그인 |
+| POST | `/api/v1/auth/refresh` | `TokenRefreshRequest` | `TokenRefreshResponse` | 토큰 갱신 |
+| POST | `/api/v1/auth/logout` | `TokenRefreshRequest` | - | 로그아웃 (RT 삭제) |
 
 ---
 
@@ -447,15 +506,10 @@ cd backend
 
 ---
 
-## 7. 다음 단계 (Task 3~9)
+## 7. 다음 단계 (Task 8~9)
 
 | Task | 내용 |
 |------|------|
-| Task 3 | 회원가입 API (SignupRequest/Response, AuthService, AuthController) |
-| Task 4 | 이메일 발송 서비스 (Spring Mail + SMTP) |
-| Task 5 | 이메일 인증 API (토큰 검증/재발송) |
-| Task 6 | 로그인/로그아웃 API |
-| Task 7 | 토큰 갱신 API (Refresh Token 구현) |
 | Task 8 | Google OAuth 연동 |
 | Task 9 | Naver OAuth 연동 |
 
@@ -463,31 +517,41 @@ cd backend
 
 ## 8. 진행 상황 평가
 
-### Task 1~2 완성도: **100%**
+### Task 1~7 완성도: **100%**
 
 | 항목 | 상태 | 비고 |
 |------|------|------|
-| User 엔티티 | ✅ 완료 | 기획서 스펙 준수 |
-| EmailVerification 엔티티 | ✅ 완료 | @ManyToOne 관계 설정 |
-| AuthProvider Enum | ✅ 완료 | NAVER로 변경 (KAKAO 사업자 이슈) |
+| User 엔티티 | ✅ 완료 | verifyEmail() 메서드 추가 |
+| EmailVerification 엔티티 | ✅ 완료 | markAsUsed() 메서드 추가 |
+| AuthProvider Enum | ✅ 완료 | LOCAL, GOOGLE, NAVER |
 | SubscriptionType Enum | ✅ 완료 | FREE, PREMIUM |
 | UserRepository | ✅ 완료 | findByEmail, existsByEmail |
-| EmailVerificationRepository | ✅ 완료 | findByToken, findByUserAndUsedFalse |
-| JwtTokenProvider | ✅ 완료 | 생성/검증/추출 |
+| EmailVerificationRepository | ✅ 완료 | existsByToken 추가 |
+| JwtTokenProvider | ✅ 완료 | 생성/검증/추출 + createRefreshToken |
 | JwtAuthenticationFilter | ✅ 완료 | OncePerRequestFilter |
-| UserPrincipal | ✅ 완료 | ROLE 기반 권한 |
-| SecurityConfig | ✅ 완료 | JWT 필터 연동 |
+| RedisConfig | ✅ 완료 | Redis 연결 및 RedisTemplate 설정 |
+| RefreshTokenRepository | ✅ 완료 | RT 저장/조회/삭제 (Key: RT, Value: userId) |
+| AuthService | ✅ 완료 | signup, verifyEmail, resendVerificationEmail, login, refresh, logout |
+| AuthController | ✅ 완료 | 6개 엔드포인트 |
+| EmailService | ✅ 완료 | 이메일 발송 + 토큰 생성 |
+| DTO | ✅ 완료 | SignupRequest/Response, UserResponse, ResendVerificationRequest, LoginRequest/Response, TokenRefreshRequest/Response |
 
 ### 잘한 점
-- `@ManyToOne` vs `@OneToMany` 차이점 이해
-- `StringUtils.isBlank()` 사용으로 방어적 코딩
-- `@Component`로 Filter Bean 등록 해결
+- `@Value` 불변 객체 DTO 사용
+- 정적 팩토리 메서드 패턴 (from, of) 적절한 구분
+- 메서드 분리로 가독성 향상
+- `@Transactional` 적절한 사용
+- 토큰 중복 검사 로직 구현
+- 로그인 시 비밀번호 검사 → 이메일 인증 검사 순서 (보안 고려)
+- LoginRequest에서 불필요한 `@Pattern` 검증 제거
+- RT를 Key로 사용하여 클라이언트가 userId를 보내지 않아도 됨 (보안)
+- Refresh Token Rotation 적용 (탈취 대응)
+- AT는 짧은 만료, RT는 삭제로 무효화 처리 (성능 + 보안 균형)
 
 ### 개선 제안
-- 추후 Refresh Token 구현 시 별도 엔티티 또는 Redis 저장 고려
-- 토큰 만료 시 상세 에러 메시지 반환 고려
+- 이메일 템플릿 외부 파일로 분리 고려
 
 ---
 
-> **Task 1~2 완료!**
-> Task 3~9 진행 준비가 되면 말씀해 주세요.
+> **Task 1~7 완료!**
+> Task 8~9 (OAuth 연동) 진행 준비가 되면 말씀해 주세요.
