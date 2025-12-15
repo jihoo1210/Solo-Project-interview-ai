@@ -23,107 +23,108 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class EmailService {
-    
+
     private final JavaMailSender javaMailSender;
     private final UserRepository userRepository;
     private final EmailVerificationRepository emailVerificationRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
 
-    @Value("${spring.mail.username}") private String mailSender;
+    @Value("${spring.mail.username}")
+    private String mailSender;
 
+    // MAIN 
     public void sendVerificationEmail(String email, String token) {
-        try {
-            MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper messageHelper = new MimeMessageHelper(message);
-            messageHelper.setTo(email);
-            messageHelper.setSubject("[INTERVIEW AI] Membership registration email verification code");
-            messageHelper.setText(getRegistrationEmailHtml(token), true);
-            messageHelper.setFrom(mailSender);
-            javaMailSender.send(message);
-        } catch(MessagingException e) {
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
-        }
-
-        
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
-        EmailVerification emailVerification = EmailVerification.builder()
-                                                            .user(user)
-                                                            .token(token)
-                                                            .expiresAt(LocalDateTime.now().plusMinutes(10))
-                                                            .build();
-        emailVerificationRepository.save(emailVerification);
+        sendEmail(email, token, EmailType.VERIFICATION);
+        saveEmailVerification(email, token);
     }
+
     public void sendPasswordResetEmail(String email, String token) {
-        try {
-            MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper messageHelper = new MimeMessageHelper(message);
-            messageHelper.setTo(email);
-            messageHelper.setSubject("[INTERVIEW AI] Password reset email verification code");
-            messageHelper.setText(getRegistrationEmailHtml(token), true);
-            messageHelper.setFrom(mailSender);
-            javaMailSender.send(message);
-        } catch(MessagingException e) {
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
-        }
-
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
-        PasswordResetToken emailVerification = PasswordResetToken.builder()
-                                                            .user(user)
-                                                            .token(token)
-                                                            .expiresAt(LocalDateTime.now().plusMinutes(10))
-                                                            .build();
-        passwordResetTokenRepository.save(emailVerification);
+        sendEmail(email, token, EmailType.PASSWORD_RESET);
+        savePasswordResetToken(email, token);
     }
-    public String generateVerificationEmailToken() {
+
+    // UTIL
+    public String generateEmailToken(EmailType emailType) { 
         StringBuilder values = new StringBuilder();
         do {
             values.delete(0, values.length());
-            for(int i = 0; i < 6; i++) {
+            for (int i = 0; i < 6; i++) {
                 int value = (int) (Math.random() * 10);
                 values.append(value);
             }
-        } while (emailVerificationRepository.existsByToken(values.toString()));
+        } while (existsToken(values.toString(), emailType));
         return values.toString();
     }
-
-    private String getRegistrationEmailHtml(String token) {
-        return "<div style='max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;'>"
-        + "<h2 style='color: #333; text-align: center;'>AI 면접 시뮬레이터</h2>"
-        + "<div style='background-color: #f8f9fa; padding: 30px; border-radius: 10px;'>"
-        + "<h3 style='color: #333; text-align: center;'>이메일 인증</h3>"
-        + "<p style='color: #666; line-height: 1.6; text-align: center;'>"
-        + "안녕하세요! AI 면접 시뮬레이터에 가입해 주셔서 감사합니다.<br>아래 버튼을 클릭하여 이메일 인증을 완료해 주세요."
-        + "</p>"
-        + "<div style='text-align: center; margin: 30px 0;'>"
-        + "<a href='http://localhost:8080/api/v1/auth/verify-email?token=" + token + "'"
-        + "style='background-color: #4F46E5; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center;'>"
-        + "이메일 인증하기"
-        + "</a>"
-        + "</div>"
-        + "<p style='color: #999; font-size: 12px;'>"
-        + "본 메일은 발신 전용입니다.<br>인증 링크는 10분 후 만료됩니다."
-        + "</p>"
-        + "</div>"
-        + "</div>";
+    private boolean existsToken(String token, EmailType emailType) {
+        return emailType == EmailType.VERIFICATION 
+            ? emailVerificationRepository.existsByToken(token)
+            : passwordResetTokenRepository.existsByToken(token);
     }
-    private String getPasswordResetEmailHtml(String token) {
-        return "<div style='max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;'>"
-        + "<h2 style='color: #333; text-align: center;'>AI 면접 시뮬레이터</h2>"
-        + "<div style='background-color: #f8f9fa; padding: 30px; border-radius: 10px;'>"
-        + "<h3 style='color: #333; text-align: center;'>이메일 인증</h3>"
-        + "<p style='color: #666; line-height: 1.6; text-align: center;'>"
-        + "안녕하세요! AI 면접 시뮬레이터 비밀번호 재설정 링크입니다.<br>아래 버튼을 클릭하여 이메일 인증을 완료해 주세요."
-        + "</p>"
-        + "<div style='text-align: center; margin: 30px 0;'>"
-        + "<a href='http://localhost:8080/api/v1/auth/verify-email?token=" + token + "'"
-        + "style='background-color: #4F46E5; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center;'>"
-        + "이메일 인증하기"
-        + "</a>"
-        + "</div>"
-        + "<p style='color: #999; font-size: 12px;'>"
-        + "본 메일은 발신 전용입니다.<br>인증 링크는 10분 후 만료됩니다."
-        + "</p>"
-        + "</div>"
-        + "</div>";
+
+    private void sendEmail(String email, String token, EmailType type) {
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper messageHelper = new MimeMessageHelper(message);
+            messageHelper.setTo(email);
+            messageHelper.setSubject(type.getSubject());
+            messageHelper.setText(getEmailHtml(token, type), true);
+            messageHelper.setFrom(mailSender);
+            javaMailSender.send(message);
+        } catch (MessagingException e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private void saveEmailVerification(String email, String token) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
+        EmailVerification emailVerification = EmailVerification.builder()
+            .user(user)
+            .token(token)
+            .expiresAt(LocalDateTime.now().plusMinutes(10))
+            .build();
+        emailVerificationRepository.save(emailVerification);
+    }
+
+    private void savePasswordResetToken(String email, String token) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
+        PasswordResetToken passwordResetToken = PasswordResetToken.builder()
+            .user(user)
+            .token(token)
+            .expiresAt(LocalDateTime.now().plusMinutes(10))
+            .build();
+        passwordResetTokenRepository.save(passwordResetToken);
+    }
+
+    // HTML
+    private String getEmailHtml(String token, EmailType type) {
+        return """
+            <div style='max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;'>
+                <h2 style='color: #333; text-align: center;'>AI 면접 시뮬레이터</h2>
+                <div style='background-color: #f8f9fa; padding: 30px; border-radius: 10px;'>
+                    <h3 style='color: #333; text-align: center;'>%s</h3>
+                    <p style='color: #666; line-height: 1.6; text-align: center;'>
+                        %s
+                    </p>
+                    <div style='text-align: center; margin: 30px 0;'>
+                        <a href='%s%s'
+                           style='background-color: #4F46E5; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center;'>
+                            %s
+                        </a>
+                    </div>
+                    <p style='color: #999; font-size: 12px;'>
+                        본 메일은 발신 전용입니다.<br>
+                        인증 링크는 10분 후 만료됩니다.
+                    </p>
+                </div>
+            </div>
+            """.formatted(
+                type.getTitle(),
+                type.getDescription(),
+                type.getLinkPrefix(),
+                token,
+                type.getButtonText()
+            );
     }
 }

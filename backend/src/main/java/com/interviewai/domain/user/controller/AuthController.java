@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.interviewai.domain.user.dto.LoginRequest;
 import com.interviewai.domain.user.dto.LoginResponse;
+import com.interviewai.domain.user.dto.PasswordResetConfirmRequest;
+import com.interviewai.domain.user.dto.PasswordResetRequest;
 import com.interviewai.domain.user.dto.ResendVerificationRequest;
 import com.interviewai.domain.user.dto.SignupRequest;
 import com.interviewai.domain.user.dto.SignupResponse;
@@ -51,6 +53,23 @@ public class AuthController {
     @PostMapping("/resend-verification")
     public ApiResponse<Void> resendVerification(@RequestBody @Valid ResendVerificationRequest request) {
         authService.resendVerificationEmail(request.getEmail());
+        return ApiResponse.success();
+    }
+
+    @PostMapping("/password-reset")
+    public ApiResponse<Void> passwordReset(@RequestBody @Valid PasswordResetRequest request) {
+        authService.requestPasswordReset(request);
+        return ApiResponse.success();
+    }
+
+    @PostMapping("/confirm-password-reset")
+    public ApiResponse<LoginResponse> passwordResetConfirm(@RequestBody @Valid PasswordResetConfirmRequest request) {
+        return ApiResponse.success(authService.confirmPasswordReset(request));
+    }
+
+    @PostMapping("/resend-password-reset")
+    public ApiResponse<Void> resendPasswordReset(@RequestBody @Valid PasswordResetRequest request) {
+        authService.resendPasswordResetEmail(request.getEmail());
         return ApiResponse.success();
     }
 

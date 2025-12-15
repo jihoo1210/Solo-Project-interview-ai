@@ -71,4 +71,7 @@ public class User extends BaseTimeEntity {
         this.emailVerified = true;
         this.emailVerifiedAt = LocalDateTime.now();
     }
+    public void resetPassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

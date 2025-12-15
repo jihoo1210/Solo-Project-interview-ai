@@ -882,3 +882,132 @@ VITE_NAVER_REDIRECT_URI=http://localhost:5173/oauth/naver/callback
 
 > **Phase 2 인증 시스템 완료!**
 > Phase 3 진행 준비가 되면 말씀해 주세요.
+
+---
+
+## 10. 추가 기능 (비밀번호 재설정 + 마이페이지)
+
+### 10.1 비밀번호 재설정 기능 ✅ 완료
+
+#### 생성/수정된 파일
+
+| 파일 경로 | 설명 |
+|----------|------|
+| `domain/user/entity/PasswordResetToken.java` | 비밀번호 재설정 토큰 엔티티 |
+| `domain/user/repository/PasswordResetTokenRepository.java` | 비밀번호 재설정 토큰 Repository |
+| `domain/user/dto/PasswordResetRequest.java` | 비밀번호 재설정 요청 DTO (email) |
+| `domain/user/dto/PasswordResetConfirmRequest.java` | 비밀번호 재설정 확인 DTO (token, newPassword) |
+| `infra/mail/EmailType.java` | 이메일 타입 Enum (VERIFICATION, PASSWORD_RESET) |
+| `infra/mail/EmailService.java` | EmailType 기반으로 리팩토링 (수정) |
+| `domain/user/service/AuthService.java` | 비밀번호 재설정 메서드 추가 (수정) |
+| `domain/user/controller/AuthController.java` | 비밀번호 재설정 엔드포인트 추가 (수정) |
+
+#### API 엔드포인트
+
+| Method | Endpoint | Request | Response | 설명 |
+|--------|----------|---------|----------|------|
+| POST | `/api/v1/auth/password-reset` | `PasswordResetRequest` | `Void` | 비밀번호 재설정 링크 요청 |
+| POST | `/api/v1/auth/confirm-password-reset` | `PasswordResetConfirmRequest` | `LoginResponse` | 비밀번호 변경 + 자동 로그인 |
+| POST | `/api/v1/auth/resend-password-reset` | `PasswordResetRequest` | `Void` | 재설정 이메일 재발송 |
+
+#### EmailType Enum
+
+```java
+// 위치: infra/mail/EmailType.java
+
+@Getter
+@RequiredArgsConstructor
+public enum EmailType {
+    VERIFICATION(
+        "[INTERVIEW AI] 회원가입 이메일 인증",
+        "이메일 인증",
+        "안녕하세요! AI 면접 시뮬레이터에 가입해 주셔서 감사합니다.<br>아래 버튼을 클릭하여 이메일 인증을 완료해 주세요.",
+        "이메일 인증하기",
+        "http://localhost:8080/api/v1/auth/verify-email?token="
+    ),
+    PASSWORD_RESET(
+        "[INTERVIEW AI] 비밀번호 재설정",
+        "비밀번호 재설정",
+        "안녕하세요! AI 면접 시뮬레이터 비밀번호 재설정 링크입니다.<br>아래 버튼을 클릭하여 비밀번호를 재설정해 주세요.",
+        "비밀번호 재설정하기",
+        "http://localhost:5173/reset-password?token="
+    );
+
+    private final String subject;
+    private final String title;
+    private final String description;
+    private final String buttonText;
+    private final String linkPrefix;
+}
+```
+
+**설명**:
+- 이메일 종류별 설정을 Enum으로 중앙화
+- 중복 코드 제거 및 유지보수성 향상
+
+---
+
+### 10.2 마이페이지 기능 🔲 진행 예정
+
+#### 구현할 기능
+
+| 기능 | HTTP Method | Endpoint | 인증 | 상태 |
+|------|-------------|----------|------|------|
+| 내 정보 조회 | GET | `/api/v1/users/me` | 필요 | 🔲 예정 |
+| 닉네임 변경 | PATCH | `/api/v1/users/me/nickname` | 필요 | 🔲 예정 |
+| 비밀번호 변경 | PATCH | `/api/v1/users/me/password` | 필요 (이메일 인증) | 🔲 예정 |
+| 회원 탈퇴 | DELETE | `/api/v1/users/me` | 필요 (비밀번호 확인) | 🔲 예정 |
+| 면접 통계 | GET | `/api/v1/users/me/stats` | 필요 | 🔲 Phase 3 이후 |
+
+#### 설계 결정 사항
+
+1. **비밀번호 변경**: 이메일 인증 필요
+2. **회원 탈퇴**: Hard Delete + 비밀번호 재확인
+3. **이메일 인증 캐싱**: Redis 기반 1시간 유효 세션
+
+#### 이메일 인증 캐싱 설계
+
+```
+Key: verified_session:{userId}
+Value: timestamp
+TTL: 1시간
+```
+
+**흐름**:
+1. 이메일 인증 성공 시 → Redis에 `verified_session:{userId}` 저장 (TTL 1시간)
+2. 민감한 작업 요청 시 → Redis 키 존재 여부 확인
+3. 키 존재 → 이메일 인증 생략
+4. 키 없음 → 이메일 인증 요청
+5. 로그아웃 시 → 해당 키 삭제
+
+#### 필요한 구성요소
+
+| 파일 경로 | 설명 | 상태 |
+|----------|------|------|
+| `infra/redis/VerifiedSessionRepository.java` | 인증 세션 저장소 | 🔲 예정 |
+| `domain/user/service/UserService.java` | 마이페이지 비즈니스 로직 | 🔲 예정 |
+| `domain/user/controller/UserController.java` | 마이페이지 API | 🔲 예정 |
+| `domain/user/dto/UpdateNicknameRequest.java` | 닉네임 변경 DTO | 🔲 예정 |
+| `domain/user/dto/UpdatePasswordRequest.java` | 비밀번호 변경 DTO | 🔲 예정 |
+| `domain/user/dto/DeleteAccountRequest.java` | 회원 탈퇴 DTO | 🔲 예정 |
+
+#### 기존 코드 수정 필요
+
+| 파일 경로 | 수정 내용 |
+|----------|----------|
+| `AuthService.verifyEmail()` | Redis 인증 세션 저장 추가 |
+| `AuthService.confirmPasswordReset()` | Redis 인증 세션 저장 추가 |
+| `AuthService.logout()` | Redis 인증 세션 삭제 추가 |
+
+---
+
+## 11. 다음 단계 체크리스트
+
+### 마이페이지 구현 순서
+
+- [ ] 1. `VerifiedSessionRepository` 생성 (Redis)
+- [ ] 2. 기존 AuthService 수정 (인증 세션 저장/삭제)
+- [ ] 3. 마이페이지 DTO 생성
+- [ ] 4. `UserService` 생성
+- [ ] 5. `UserController` 생성
+- [ ] 6. 프론트엔드 마이페이지 UI
