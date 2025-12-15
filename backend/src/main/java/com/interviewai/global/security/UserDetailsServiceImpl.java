@@ -20,7 +20,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username).orElseThrow(() -> new CustomException(ErrorCode.EMAIL_NOT_VERIFIED));
+        User user = userRepository.findByEmail(username)
+            .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+
+        if (!user.isEmailVerified()) {
+            throw new CustomException(ErrorCode.EMAIL_NOT_VERIFIED);
+        }
+
         return new UserPrincipal(user);
     }
     

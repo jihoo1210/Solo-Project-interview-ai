@@ -43,6 +43,12 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'auth-storage',
       partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
+      onRehydrateStorage: () => (state) => {
+        // persist 복원 완료 후 isLoading을 false로 설정
+        if (state) {
+          state.setLoading(false);
+        }
+      },
     }
   )
 );

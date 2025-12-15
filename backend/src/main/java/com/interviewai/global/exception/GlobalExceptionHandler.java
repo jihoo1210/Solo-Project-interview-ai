@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {
-        log.error("CustomException: {}", e.getMessage(), e);
+        log.error("CustomException: {}", e.getMessage());
         
         ErrorCode errorCode = e.getErrorCode();
         ApiResponse.ErrorResponse errorResponse = ApiResponse.ErrorResponse.of(
@@ -73,7 +73,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
-        log.error("UnhandledException: {}", e.getMessage(), e);
+        // 스택트레이스 간결하게 출력 (앱 코드만)
+        log.error("UnhandledException: {} - {}", e.getClass().getSimpleName(), e.getMessage());
+        for (StackTraceElement element : e.getStackTrace()) {
+            if (element.getClassName().startsWith("com.interviewai")) {
+                log.error("  at {}.{}({}:{})",
+                    element.getClassName(), element.getMethodName(),
+                    element.getFileName(), element.getLineNumber());
+            }
+        }
         
         ApiResponse.ErrorResponse errorResponse = ApiResponse.ErrorResponse.of(
                 ErrorCode.INTERNAL_SERVER_ERROR.getCode(),

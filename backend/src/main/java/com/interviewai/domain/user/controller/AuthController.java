@@ -1,5 +1,9 @@
 package com.interviewai.domain.user.controller;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +21,7 @@ import com.interviewai.domain.user.dto.TokenRefreshResponse;
 import com.interviewai.domain.user.service.AuthService;
 import com.interviewai.global.common.ApiResponse;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -33,9 +38,14 @@ public class AuthController {
     }
 
     @GetMapping("/verify-email")
-    public ApiResponse<Void> verifyEmail(@RequestParam String token) {
-        authService.verifyEmail(token);
-        return ApiResponse.success();
+    public void verifyEmail(@RequestParam("token") String token, HttpServletResponse response) throws IOException {
+        try {
+            authService.verifyEmail(token);
+            response.sendRedirect("http://localhost:5173/verify-email?success=true");
+        } catch (Exception e) {
+            String errorMessage = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
+            response.sendRedirect("http://localhost:5173/verify-email?success=false&error=" + errorMessage);
+        }
     }
 
     @PostMapping("/resend-verification")

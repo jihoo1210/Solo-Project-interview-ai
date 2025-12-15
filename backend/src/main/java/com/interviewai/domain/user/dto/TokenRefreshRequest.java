@@ -1,11 +1,11 @@
 package com.interviewai.domain.user.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Builder;
-import lombok.Value;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Builder
-@Value
+@Getter
+@NoArgsConstructor
 public class TokenRefreshRequest {
     
     @NotBlank

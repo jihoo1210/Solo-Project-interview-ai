@@ -1,14 +1,14 @@
 # [Phase 2] 인증 시스템 구현서 v1.0
 
 > 작성일: 2024-12-12
-> 버전: 1.2 (Task 1~7 완료)
+> 버전: 2.0 (Task 1~16 완료)
 > 작성자: AI Interview Simulator Team
 
 ---
 
 ## 1. 개요
 
-Phase 2에서는 AI 기술 면접 시뮬레이터의 인증 시스템을 구현합니다. 본 문서는 Task 1~7 완료 시점의 구현 내용을 다룹니다.
+Phase 2에서는 AI 기술 면접 시뮬레이터의 인증 시스템을 구현합니다. 본 문서는 백엔드 API와 프론트엔드 UI 구현 내용을 다룹니다.
 
 ### 1.1 완료된 Task
 
@@ -21,9 +21,15 @@ Phase 2에서는 AI 기술 면접 시뮬레이터의 인증 시스템을 구현�
 | Task 5 | 이메일 인증 API | ✅ 완료 |
 | Task 6 | 로그인/로그아웃 API | ✅ 완료 |
 | Task 7 | 토큰 갱신 API (Refresh Token) | ✅ 완료 |
-| Task 8 | Google OAuth 연동 | ⏳ 대기 |
-| Task 9 | Naver OAuth 연동 | ⏳ 대기 |
-| Task 10-16 | 프론트엔드 UI | ⏳ 대기 |
+| Task 8 | Google OAuth 연동 | ✅ 완료 |
+| Task 9 | Naver OAuth 연동 | ✅ 완료 |
+| Task 10 | 회원가입 페이지 | ✅ 완료 |
+| Task 11 | 로그인 페이지 | ✅ 완료 |
+| Task 12 | 이메일 인증 페이지 | ✅ 완료 |
+| Task 13 | OAuth 로그인 버튼 | ✅ 완료 |
+| Task 14 | OAuth 콜백 처리 | ✅ 완료 |
+| Task 15 | 인증 상태 관리 | ✅ 완료 |
+| Task 16 | 보호된 라우트 | ✅ 완료 |
 
 ---
 
@@ -506,18 +512,311 @@ cd backend
 
 ---
 
-## 7. 다음 단계 (Task 8~9)
+## 7. Task 8~9: OAuth 연동 (Backend)
 
-| Task | 내용 |
-|------|------|
-| Task 8 | Google OAuth 연동 |
-| Task 9 | Naver OAuth 연동 |
+### 7.1 생성된 파일 목록
+
+| 파일 경로 | 설명 |
+|----------|------|
+| `infra/oauth/google/GoogleOAuthProperties.java` | Google OAuth 설정 바인딩 |
+| `infra/oauth/google/GoogleOAuthClient.java` | Google API 호출 클라이언트 |
+| `infra/oauth/google/dto/GoogleTokenResponse.java` | Google 토큰 응답 DTO |
+| `infra/oauth/google/dto/GoogleUserInfo.java` | Google 사용자 정보 DTO |
+| `infra/oauth/naver/NaverOAuthProperties.java` | Naver OAuth 설정 바인딩 |
+| `infra/oauth/naver/NaverOAuthClient.java` | Naver API 호출 클라이언트 |
+| `infra/oauth/naver/dto/NaverTokenResponse.java` | Naver 토큰 응답 DTO |
+| `infra/oauth/naver/dto/NaverUserInfo.java` | Naver 사용자 정보 DTO (중첩 클래스) |
+| `domain/user/service/OAuthService.java` | OAuth 비즈니스 로직 |
+| `domain/user/controller/OAuthController.java` | OAuth API 엔드포인트 |
+| `domain/user/dto/OAuthGoogleLoginRequest.java` | Google 로그인 요청 DTO |
+| `domain/user/dto/OAuthNaverLoginRequest.java` | Naver 로그인 요청 DTO |
+
+### 7.2 GoogleOAuthClient (토큰 교환 및 사용자 정보 조회)
+
+```java
+// 위치: infra/oauth/google/GoogleOAuthClient.java
+
+@RequiredArgsConstructor
+@Component
+public class GoogleOAuthClient {
+
+    private final GoogleOAuthProperties properties;
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    public GoogleTokenResponse getToken(String code) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("code", code);
+        params.add("client_id", properties.getClientId());
+        params.add("client_secret", properties.getClientSecret());
+        params.add("redirect_uri", properties.getRedirectUri());
+        params.add("grant_type", "authorization_code");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+        return restTemplate.postForObject(properties.getTokenUri(), request, GoogleTokenResponse.class);
+    }
+
+    public GoogleUserInfo getUserInfo(String accessToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        ResponseEntity<GoogleUserInfo> response = restTemplate.exchange(
+            properties.getUserInfoUri(),
+            HttpMethod.GET,
+            request,
+            GoogleUserInfo.class
+        );
+        return response.getBody();
+    }
+}
+```
+
+**설명**:
+- `@ConfigurationProperties`로 설정 바인딩 (prefix: `oauth2.google`)
+- `RestTemplate`으로 Google API 호출
+- 토큰 교환: POST + form-urlencoded
+- 사용자 정보: GET + Bearer 토큰
+
+### 7.3 NaverUserInfo (중첩 응답 구조)
+
+```java
+// 위치: infra/oauth/naver/dto/NaverUserInfo.java
+
+@Getter
+@NoArgsConstructor
+public class NaverUserInfo {
+    String resultcode;
+    String message;
+    NaverResponse response;  // 실제 사용자 정보는 여기에
+
+    @Getter
+    @NoArgsConstructor
+    public static class NaverResponse {
+        String id;
+        String nickname;
+        String name;
+        String email;
+        @JsonProperty("profile_image")
+        String profileImage;
+    }
+}
+```
+
+**설명**:
+- Naver API는 응답을 `response` 객체로 래핑하여 반환
+- 중첩 클래스로 구조화
+
+### 7.4 OAuthService (OAuth 로그인 처리)
+
+```java
+// 위치: domain/user/service/OAuthService.java
+
+public LoginResponse googleLogin(String code) {
+    // 1. 토큰 발급
+    GoogleTokenResponse tokenResponse = googleOAuthClient.getToken(code);
+
+    // 2. 사용자 정보 조회
+    GoogleUserInfo userInfo = googleOAuthClient.getUserInfo(tokenResponse.getAccessToken());
+
+    // 3. 회원 조회 또는 생성
+    User user = userRepository.findByEmail(userInfo.getEmail())
+        .orElseGet(() -> createGoogleUser(userInfo));
+
+    // 4. JWT 발급
+    String accessToken = jwtTokenProvider.createJWT(user.getId(), user.getEmail(), user.getSubscriptionType());
+    String refreshToken = jwtTokenProvider.createRefreshToken();
+
+    // 5. RT 저장
+    refreshTokenRepository.save(refreshToken, user.getId());
+
+    return LoginResponse.of(user, accessToken, refreshToken);
+}
+
+private User createGoogleUser(GoogleUserInfo userInfo) {
+    return userRepository.save(User.builder()
+        .email(userInfo.getEmail())
+        .nickname(userInfo.getName())
+        .profileImage(userInfo.getPicture())
+        .provider(AuthProvider.GOOGLE)
+        .subscriptionType(SubscriptionType.FREE)
+        .emailVerified(true)  // 소셜 로그인은 자동 인증
+        .build());
+}
+```
+
+**설명**:
+- OAuth 사용자는 `emailVerified = true`로 자동 인증 처리
+- 기존 회원이면 조회, 없으면 자동 생성
+
+### 7.5 OAuth API 엔드포인트
+
+| Method | Endpoint | Request | Response | 설명 |
+|--------|----------|---------|----------|------|
+| POST | `/api/v1/oauth/google` | `OAuthGoogleLoginRequest` | `LoginResponse` | Google 로그인 |
+| POST | `/api/v1/oauth/naver` | `OAuthNaverLoginRequest` | `LoginResponse` | Naver 로그인 |
 
 ---
 
-## 8. 진행 상황 평가
+## 8. Task 10~16: 프론트엔드 UI
 
-### Task 1~7 완성도: **100%**
+### 8.1 생성된 파일 목록
+
+| 파일 경로 | 설명 |
+|----------|------|
+| `src/api/auth.ts` | Auth API 함수들 |
+| `src/hooks/useAuth.ts` | 인증 커스텀 훅 |
+| `src/pages/auth/SignupPage.tsx` | 회원가입 페이지 |
+| `src/pages/auth/LoginPage.tsx` | 로그인 페이지 |
+| `src/pages/auth/EmailVerifyPage.tsx` | 이메일 인증 페이지 |
+| `src/pages/auth/GoogleCallbackPage.tsx` | Google OAuth 콜백 |
+| `src/pages/auth/NaverCallbackPage.tsx` | Naver OAuth 콜백 |
+| `src/pages/HomePage.tsx` | 홈 페이지 (보호됨) |
+| `src/components/auth/OAuthButtons.tsx` | OAuth 로그인 버튼 |
+| `src/components/auth/PrivateRoute.tsx` | 인증 보호 라우트 |
+
+### 8.2 라우팅 구조
+
+| 경로 | 페이지 | 접근 권한 |
+|------|--------|-----------|
+| `/login` | 로그인 | Public (로그인시 홈으로) |
+| `/signup` | 회원가입 | Public |
+| `/verify-email` | 이메일 인증 | Public |
+| `/oauth/google/callback` | Google 콜백 | Public |
+| `/oauth/naver/callback` | Naver 콜백 | Public |
+| `/` | 홈 | Private (인증 필요) |
+
+### 8.3 useAuth 커스텀 훅
+
+```typescript
+// 위치: src/hooks/useAuth.ts
+
+export function useAuth() {
+  const navigate = useNavigate();
+  const { user, isAuthenticated, isLoading, setUser, setLoading, logout: clearAuth } = useAuthStore();
+
+  const handleAuthSuccess = useCallback(
+    (response: LoginResponse) => {
+      localStorage.setItem('accessToken', response.accessToken);
+      localStorage.setItem('refreshToken', response.refreshToken);
+      setUser(response.user);
+    },
+    [setUser]
+  );
+
+  const login = useCallback(async (data: LoginRequest) => {
+    setLoading(true);
+    try {
+      const response = await authApi.login(data);
+      handleAuthSuccess(response);
+      navigate('/');
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate, setLoading, handleAuthSuccess]);
+
+  // signup, logout, googleLogin, naverLogin 등...
+}
+```
+
+**설명**:
+- `useCallback`으로 함수 메모이제이션
+- 의존성 배열에 사용하는 모든 값 포함 (exhaustive-deps)
+
+### 8.4 OAuth 콜백 처리 패턴
+
+```typescript
+// 위치: src/pages/auth/GoogleCallbackPage.tsx
+
+export default function GoogleCallbackPage() {
+  const [searchParams] = useSearchParams();
+  const [error, setError] = useState<string | null>(null);
+  const processedRef = useRef(false);
+
+  // 값을 렌더링 단계에서 추출 (primitive 값)
+  const code = searchParams.get('code');
+  const errorParam = searchParams.get('error');
+
+  // URL 파라미터에서 바로 감지 가능한 에러는 렌더링 단계에서 계산
+  const immediateError = errorParam
+    ? 'Google 로그인이 취소되었습니다.'
+    : !code
+      ? '인증 코드가 없습니다.'
+      : null;
+
+  useEffect(() => {
+    if (immediateError) {
+      setTimeout(() => navigate('/login'), 2000);
+      return;
+    }
+
+    // useRef로 중복 실행 방지
+    if (processedRef.current || !code) return;
+    processedRef.current = true;
+
+    const processLogin = async () => {
+      try {
+        await googleLogin(code);
+      } catch (err) {
+        setError(err.message);
+        setTimeout(() => navigate('/login'), 2000);
+      }
+    };
+
+    processLogin();
+  }, [code, immediateError, googleLogin, navigate]);
+
+  const displayError = immediateError || error;
+  // ...
+}
+```
+
+**핵심 패턴**:
+- `useSearchParams()`는 매 렌더링마다 새 객체 반환 (참조 불안정)
+- 의존성에 `searchParams` 대신 추출한 primitive 값 사용
+- `immediateError`로 동기적 에러를 렌더링 단계에서 처리
+- `useRef`로 Strict Mode 중복 실행 방지
+
+### 8.5 PrivateRoute (보호된 라우트)
+
+```typescript
+// 위치: src/components/auth/PrivateRoute.tsx
+
+export default function PrivateRoute({ children }: PrivateRouteProps) {
+  const { isAuthenticated, isLoading } = useAuthStore();
+  const location = useLocation();
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
+}
+```
+
+### 8.6 환경변수 (.env)
+
+```
+VITE_API_URL=http://localhost:8080
+VITE_GOOGLE_CLIENT_ID=your-google-client-id
+VITE_GOOGLE_REDIRECT_URI=http://localhost:5173/oauth/google/callback
+VITE_NAVER_CLIENT_ID=your-naver-client-id
+VITE_NAVER_REDIRECT_URI=http://localhost:5173/oauth/naver/callback
+```
+
+---
+
+## 9. 진행 상황 평가
+
+### Phase 2 완성도: **100%**
+
+#### Backend (Task 1~9)
 
 | 항목 | 상태 | 비고 |
 |------|------|------|
@@ -534,24 +833,52 @@ cd backend
 | AuthService | ✅ 완료 | signup, verifyEmail, resendVerificationEmail, login, refresh, logout |
 | AuthController | ✅ 완료 | 6개 엔드포인트 |
 | EmailService | ✅ 완료 | 이메일 발송 + 토큰 생성 |
-| DTO | ✅ 완료 | SignupRequest/Response, UserResponse, ResendVerificationRequest, LoginRequest/Response, TokenRefreshRequest/Response |
+| GoogleOAuthClient | ✅ 완료 | RestTemplate, @ConfigurationProperties |
+| NaverOAuthClient | ✅ 완료 | 중첩 응답 구조 처리 |
+| OAuthService | ✅ 완료 | Google/Naver 로그인, 자동 회원가입 |
+| OAuthController | ✅ 완료 | 2개 엔드포인트 |
+
+#### Frontend (Task 10~16)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| authStore (Zustand) | ✅ 완료 | persist 미들웨어 |
+| apiClient (Axios) | ✅ 완료 | 인터셉터, 토큰 자동 갱신 |
+| useAuth Hook | ✅ 완료 | useCallback, 의존성 배열 |
+| SignupPage | ✅ 완료 | 폼 검증, 에러 처리 |
+| LoginPage | ✅ 완료 | OAuth 버튼 포함 |
+| EmailVerifyPage | ✅ 완료 | 토큰 검증 |
+| GoogleCallbackPage | ✅ 완료 | useRef 중복 실행 방지 |
+| NaverCallbackPage | ✅ 완료 | state CSRF 검증 |
+| OAuthButtons | ✅ 완료 | Google/Naver 로그인 버튼 |
+| PrivateRoute | ✅ 완료 | 인증 보호 라우트 |
 
 ### 잘한 점
+
+**Backend:**
 - `@Value` 불변 객체 DTO 사용
 - 정적 팩토리 메서드 패턴 (from, of) 적절한 구분
-- 메서드 분리로 가독성 향상
 - `@Transactional` 적절한 사용
-- 토큰 중복 검사 로직 구현
-- 로그인 시 비밀번호 검사 → 이메일 인증 검사 순서 (보안 고려)
-- LoginRequest에서 불필요한 `@Pattern` 검증 제거
-- RT를 Key로 사용하여 클라이언트가 userId를 보내지 않아도 됨 (보안)
+- RT를 Key로 사용 (보안)
 - Refresh Token Rotation 적용 (탈취 대응)
-- AT는 짧은 만료, RT는 삭제로 무효화 처리 (성능 + 보안 균형)
+- `@ConfigurationProperties`로 OAuth 설정 바인딩
+- Infrastructure 레이어 분리 (infra/oauth)
 
-### 개선 제안
-- 이메일 템플릿 외부 파일로 분리 고려
+**Frontend:**
+- `useCallback`으로 함수 메모이제이션
+- `useSearchParams()` 참조 불안정 문제 해결
+- `immediateError` 패턴으로 동기적 에러 처리
+- `useRef`로 Strict Mode 중복 실행 방지
+- Zustand persist로 인증 상태 유지
+
+### 학습 포인트
+- React `useCallback` 의존성 배열과 클로저
+- `useSearchParams()` 참조 불안정성
+- useEffect 내 동기적 setState 경고 해결
+- OAuth Authorization Code Grant 흐름
+- Google vs Naver OAuth 차이점 (state 필수 여부, 응답 구조)
 
 ---
 
-> **Task 1~7 완료!**
-> Task 8~9 (OAuth 연동) 진행 준비가 되면 말씀해 주세요.
+> **Phase 2 인증 시스템 완료!**
+> Phase 3 진행 준비가 되면 말씀해 주세요.

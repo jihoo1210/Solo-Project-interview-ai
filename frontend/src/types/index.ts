@@ -7,7 +7,7 @@ export interface User {
   subscriptionType: 'FREE' | 'PREMIUM';
   subscriptionExpiresAt?: string;
   emailVerified: boolean;
-  provider: 'LOCAL' | 'GOOGLE' | 'KAKAO';
+  provider: 'LOCAL' | 'GOOGLE' | 'NAVER';
   createdAt: string;
 }
 
@@ -21,6 +21,12 @@ export interface SignupRequest {
   email: string;
   password: string;
   nickname: string;
+}
+
+export interface LoginResponse {
+  user: User;
+  accessToken: string;
+  refreshToken: string;
 }
 
 export interface AuthResponse {
