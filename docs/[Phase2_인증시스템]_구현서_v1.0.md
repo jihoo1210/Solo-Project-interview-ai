@@ -999,11 +999,40 @@ TTL: 1시간
 | `AuthService.confirmPasswordReset()` | Redis 인증 세션 저장 추가 |
 | `AuthService.logout()` | Redis 인증 세션 삭제 추가 |
 
+### 10.3 프론트엔드 미구현 기능 🔲 진행 예정
+
+#### 이메일 인증 재발송 UI
+
+현재 백엔드 API는 구현되어 있으나 프론트엔드 UI가 없음.
+
+| 기능 | 백엔드 API | 프론트엔드 | 상태 |
+|------|-----------|-----------|------|
+| 회원가입 인증 재발송 | ✅ `POST /api/v1/auth/resend-verification` | 🔲 미구현 | 예정 |
+| 비밀번호 재설정 재발송 | ✅ `POST /api/v1/auth/resend-password-reset` | 🔲 미구현 | 예정 |
+| 비밀번호 재설정 페이지 | ✅ `POST /api/v1/auth/password-reset` | 🔲 미구현 | 예정 |
+| 비밀번호 재설정 확인 페이지 | ✅ `POST /api/v1/auth/confirm-password-reset` | 🔲 미구현 | 예정 |
+
+#### 필요한 프론트엔드 파일
+
+| 파일 경로 | 설명 | 상태 |
+|----------|------|------|
+| `src/pages/auth/ForgotPasswordPage.tsx` | 비밀번호 재설정 요청 페이지 | 🔲 예정 |
+| `src/pages/auth/ResetPasswordPage.tsx` | 비밀번호 재설정 확인 페이지 | 🔲 예정 |
+| `src/pages/auth/EmailVerifyPage.tsx` | 재발송 버튼 추가 (수정) | 🔲 예정 |
+| `src/api/auth.ts` | 비밀번호 재설정 API 함수 추가 (수정) | 🔲 예정 |
+
 ---
 
 ## 11. 다음 단계 체크리스트
 
-### 마이페이지 구현 순서
+### 프론트엔드 보완 (우선)
+
+- [ ] 1. 비밀번호 재설정 요청 페이지 (`ForgotPasswordPage.tsx`)
+- [ ] 2. 비밀번호 재설정 확인 페이지 (`ResetPasswordPage.tsx`)
+- [ ] 3. 이메일 인증 페이지에 재발송 버튼 추가
+- [ ] 4. auth API 함수 추가
+
+### 마이페이지 구현
 
 - [ ] 1. `VerifiedSessionRepository` 생성 (Redis)
 - [ ] 2. 기존 AuthService 수정 (인증 세션 저장/삭제)
