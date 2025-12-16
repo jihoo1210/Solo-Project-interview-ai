@@ -27,10 +27,13 @@ public enum ErrorCode {
     VERIFICATION_TOKEN_EXPIRED(2007, HttpStatus.BAD_REQUEST, "만료된 인증 토큰입니다."),
     OAUTH_AUTHENTICATION_FAILED(2008, HttpStatus.UNAUTHORIZED, "소셜 로그인에 실패했습니다."),
     ACCOUNT_DISABLED(2009, HttpStatus.FORBIDDEN, "비활성화된 계정입니다."),
+    USER_NOT_FOUND(2010, HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
+    FORBIDDEN(2011, HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
 
     // Interview Errors (3xxx)
     INTERVIEW_NOT_FOUND(3000, HttpStatus.NOT_FOUND, "면접 세션을 찾을 수 없습니다."),
     INTERVIEW_ALREADY_COMPLETED(3001, HttpStatus.BAD_REQUEST, "이미 완료된 면접입니다."),
+    INTERVIEW_ALREADY_ENDED(3007, HttpStatus.BAD_REQUEST, "이미 종료된 면접입니다."),
     INTERVIEW_LIMIT_EXCEEDED(3002, HttpStatus.FORBIDDEN, "일일 면접 횟수를 초과했습니다."),
     INVALID_INTERVIEW_STATUS(3003, HttpStatus.BAD_REQUEST, "잘못된 면접 상태입니다."),
     QUESTION_NOT_FOUND(3004, HttpStatus.NOT_FOUND, "질문을 찾을 수 없습니다."),

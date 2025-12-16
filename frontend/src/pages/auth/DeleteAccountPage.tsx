@@ -28,31 +28,29 @@ export default function DeleteAccountPage() {
   // 성공 화면
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4">
         <div className="max-w-md w-full text-center">
-          <div className="bg-white rounded-lg shadow-md p-8">
-            <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
+          <div className="bg-white rounded-xl shadow-md p-8">
+            <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-8 h-8 bg-primary rounded-full" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">이메일을 확인해주세요</h2>
-            <p className="text-gray-600 mb-6">
+            <h2 className="text-2xl font-bold text-text mb-2">이메일을 확인해주세요</h2>
+            <p className="text-text-muted mb-6">
               {email}로 회원 탈퇴 확인 링크를 발송했습니다.<br />
               이메일을 확인하고 링크를 클릭하면 탈퇴가 완료됩니다.
             </p>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="text-sm text-text-muted mb-6">
               이메일이 도착하지 않았나요?{' '}
               <button
                 onClick={() => setIsSuccess(false)}
-                className="text-blue-600 hover:text-blue-500 cursor-pointer"
+                className="text-primary hover:text-primary-dark cursor-pointer"
               >
                 다시 시도
               </button>
             </p>
             <Link
               to="/login"
-              className="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
+              className="inline-flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary cursor-pointer"
             >
               로그인 페이지로
             </Link>
@@ -64,28 +62,28 @@ export default function DeleteAccountPage() {
 
   // 입력 화면
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">회원 탈퇴</h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-text">회원 탈퇴</h2>
+          <p className="mt-2 text-center text-sm text-text-muted">
             탈퇴할 계정의 이메일 주소를 입력하시면 확인 링크를 보내드립니다.
           </p>
         </div>
 
-        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-md text-sm">
+        <div className="bg-primary/10 border border-primary/30 text-text px-4 py-3 rounded-lg text-sm">
           <strong>주의:</strong> 회원 탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
+            <div className="bg-error/10 border border-error/30 text-error px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="block text-sm font-medium text-text">
               이메일
             </label>
             <input
@@ -95,7 +93,7 @@ export default function DeleteAccountPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500"
+              className="mt-1 block w-full px-3 py-2 border border-background-dark rounded-lg shadow-sm placeholder-text-muted focus:outline-none focus:ring-error focus:border-error"
               placeholder="email@example.com"
             />
           </div>
@@ -103,14 +101,14 @@ export default function DeleteAccountPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-error hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-error disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isLoading ? '요청 중...' : '탈퇴 요청'}
           </button>
         </form>
 
         <div className="text-center">
-          <Link to="/login" className="text-sm text-blue-600 hover:text-blue-500">
+          <Link to="/login" className="text-sm text-primary hover:text-primary-dark">
             로그인 페이지로 돌아가기
           </Link>
         </div>

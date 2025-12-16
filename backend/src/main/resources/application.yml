@@ -48,6 +48,15 @@ spring:
           starttls:
             enable: true
 
+  ai:
+    google:
+      genai:
+        api-key: ${GOOGLE_AI_API_KEY}
+        chat:
+          options:
+            model: gemini-2.0-flash-lite
+            temperature: 0.7
+
 server:
   port: 8080
 
@@ -57,11 +66,11 @@ jwt:
   access-token-validity: 3600000      # 1 hour
   refresh-token-validity: 604800000   # 7 days
 
-# OpenAI Configuration
-openai:
-  api-key: ${OPENAI_API_KEY:your-openai-api-key}
-  model: gpt-4
-  timeout: 60
+# # OpenAI Configuration
+# openai:
+#   api-key: ${OPENAI_API_KEY:your-openai-api-key}
+#   model: gpt-4
+#   timeout: 60
 
 # OAuth2 Configuration
 oauth2:

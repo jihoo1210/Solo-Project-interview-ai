@@ -41,7 +41,7 @@ export default function OAuthButtons() {
       <button
         type="button"
         onClick={handleGoogleLogin}
-        className="w-full flex items-center justify-center gap-3 py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:ring-2 hover:ring-offset-2 hover:ring-blue-500 cursor-pointer"
+        className="w-full flex items-center justify-center gap-3 py-2 px-4 border border-background-dark rounded-lg shadow-sm bg-white text-sm font-medium text-text hover:bg-background hover:ring-2 hover:ring-offset-2 hover:ring-primary cursor-pointer"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path
@@ -67,7 +67,7 @@ export default function OAuthButtons() {
       <button
         type="button"
         onClick={handleNaverLogin}
-        className="w-full flex items-center justify-center gap-3 py-2 px-4 border border-transparent rounded-md shadow-sm bg-[#03C75A] text-sm font-medium text-white hover:bg-[#02b351] hover:ring-2 hover:ring-offset-2 hover:ring-[#03C75A] cursor-pointer"
+        className="w-full flex items-center justify-center gap-3 py-2 px-4 border border-transparent rounded-lg shadow-sm bg-[#03C75A] text-sm font-medium text-white hover:bg-[#02b351] hover:ring-2 hover:ring-offset-2 hover:ring-[#03C75A] cursor-pointer"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
           <path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727v12.845z" />

@@ -19,7 +19,15 @@
       "Bash(npm run build:*)",
       "Bash(git push:*)",
       "Bash(git checkout:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(./gradlew compileJava:*)",
+      "Bash(del \"c:\\dev\\Portfolios\\Solo\\Solo-Project-interview-ai\\frontend\\src\\components\\layout\\InterviewLayout.tsx\")",
+      "Bash(npm install:*)",
+      "Bash(netstat:*)",
+      "Bash(taskkill /PID 86648 /F)",
+      "Bash(powershell -Command \"Stop-Process -Id 86648 -Force\")",
+      "Bash(curl:*)",
+      "Bash(npm run dev:*)"
     ]
   }
 }

@@ -35,51 +35,111 @@ export interface AuthResponse {
 }
 
 // Interview Types
-export type JobType = 'BACKEND' | 'FRONTEND' | 'FULLSTACK' | 'DEVOPS' | 'DATA';
-export type Difficulty = 'JUNIOR' | 'MIDDLE' | 'SENIOR';
+export type InterviewType = 'FRONTEND' | 'BACKEND' | 'FULLSTACK' | 'DEVOPS' | 'DATA' | 'MOBILE';
+export type InterviewDifficulty = 'JUNIOR' | 'MID' | 'SENIOR';
 export type InterviewStatus = 'IN_PROGRESS' | 'COMPLETED';
 
-export interface InterviewCreateRequest {
-  jobType: JobType;
-  techStacks: string[];
-  difficulty: Difficulty;
-  interviewType: string[];
-  questionCount: number;
+export const INTERVIEW_TYPE_LABELS: Record<InterviewType, string> = {
+  FRONTEND: '프론트엔드',
+  BACKEND: '백엔드',
+  FULLSTACK: '풀스택',
+  DEVOPS: '데브옵스',
+  DATA: '데이터 엔지니어링',
+  MOBILE: '모바일',
+};
+
+export const INTERVIEW_DIFFICULTY_LABELS: Record<InterviewDifficulty, { label: string; experience: string }> = {
+  JUNIOR: { label: '주니어', experience: '0-2년차' },
+  MID: { label: '미드레벨', experience: '3-5년차' },
+  SENIOR: { label: '시니어', experience: '6년차 이상' },
+};
+
+// Interview Request/Response Types
+export interface InterviewStartRequest {
+  type: InterviewType;
+  difficulty: InterviewDifficulty;
 }
 
-export interface Interview {
-  id: number;
-  jobType: JobType;
-  techStacks: string[];
-  difficulty: Difficulty;
-  interviewType: string[];
-  status: InterviewStatus;
-  totalScore?: number;
-  startedAt: string;
-  completedAt?: string;
-}
-
-// Question Types
-export interface Question {
+export interface QuestionResponse {
   id: number;
   content: string;
+  orderNumber: number;
   category: string;
-  orderNum: number;
-  referenceAnswer?: string;
-  keywords?: string[];
 }
 
-export interface Answer {
-  id: number;
+export interface InterviewStartResponse {
+  interviewId: number;
+  type: InterviewType;
+  difficulty: InterviewDifficulty;
+  firstQuestion: QuestionResponse;
+}
+
+export interface AnswerSubmitRequest {
   questionId: number;
-  userAnswer: string;
-  accuracyScore: number;
-  specificityScore: number;
-  logicScore: number;
+  content: string;
+}
+
+export interface EvaluationResult {
+  score: number;
   feedback: string;
-  mentionedKeywords: string[];
-  missedKeywords: string[];
+  modelAnswer: string;
+}
+
+export interface AnswerSubmitResponse {
+  evaluation: EvaluationResult;
+  nextQuestion: QuestionResponse | null;
+}
+
+export interface SummaryResult {
+  summary: string;
+  overallScore: number;
+  categoryScores: Record<string, number>;
+}
+
+export interface InterviewEndResponse {
+  interviewId: number;
+  totalScore: number;
+  questionCount: number;
+  summary: SummaryResult;
+}
+
+// Interview List Response
+export interface InterviewListItem {
+  id: number;
+  type: InterviewType;
+  difficulty: InterviewDifficulty;
+  status: InterviewStatus;
+  totalScore: number | null;
+  questionCount: number;
   createdAt: string;
+}
+
+// Interview Detail Response
+export interface InterviewDetailAnswer {
+  id: number;
+  content: string;
+  score: number;
+  feedback: string;
+  modelAnswer: string;
+}
+
+export interface InterviewDetailQuestion {
+  id: number;
+  content: string;
+  orderNumber: number;
+  category: string;
+  answer: InterviewDetailAnswer | null;
+}
+
+export interface InterviewDetailResponse {
+  id: number;
+  type: InterviewType;
+  difficulty: InterviewDifficulty;
+  status: InterviewStatus;
+  totalScore: number | null;
+  startedAt: string;
+  endedAt: string | null;
+  questions: InterviewDetailQuestion[];
 }
 
 // Dashboard Types

@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import PrivateRoute from './components/auth/PrivateRoute';
+import MainLayout from './components/layout/MainLayout';
+import PublicLayout from './components/layout/PublicLayout';
 import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
 import SignupSuccessPage from './pages/auth/SignupSuccessPage';
@@ -14,6 +16,11 @@ import NaverCallbackPage from './pages/auth/NaverCallbackPage';
 import HomePage from './pages/HomePage';
 import MyPage from './pages/MyPage';
 import ErrorPage from './pages/ErrorPage';
+import InterviewStartPage from './pages/interview/InterviewStartPage';
+import InterviewPage from './pages/interview/InterviewPage';
+import InterviewResultPage from './pages/interview/InterviewResultPage';
+import InterviewListPage from './pages/interview/InterviewListPage';
+import InterviewDetailPage from './pages/interview/InterviewDetailPage';
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
@@ -29,7 +36,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
+        {/* Auth Routes (No Layout) */}
         <Route
           path="/login"
           element={
@@ -81,23 +88,26 @@ function App() {
         {/* Error Page */}
         <Route path="/error" element={<ErrorPage />} />
 
-        {/* Protected Routes */}
+        {/* Public Home with PublicLayout (비로그인 사용자용) */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<HomePage />} />
+        </Route>
+
+        {/* Protected Routes with MainLayout */}
         <Route
-          path="/"
           element={
             <PrivateRoute>
-              <HomePage />
+              <MainLayout />
             </PrivateRoute>
           }
-        />
-        <Route
-          path="/mypage"
-          element={
-            <PrivateRoute>
-              <MyPage />
-            </PrivateRoute>
-          }
-        />
+        >
+          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/interviews" element={<InterviewListPage />} />
+          <Route path="/interviews/:id" element={<InterviewDetailPage />} />
+          <Route path="/interview/start" element={<InterviewStartPage />} />
+          <Route path="/interview/:id" element={<InterviewPage />} />
+          <Route path="/interview/:id/result" element={<InterviewResultPage />} />
+        </Route>
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

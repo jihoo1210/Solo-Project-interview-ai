@@ -7,6 +7,8 @@ import org.springframework.util.StringUtils;
 
 import com.interviewai.domain.user.dto.UpdateProfileRequest;
 import com.interviewai.global.common.BaseTimeEntity;
+import com.interviewai.global.exception.CustomException;
+import com.interviewai.global.exception.ErrorCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -85,5 +87,12 @@ public class User extends BaseTimeEntity {
         if(StringUtils.hasText(request.getProfileImage())) {
             this.profileImage = request.getProfileImage();
         }
+    }
+
+    public void increaseAndCheckInterviewCount() {
+        if(getDailyInterviewCount() > 4) {
+            throw new CustomException(ErrorCode.PREMIUM_REQUIRED);
+        }
+        this.dailyInterviewCount = getDailyInterviewCount() + 1;
     }
 }

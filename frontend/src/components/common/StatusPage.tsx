@@ -23,20 +23,20 @@ export default function StatusPage({
   children
 }: StatusPageProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4">
       <div className="max-w-md w-full text-center">
-        <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="bg-white rounded-xl shadow-md p-8">
           <StatusIcon type={type} />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">{title}</h2>
-          <p className="text-gray-600 mb-6">{message}</p>
+          <h2 className="text-2xl font-bold text-text mb-2">{title}</h2>
+          <p className="text-text-muted mb-6">{message}</p>
           {subMessage && (
-            <p className="text-sm text-gray-500 mb-4">{subMessage}</p>
+            <p className="text-sm text-text-muted mb-4">{subMessage}</p>
           )}
           {children}
           {linkTo && linkText && (
             <Link
               to={linkTo}
-              className="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
+              className="inline-flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary cursor-pointer"
             >
               {linkText}
             </Link>
