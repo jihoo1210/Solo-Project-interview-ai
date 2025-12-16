@@ -200,7 +200,7 @@ export default function MyPage() {
                   minLength={2}
                   maxLength={20}
                   required
-                  className="mt-1 block w-full px-3 py-2 border border-background-dark rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                  className="mt-1 block w-full px-3 py-2 bg-white border border-background-dark rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
                 />
                 <p className="mt-1 text-xs text-text-muted">2~20자</p>
               </div>
@@ -215,7 +215,7 @@ export default function MyPage() {
                   value={profileImage}
                   onChange={(e) => setProfileImage(e.target.value)}
                   placeholder="https://example.com/image.png"
-                  className="mt-1 block w-full px-3 py-2 border border-background-dark rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                  className="mt-1 block w-full px-3 py-2 bg-white border border-background-dark rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
                 />
               </div>
 
@@ -253,7 +253,7 @@ export default function MyPage() {
                     value={passwordData.currentPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
                     required
-                    className="block w-full px-3 py-2 pr-10 border border-background-dark rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                    className="block w-full px-3 py-2 pr-10 bg-white border border-background-dark rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
                   />
                   <button
                     type="button"
@@ -276,7 +276,7 @@ export default function MyPage() {
                     value={passwordData.newPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                     required
-                    className="block w-full px-3 py-2 pr-10 border border-background-dark rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                    className="block w-full px-3 py-2 pr-10 bg-white border border-background-dark rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
                   />
                   <button
                     type="button"
@@ -302,7 +302,7 @@ export default function MyPage() {
                     value={passwordData.confirmPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
                     required
-                    className="block w-full px-3 py-2 pr-10 border border-background-dark rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                    className="block w-full px-3 py-2 pr-10 bg-white border border-background-dark rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
                   />
                   <button
                     type="button"

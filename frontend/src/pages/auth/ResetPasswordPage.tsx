@@ -122,7 +122,7 @@ export default function ResetPasswordPage() {
                   required
                   value={formData.newPassword}
                   onChange={handleChange}
-                  className="block w-full px-3 py-2 pr-16 border border-background-dark rounded-lg shadow-sm placeholder-text-muted focus:outline-none focus:ring-primary focus:border-primary"
+                  className="block w-full px-3 py-2 pr-16 bg-white border border-background-dark rounded-lg shadow-sm placeholder-text-muted focus:outline-none focus:ring-primary focus:border-primary"
                   placeholder="새 비밀번호를 입력하세요"
                 />
                 <button
@@ -150,7 +150,7 @@ export default function ResetPasswordPage() {
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="block w-full px-3 py-2 pr-16 border border-background-dark rounded-lg shadow-sm placeholder-text-muted focus:outline-none focus:ring-primary focus:border-primary"
+                  className="block w-full px-3 py-2 pr-16 bg-white border border-background-dark rounded-lg shadow-sm placeholder-text-muted focus:outline-none focus:ring-primary focus:border-primary"
                   placeholder="비밀번호를 다시 입력하세요"
                 />
                 <button

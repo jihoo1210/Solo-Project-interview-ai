@@ -70,7 +70,7 @@ export default function LoginPage() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-background-dark rounded-lg shadow-sm placeholder-text-muted focus:outline-none focus:ring-primary focus:border-primary"
+                className="mt-1 block w-full px-3 py-2 bg-white border border-background-dark rounded-lg shadow-sm placeholder-text-muted focus:outline-none focus:ring-primary focus:border-primary"
                 placeholder="email@example.com"
               />
             </div>
@@ -87,7 +87,7 @@ export default function LoginPage() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="block w-full px-3 py-2 pr-16 border border-background-dark rounded-lg shadow-sm placeholder-text-muted focus:outline-none focus:ring-primary focus:border-primary"
+                  className="block w-full px-3 py-2 pr-16 bg-white border border-background-dark rounded-lg shadow-sm placeholder-text-muted focus:outline-none focus:ring-primary focus:border-primary"
                   placeholder="비밀번호를 입력하세요"
                 />
                 <button
