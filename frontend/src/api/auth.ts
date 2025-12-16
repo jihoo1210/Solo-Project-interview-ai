@@ -40,4 +40,25 @@ export const authApi = {
     const response = await apiClient.post<ApiResponse<LoginResponse>>('/api/v1/oauth/naver', { code, state });
     return response.data.data!;
   },
+
+  requestPasswordReset: async ( email : string ): Promise<void> => {
+    await apiClient.post<ApiResponse<void>>('/api/v1/auth/password-reset', { email });
+  },
+
+  confirmPasswordReset: async ( token: string, newPassword: string): Promise<LoginResponse> => {
+    const response = await apiClient.post<ApiResponse<LoginResponse>>('/api/v1/auth/confirm-password-reset', {token, newPassword});
+    return response.data.data!;
+  },
+
+  resendPasswordReset: async ( email: string ): Promise<void> => {
+    await apiClient.post<ApiResponse<void>>('/api/v1/auth/resend-password-reset', { email });
+  },
+
+  requestDeleteAccount: async (email: string): Promise<void> => {
+    await apiClient.post<ApiResponse<void>>('/api/v1/auth/delete-account', { email });
+  },
+
+  confirmDeleteAccount: async (token: string): Promise<void> => {
+    await apiClient.get<ApiResponse<void>>(`/api/v1/auth/confirm-delete-account?token=${token}`);
+  }
 };

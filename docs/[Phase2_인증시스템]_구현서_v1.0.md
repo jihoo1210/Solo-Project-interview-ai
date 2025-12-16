@@ -1025,18 +1025,622 @@ TTL: 1시간
 
 ## 11. 다음 단계 체크리스트
 
-### 프론트엔드 보완 (우선)
+### 비밀번호 재설정 프론트엔드
 
-- [ ] 1. 비밀번호 재설정 요청 페이지 (`ForgotPasswordPage.tsx`)
-- [ ] 2. 비밀번호 재설정 확인 페이지 (`ResetPasswordPage.tsx`)
-- [ ] 3. 이메일 인증 페이지에 재발송 버튼 추가
-- [ ] 4. auth API 함수 추가
+- [ ] 1. `auth.ts`에 비밀번호 재설정 API 함수 추가
+- [ ] 2. 비밀번호 재설정 요청 페이지 (`ForgotPasswordPage.tsx`)
+- [ ] 3. 비밀번호 재설정 확인 페이지 (`ResetPasswordPage.tsx`)
+- [ ] 4. `App.tsx`에 라우트 추가
+- [ ] 5. `LoginPage.tsx`에 "비밀번호 찾기" 링크 추가
 
-### 마이페이지 구현
+### 이메일 재발송 기능 프론트엔드
 
-- [ ] 1. `VerifiedSessionRepository` 생성 (Redis)
-- [ ] 2. 기존 AuthService 수정 (인증 세션 저장/삭제)
-- [ ] 3. 마이페이지 DTO 생성
-- [ ] 4. `UserService` 생성
-- [ ] 5. `UserController` 생성
-- [ ] 6. 프론트엔드 마이페이지 UI
+- [ ] 1. `auth.ts`에 재발송 API 함수 추가 (이미 있으면 확인)
+- [ ] 2. 회원가입 후 이메일 인증 대기 페이지 (`SignupSuccessPage.tsx`) - 재발송 버튼 포함
+- [ ] 3. `SignupPage.tsx` 수정 - 회원가입 성공 시 `SignupSuccessPage`로 이동
+
+### 이메일 인증 캐싱 (Redis)
+
+- [ ] 1. `VerifiedSessionRepository` 생성
+- [ ] 2. `AuthService.verifyEmail()` 수정 - 인증 세션 저장
+- [ ] 3. `AuthService.confirmPasswordReset()` 수정 - 인증 세션 저장
+- [ ] 4. `AuthService.logout()` 수정 - 인증 세션 삭제
+
+### 마이페이지 Backend
+
+- [ ] 1. 마이페이지 DTO 생성 (`UserResponse`, `UpdateNicknameRequest`, `UpdatePasswordRequest`, `DeleteAccountRequest`)
+- [ ] 2. `UserService` 생성
+- [ ] 3. `UserController` 생성
+
+### 마이페이지 Frontend
+
+- [x] 1. `user.ts` API 함수 생성
+- [x] 2. 마이페이지 UI (`MyPage.tsx`)
+- [x] 3. Header 컴포넌트에 사용자 정보 + 로그아웃 버튼
+
+---
+
+## 12. 회원 탈퇴 기능
+
+### 12.1 개요
+
+회원 탈퇴는 **이메일 인증**이 필요한 민감한 작업입니다. 로그인 상태(마이페이지)와 비로그인 상태(로그인 화면)에서 모두 접근 가능합니다.
+
+### 12.2 탈퇴 흐름
+
+```
+[로그인 상태 - 마이페이지]
+1. 마이페이지 → "회원 탈퇴" 버튼 클릭
+2. 탈퇴 확인 모달 → "탈퇴하기" 버튼 클릭
+3. 이메일 인증 요청 (DELETE_ACCOUNT 타입)
+4. 이메일에서 인증 링크 클릭
+5. 계정 삭제 완료 → 로그인 페이지로 이동
+
+[비로그인 상태 - 로그인 화면]
+1. 로그인 화면 → "회원 탈퇴" 링크 클릭
+2. 이메일 입력 → "탈퇴 인증 메일 발송" 버튼 클릭
+3. 이메일에서 인증 링크 클릭
+4. 계정 삭제 완료 → 로그인 페이지로 이동
+```
+
+### 12.3 Backend 구현
+
+#### 생성할 파일
+
+| 파일 경로 | 설명 |
+|----------|------|
+| `domain/user/dto/DeleteAccountRequest.java` | 회원 탈퇴 요청 DTO (email) |
+
+#### 수정할 파일
+
+| 파일 경로 | 수정 내용 |
+|----------|----------|
+| `infra/mail/EmailType.java` | `DELETE_ACCOUNT` 타입 추가 |
+| `infra/redis/EmailTokenRepository.java` | 탈퇴 토큰 저장/조회/삭제 메서드 추가 |
+| `infra/mail/EmailService.java` | `sendDeleteAccountEmail()` 메서드 추가 |
+| `domain/user/service/AuthService.java` | `requestDeleteAccount()`, `confirmDeleteAccount()` 메서드 추가 |
+| `domain/user/controller/AuthController.java` | 탈퇴 관련 엔드포인트 추가 |
+
+#### API 엔드포인트
+
+| Method | Endpoint | Request | Response | 인증 | 설명 |
+|--------|----------|---------|----------|------|------|
+| POST | `/api/v1/auth/delete-account` | `DeleteAccountRequest` | `Void` | 불필요 | 탈퇴 인증 이메일 발송 |
+| GET | `/api/v1/auth/confirm-delete-account` | `?token=xxx` | `Void` | 불필요 | 계정 삭제 확정 |
+
+#### EmailType 수정
+
+```java
+// 위치: infra/mail/EmailType.java
+
+DELETE_ACCOUNT(
+    "[INTERVIEW AI] 회원 탈퇴 인증",
+    "회원 탈퇴 인증",
+    "안녕하세요! AI 면접 시뮬레이터 회원 탈퇴 요청이 접수되었습니다.<br>아래 버튼을 클릭하면 계정이 <strong>영구 삭제</strong>됩니다.<br><br><span style='color: red;'>⚠️ 이 작업은 되돌릴 수 없습니다.</span>",
+    "회원 탈퇴 확인",
+    "http://localhost:8080/api/v1/auth/confirm-delete-account?token="
+);
+```
+
+#### EmailTokenRepository 수정
+
+```java
+// 위치: infra/redis/EmailTokenRepository.java
+
+private static final String DELETE_ACCOUNT_PREFIX = "email:delete:";
+
+// 회원 탈퇴 토큰 저장
+public void saveDeleteAccountToken(String token, Long userId) {
+    String key = DELETE_ACCOUNT_PREFIX + token;
+    redisTemplate.opsForValue().set(key, userId.toString(), TTL_MINUTES, TimeUnit.MINUTES);
+}
+
+// 회원 탈퇴 토큰 조회
+public Long findUserIdByDeleteAccountToken(String token) {
+    String key = DELETE_ACCOUNT_PREFIX + token;
+    String userId = redisTemplate.opsForValue().get(key);
+    return userId != null ? Long.parseLong(userId) : null;
+}
+
+// 회원 탈퇴 토큰 삭제
+public boolean deleteDeleteAccountToken(String token) {
+    String key = DELETE_ACCOUNT_PREFIX + token;
+    return Boolean.TRUE.equals(redisTemplate.delete(key));
+}
+
+// 회원 탈퇴 토큰 존재 여부
+public boolean existsDeleteAccountToken(String token) {
+    String key = DELETE_ACCOUNT_PREFIX + token;
+    return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+}
+```
+
+#### AuthService 수정
+
+```java
+// 위치: domain/user/service/AuthService.java
+
+/**
+ * 회원 탈퇴 요청 (이메일 발송)
+ */
+public void requestDeleteAccount(DeleteAccountRequest request) {
+    // 존재하지 않는 이메일이면 조용히 무시 (보안)
+    if(userRepository.existsByEmail(request.getEmail())) {
+        String token = emailService.generateEmailToken(EmailType.DELETE_ACCOUNT);
+        emailService.sendDeleteAccountEmail(request.getEmail(), token);
+    }
+}
+
+/**
+ * 회원 탈퇴 확정
+ */
+@Transactional(readOnly = false)
+public void confirmDeleteAccount(String token) {
+    // 1. 토큰 검증
+    boolean isExists = emailTokenRepository.existsDeleteAccountToken(token);
+    if(!isExists) throw new CustomException(ErrorCode.INVALID_VERIFICATION_TOKEN);
+
+    // 2. 사용자 조회
+    Long userId = emailTokenRepository.findUserIdByDeleteAccountToken(token);
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
+
+    // 3. 연관 데이터 삭제 (추후 면접 데이터 등)
+    // interviewRepository.deleteByUserId(userId);
+
+    // 4. 사용자 삭제 (Hard Delete)
+    userRepository.delete(user);
+
+    // 5. 토큰 삭제
+    emailTokenRepository.deleteDeleteAccountToken(token);
+}
+```
+
+#### AuthController 수정
+
+```java
+// 위치: domain/user/controller/AuthController.java
+
+@PostMapping("/delete-account")
+public ApiResponse<Void> requestDeleteAccount(@RequestBody @Valid DeleteAccountRequest request) {
+    authService.requestDeleteAccount(request);
+    return ApiResponse.success();
+}
+
+@GetMapping("/confirm-delete-account")
+public ApiResponse<Void> confirmDeleteAccount(@RequestParam String token) {
+    authService.confirmDeleteAccount(token);
+    return ApiResponse.success();  // 또는 프론트엔드로 리다이렉트
+}
+```
+
+### 12.4 Frontend 구현
+
+#### 생성할 파일
+
+| 파일 경로 | 설명 |
+|----------|------|
+| `src/pages/auth/DeleteAccountPage.tsx` | 비로그인 상태 탈퇴 요청 페이지 |
+| `src/pages/auth/DeleteAccountConfirmPage.tsx` | 탈퇴 완료 페이지 |
+
+#### 수정할 파일
+
+| 파일 경로 | 수정 내용 |
+|----------|----------|
+| `src/api/auth.ts` | `requestDeleteAccount()`, `confirmDeleteAccount()` 추가 |
+| `src/pages/MyPage.tsx` | 회원 탈퇴 버튼 + 모달 추가 |
+| `src/pages/auth/LoginPage.tsx` | "회원 탈퇴" 링크 추가 |
+| `src/App.tsx` | 탈퇴 관련 라우트 추가 |
+
+#### auth.ts 수정
+
+```typescript
+// 위치: src/api/auth.ts
+
+requestDeleteAccount: async (email: string): Promise<void> => {
+  await apiClient.post<ApiResponse<void>>('/api/v1/auth/delete-account', { email });
+},
+
+confirmDeleteAccount: async (token: string): Promise<void> => {
+  await apiClient.get<ApiResponse<void>>(`/api/v1/auth/confirm-delete-account?token=${token}`);
+},
+```
+
+#### MyPage.tsx 탈퇴 버튼 추가
+
+```tsx
+// 위치: src/pages/MyPage.tsx (추가할 부분)
+
+const [showDeleteModal, setShowDeleteModal] = useState(false);
+const [deleteLoading, setDeleteLoading] = useState(false);
+const [deleteSuccess, setDeleteSuccess] = useState(false);
+
+const handleDeleteAccount = async () => {
+  if (!user?.email) return;
+
+  setDeleteLoading(true);
+  try {
+    await authApi.requestDeleteAccount(user.email);
+    setDeleteSuccess(true);
+  } catch (err) {
+    // 에러 처리
+  } finally {
+    setDeleteLoading(false);
+  }
+};
+
+// JSX 내부
+{/* 회원 탈퇴 섹션 */}
+<div className="mt-6 pt-6 border-t border-gray-200">
+  <button
+    onClick={() => setShowDeleteModal(true)}
+    className="text-red-600 hover:text-red-800 text-sm"
+  >
+    회원 탈퇴
+  </button>
+</div>
+
+{/* 탈퇴 확인 모달 */}
+{showDeleteModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+      {deleteSuccess ? (
+        <>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">인증 메일 발송 완료</h3>
+          <p className="text-gray-600 mb-4">
+            {user?.email}로 탈퇴 인증 메일이 발송되었습니다.<br/>
+            메일의 링크를 클릭하면 계정이 삭제됩니다.
+          </p>
+          <button onClick={() => setShowDeleteModal(false)} className="...">
+            확인
+          </button>
+        </>
+      ) : (
+        <>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">회원 탈퇴</h3>
+          <p className="text-gray-600 mb-4">
+            정말 탈퇴하시겠습니까?<br/>
+            <span className="text-red-600 font-medium">이 작업은 되돌릴 수 없습니다.</span>
+          </p>
+          <div className="flex gap-3">
+            <button onClick={() => setShowDeleteModal(false)} className="...">
+              취소
+            </button>
+            <button
+              onClick={handleDeleteAccount}
+              disabled={deleteLoading}
+              className="bg-red-600 text-white ..."
+            >
+              {deleteLoading ? '처리 중...' : '탈퇴 인증 메일 발송'}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  </div>
+)}
+```
+
+#### DeleteAccountPage.tsx (비로그인 탈퇴)
+
+```tsx
+// 위치: src/pages/auth/DeleteAccountPage.tsx
+
+export default function DeleteAccountPage() {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      await authApi.requestDeleteAccount(email);
+      setSuccess(true);
+    } catch (err) {
+      setError('요청 처리에 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="...">
+        <h2>인증 메일 발송 완료</h2>
+        <p>
+          입력하신 이메일로 탈퇴 인증 메일이 발송되었습니다.<br/>
+          메일의 링크를 클릭하면 계정이 삭제됩니다.
+        </p>
+        <Link to="/login">로그인 페이지로</Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="...">
+      <h2>회원 탈퇴</h2>
+      <p className="text-red-600">⚠️ 탈퇴 시 모든 데이터가 영구 삭제됩니다.</p>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="가입한 이메일 주소"
+          required
+        />
+        <button type="submit" disabled={loading}>
+          {loading ? '처리 중...' : '탈퇴 인증 메일 발송'}
+        </button>
+      </form>
+      <Link to="/login">로그인으로 돌아가기</Link>
+    </div>
+  );
+}
+```
+
+#### App.tsx 라우트 추가
+
+```tsx
+// 위치: src/App.tsx
+
+import DeleteAccountPage from './pages/auth/DeleteAccountPage';
+import DeleteAccountConfirmPage from './pages/auth/DeleteAccountConfirmPage';
+
+// Routes 내부
+<Route path="/delete-account" element={<DeleteAccountPage />} />
+<Route path="/delete-account-confirm" element={<DeleteAccountConfirmPage />} />
+```
+
+#### LoginPage.tsx 링크 추가
+
+```tsx
+// 위치: src/pages/auth/LoginPage.tsx (비밀번호 찾기 링크 옆에)
+
+<div className="flex justify-between text-sm">
+  <Link to="/forgot-password" className="text-blue-600 hover:text-blue-500">
+    비밀번호를 잊으셨나요?
+  </Link>
+  <Link to="/delete-account" className="text-red-600 hover:text-red-500">
+    회원 탈퇴
+  </Link>
+</div>
+```
+
+### 12.5 구현 체크리스트
+
+#### Backend
+
+- [x] 1. `DeleteAccountRequest.java` DTO 생성
+- [x] 2. `EmailType.java`에 `DELETE_ACCOUNT` 추가
+- [x] 3. `EmailTokenRepository.java`에 탈퇴 토큰 메서드 추가
+- [x] 4. `EmailService.java`에 `sendDeleteAccountEmail()` 추가
+- [x] 5. `AuthService.java`에 `requestDeleteAccount()`, `confirmDeleteAccount()` 추가
+- [x] 6. `AuthController.java`에 엔드포인트 추가
+
+#### Frontend
+
+- [x] 1. `auth.ts`에 API 함수 추가
+- [x] 2. `DeleteAccountPage.tsx` 생성
+- [x] 3. `DeleteAccountConfirmPage.tsx` 생성
+- [x] 4. `MyPage.tsx`에 탈퇴 버튼 + 모달 추가
+- [x] 5. `LoginPage.tsx`에 탈퇴 링크 추가
+- [x] 6. `App.tsx`에 라우트 추가
+
+### 12.6 보안 고려사항
+
+1. **이메일 존재 여부 노출 방지**: 존재하지 않는 이메일로 요청해도 동일한 응답
+2. **토큰 만료**: 10분 후 자동 만료 (Redis TTL)
+3. **일회성 토큰**: 사용 후 즉시 삭제
+4. **Hard Delete**: 사용자 데이터 완전 삭제 (GDPR 준수)
+
+---
+
+## 13. 코드 리팩토링: 공통 컴포넌트
+
+### 13.1 개요
+
+프론트엔드에서 반복되는 UI 패턴을 공통 컴포넌트로 추출하여 코드 중복을 제거하고 유지보수성을 향상시켰습니다.
+
+### 13.2 생성된 공통 컴포넌트
+
+| 파일 경로 | 설명 |
+|----------|------|
+| `src/components/common/StatusIcon.tsx` | 상태 아이콘 (success, error, warning, info, email) |
+| `src/components/common/StatusPage.tsx` | 상태 표시 페이지 레이아웃 |
+| `src/components/common/LoadingSpinner.tsx` | 로딩 스피너 |
+| `src/components/common/index.ts` | 공통 컴포넌트 export |
+
+### 13.3 StatusIcon 컴포넌트
+
+```typescript
+// 위치: src/components/common/StatusIcon.tsx
+
+type StatusType = 'success' | 'error' | 'warning' | 'info' | 'email';
+
+const iconConfig: Record<StatusType, { bg: string; color: string; path: string }> = {
+  success: { bg: 'bg-green-100', color: 'text-green-600', path: 'M5 13l4 4L19 7' },
+  error: { bg: 'bg-red-100', color: 'text-red-600', path: 'M6 18L18 6M6 6l12 12' },
+  warning: { bg: 'bg-red-100', color: 'text-red-600', path: '...' },
+  info: { bg: 'bg-blue-100', color: 'text-blue-600', path: '...' },
+  email: { bg: 'bg-blue-100', color: 'text-blue-600', path: '...' },
+};
+
+export default function StatusIcon({ type }: { type: StatusType }) {
+  const config = iconConfig[type];
+  return (
+    <div className={`w-16 h-16 ${config.bg} rounded-full flex items-center justify-center mx-auto mb-4`}>
+      <svg className={`w-8 h-8 ${config.color}`} ...>
+        <path d={config.path} />
+      </svg>
+    </div>
+  );
+}
+```
+
+### 13.4 StatusPage 컴포넌트
+
+```typescript
+// 위치: src/components/common/StatusPage.tsx
+
+interface StatusPageProps {
+  type: StatusType;
+  title: string;
+  message: string;
+  subMessage?: string;
+  linkTo?: string;
+  linkText?: string;
+  children?: React.ReactNode;
+}
+
+export default function StatusPage({ type, title, message, subMessage, linkTo, linkText, children }: StatusPageProps) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+      <div className="max-w-md w-full text-center">
+        <div className="bg-white rounded-lg shadow-md p-8">
+          <StatusIcon type={type} />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{title}</h2>
+          <p className="text-gray-600 mb-6">{message}</p>
+          {subMessage && <p className="text-sm text-gray-500 mb-4">{subMessage}</p>}
+          {children}
+          {linkTo && linkText && <Link to={linkTo} className="...">...</Link>}
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+### 13.5 LoadingSpinner 컴포넌트
+
+```typescript
+// 위치: src/components/common/LoadingSpinner.tsx
+
+interface LoadingSpinnerProps {
+  color?: string;
+  message?: string;
+}
+
+export default function LoadingSpinner({ color = 'border-blue-600', message = '처리 중...' }: LoadingSpinnerProps) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center">
+        <div className={`animate-spin rounded-full h-12 w-12 border-b-2 ${color} mx-auto mb-4`}></div>
+        <div className="text-gray-600">{message}</div>
+      </div>
+    </div>
+  );
+}
+```
+
+### 13.6 리팩토링된 페이지
+
+| 페이지 | 변경 전 | 변경 후 |
+|--------|---------|---------|
+| `EmailVerifyPage.tsx` | 60줄 | 32줄 (47% 감소) |
+| `GoogleCallbackPage.tsx` | 70줄 | 59줄 (16% 감소) |
+| `NaverCallbackPage.tsx` | 76줄 | 67줄 (12% 감소) |
+| `DeleteAccountConfirmPage.tsx` | 112줄 | 75줄 (33% 감소) |
+
+### 13.7 사용 예시
+
+```typescript
+// 사용 전
+return (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+    <div className="max-w-md w-full text-center">
+      <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">이메일 인증 완료</h2>
+        <p className="text-gray-600 mb-6">이메일 인증이 완료되었습니다. 이제 로그인하실 수 있습니다.</p>
+        <Link to="/login" className="...">로그인 하기</Link>
+      </div>
+    </div>
+  </div>
+);
+
+// 사용 후
+return (
+  <StatusPage
+    type="success"
+    title="이메일 인증 완료"
+    message="이메일 인증이 완료되었습니다. 이제 로그인하실 수 있습니다."
+    linkTo="/login"
+    linkText="로그인 하기"
+  />
+);
+```
+
+---
+
+## 14. Phase 2 최종 완성도
+
+### 14.1 완료된 기능
+
+| 기능 | Backend | Frontend | 상태 |
+|------|---------|----------|------|
+| 회원가입 | ✅ | ✅ | 완료 |
+| 이메일 인증 | ✅ | ✅ | 완료 |
+| 로그인/로그아웃 | ✅ | ✅ | 완료 |
+| 토큰 갱신 (Refresh) | ✅ | ✅ | 완료 |
+| Google OAuth | ✅ | ✅ | 완료 |
+| Naver OAuth | ✅ | ✅ | 완료 |
+| 비밀번호 재설정 | ✅ | ✅ | 완료 |
+| 마이페이지 (프로필 수정) | ✅ | ✅ | 완료 |
+| 마이페이지 (비밀번호 변경) | ✅ | ✅ | 완료 |
+| 회원 탈퇴 | ✅ | ✅ | 완료 |
+
+### 14.2 프론트엔드 구조
+
+```
+frontend/src/
+├── api/
+│   ├── auth.ts          # 인증 API
+│   ├── client.ts        # Axios 인스턴스
+│   └── user.ts          # 사용자 API
+├── components/
+│   ├── auth/
+│   │   ├── OAuthButtons.tsx
+│   │   └── PrivateRoute.tsx
+│   └── common/
+│       ├── StatusIcon.tsx
+│       ├── StatusPage.tsx
+│       ├── LoadingSpinner.tsx
+│       └── index.ts
+├── hooks/
+│   └── useAuth.ts
+├── pages/
+│   ├── auth/
+│   │   ├── LoginPage.tsx
+│   │   ├── SignupPage.tsx
+│   │   ├── SignupSuccessPage.tsx
+│   │   ├── EmailVerifyPage.tsx
+│   │   ├── ForgotPasswordPage.tsx
+│   │   ├── ResetPasswordPage.tsx
+│   │   ├── DeleteAccountPage.tsx
+│   │   ├── DeleteAccountConfirmPage.tsx
+│   │   ├── GoogleCallbackPage.tsx
+│   │   └── NaverCallbackPage.tsx
+│   ├── HomePage.tsx
+│   └── MyPage.tsx
+├── store/
+│   └── authStore.ts
+├── types/
+│   └── index.ts
+└── App.tsx
+```
+
+### 14.3 다음 단계
+
+Phase 3에서는 면접 시뮬레이션 핵심 기능을 구현합니다:
+- 면접 질문 생성 (AI 연동)
+- 면접 답변 평가
+- 면접 기록 저장
+- 면접 통계 조회

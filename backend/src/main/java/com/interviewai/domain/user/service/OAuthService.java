@@ -1,7 +1,6 @@
 package com.interviewai.domain.user.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import com.interviewai.domain.user.dto.LoginResponse;
 import com.interviewai.domain.user.entity.AuthProvider;
 import com.interviewai.domain.user.entity.SubscriptionType;

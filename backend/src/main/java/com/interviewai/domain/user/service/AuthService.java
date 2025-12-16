@@ -6,6 +6,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.interviewai.domain.user.dto.ChangePasswordRequest;
+import com.interviewai.domain.user.dto.DeleteAccountRequest;
 import com.interviewai.domain.user.dto.LoginRequest;
 import com.interviewai.domain.user.dto.LoginResponse;
 import com.interviewai.domain.user.dto.PasswordResetConfirmRequest;
@@ -14,20 +16,18 @@ import com.interviewai.domain.user.dto.SignupRequest;
 import com.interviewai.domain.user.dto.SignupResponse;
 import com.interviewai.domain.user.dto.TokenRefreshRequest;
 import com.interviewai.domain.user.dto.TokenRefreshResponse;
+import com.interviewai.domain.user.dto.UpdateProfileRequest;
 import com.interviewai.domain.user.dto.UserResponse;
 import com.interviewai.domain.user.entity.AuthProvider;
-import com.interviewai.domain.user.entity.EmailVerification;
-import com.interviewai.domain.user.entity.PasswordResetToken;
 import com.interviewai.domain.user.entity.SubscriptionType;
 import com.interviewai.domain.user.entity.User;
-import com.interviewai.domain.user.repository.EmailVerificationRepository;
-import com.interviewai.domain.user.repository.PasswordResetTokenRepository;
 import com.interviewai.domain.user.repository.UserRepository;
 import com.interviewai.global.exception.CustomException;
 import com.interviewai.global.exception.ErrorCode;
 import com.interviewai.global.security.jwt.JwtTokenProvider;
 import com.interviewai.infra.mail.EmailService;
 import com.interviewai.infra.mail.EmailType;
+import com.interviewai.infra.redis.EmailTokenRepository;
 import com.interviewai.infra.redis.RefreshTokenRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -40,8 +40,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
-    private final EmailVerificationRepository emailVerificationRepository;
-    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailTokenRepository emailTokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
@@ -81,15 +80,15 @@ public class AuthService {
      */
     @Transactional(readOnly = false)
     public void verifyEmail(String token) {
-        EmailVerification emailVerification = emailVerificationRepository.findByToken(token).orElseThrow(() -> new CustomException(ErrorCode.INVALID_VERIFICATION_TOKEN));
+        boolean isExists = emailTokenRepository.existsEmailVerificationToken(token);
+        if(!isExists) throw new CustomException(ErrorCode.INVALID_VERIFICATION_TOKEN);
 
-        if((LocalDateTime.now().isAfter(emailVerification.getExpiresAt()))
-            || emailVerification.isUsed()) {
-            throw new CustomException(ErrorCode.TOKEN_EXPIRED);
-        }
+        Long userId = emailTokenRepository.findUserIdByVerificationToken(token);
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
 
-        emailVerification.getUser().verifyEmail();
-        emailVerification.markAsUsed();
+        user.verifyEmail();
+
+        emailTokenRepository.deleteEmailVerificationToken(token);
     }
 
     /**
@@ -98,16 +97,11 @@ public class AuthService {
      */
     @Transactional(readOnly = false)
     public void resendVerificationEmail(String email) {
-
-        // 1. 이전 토큰 사용 처리
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
-        EmailVerification emailVerification = emailVerificationRepository.findByUserAndUsedFalse(user).orElseThrow(() -> new CustomException(ErrorCode.INVALID_VERIFICATION_TOKEN));
-        emailVerification.markAsUsed();
         
-        // 2. 토큰 생성
+        // 1. 토큰 생성
         String token = emailService.generateEmailToken(EmailType.VERIFICATION);
 
-        // 3. 인증 이메일 발송
+        // 2. 인증 이메일 발송
         emailService.sendVerificationEmail(email, token);
     }
 
@@ -163,15 +157,16 @@ public class AuthService {
     public LoginResponse confirmPasswordReset(PasswordResetConfirmRequest request) {
         
         // 1. 토큰 조회 + 검증
-        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(request.getToken()).orElseThrow(() -> new CustomException(ErrorCode.INVALID_VERIFICATION_TOKEN));
-        if(!passwordResetToken.isValid()) throw new CustomException(ErrorCode.INVALID_VERIFICATION_TOKEN);
+        boolean isExists = emailTokenRepository.existsPasswordResetToken(request.getToken());
+        if(!isExists) throw new CustomException(ErrorCode.INVALID_VERIFICATION_TOKEN);
         
         // 2. 비밀번호 변경
-        User user = passwordResetToken.getUser();
+        Long userId = emailTokenRepository.findUserIdByPasswordResetToken(request.getToken());
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
         user.resetPassword(passwordEncoder.encode(request.getNewPassword()));
 
         // 3. 토큰 사용 처리
-        passwordResetToken.markAsUsed();
+        emailTokenRepository.deletePasswordResetToken(request.getToken());
 
         // 4. JWT 발급 + RT 저장
         String accessToken = jwtTokenProvider.createJWT(user.getId(), user.getEmail(), user.getSubscriptionType());
@@ -184,16 +179,32 @@ public class AuthService {
 
     @Transactional(readOnly = false)
     public void resendPasswordResetEmail(String email) {
-        // 1. 이전 토큰 사용 처리
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
-        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByUserAndUsedFalse(user).orElseThrow(() -> new CustomException(ErrorCode.INVALID_VERIFICATION_TOKEN));
-        passwordResetToken.markAsUsed();
         
-        // 2. 토큰 생성
+        // 1. 토큰 생성
         String token = emailService.generateEmailToken(EmailType.PASSWORD_RESET);
 
-        // 3. 인증 이메일 발송
+        // 2. 인증 이메일 발송
         emailService.sendPasswordResetEmail(email, token);
+    }
+
+    public void requestDeleteAccount(DeleteAccountRequest request) {
+        if(userRepository.existsByEmail(request.getEmail())) {
+            String token = emailService.generateEmailToken(EmailType.DELETE_ACCOUNT);
+            emailService.sendDeleteAccountEmail(request.getEmail(), token);
+        }
+    }
+
+    @Transactional(readOnly = false)
+    public void confirmDeleteAccount(String token) {
+        
+        if(!emailTokenRepository.existsDeleteAccountToken(token)) throw new CustomException(ErrorCode.INVALID_VERIFICATION_TOKEN);
+
+        Long userId = emailTokenRepository.findUserIdByDeleteAccountToken(token);
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
+
+        userRepository.delete(user);
+        
+        emailTokenRepository.deleteDeleteAccountToken(token);
     }
 
     private boolean emailDuplicateCheck(String email) {

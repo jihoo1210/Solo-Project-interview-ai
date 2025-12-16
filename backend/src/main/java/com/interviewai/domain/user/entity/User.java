@@ -3,6 +3,9 @@ package com.interviewai.domain.user.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.springframework.util.StringUtils;
+
+import com.interviewai.domain.user.dto.UpdateProfileRequest;
 import com.interviewai.global.common.BaseTimeEntity;
 
 import jakarta.persistence.Column;
@@ -73,5 +76,14 @@ public class User extends BaseTimeEntity {
     }
     public void resetPassword(String newPassword) {
         this.password = newPassword;
+    }
+
+    public void updateProfile(UpdateProfileRequest request) {
+        if(StringUtils.hasText(request.getNickname())) {
+            this.nickname = request.getNickname();
+        }
+        if(StringUtils.hasText(request.getProfileImage())) {
+            this.profileImage = request.getProfileImage();
+        }
     }
 }

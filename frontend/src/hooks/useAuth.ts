@@ -36,7 +36,7 @@ export function useAuth() {
       setLoading(true);
       try {
         await authApi.signup(data);
-        navigate('/login', { state: { message: '회원가입이 완료되었습니다. 이메일을 확인해주세요.' } });
+        navigate('/signup-success', { state: { email: data.email } });
       } finally {
         setLoading(false);
       }

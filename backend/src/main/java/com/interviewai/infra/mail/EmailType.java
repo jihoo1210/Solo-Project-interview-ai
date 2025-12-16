@@ -21,6 +21,14 @@ public enum EmailType {
         "안녕하세요! AI 면접 시뮬레이터 비밀번호 재설정 링크입니다.<br>아래 버튼을 클릭하여 비밀번호를 재설정해 주세요.",
         "비밀번호 재설정하기",
         "http://localhost:5173/reset-password?token="
+    ),
+
+    DELETE_ACCOUNT(
+        "[INTERVIEW AI] 회원 탈퇴",
+        "회원 탈퇴",
+        "안녕하세요! AI 면접 시뮬레이터 회원 탈퇴 링크입니다.<br>아래 버튼을 클릭하여 회원 탈퇴를 진행해 주세요.",
+        "회원 탈퇴하기",
+        "http://localhost:8080/api/v1/auth/confirm-delete-account?token="
     );
 
     private final String subject;

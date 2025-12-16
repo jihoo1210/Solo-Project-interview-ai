@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export default function HomePage() {
@@ -12,6 +13,12 @@ export default function HomePage() {
             <span className="text-gray-600">
               안녕하세요, <strong>{user?.nickname}</strong>님
             </span>
+            <Link
+              to="/mypage"
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-200"
+            >
+              마이페이지
+            </Link>
             <button
               onClick={logout}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-200 cursor-pointer"

@@ -30,7 +30,6 @@ spring:
     properties:
       hibernate:
         format_sql: false
-        dialect: org.hibernate.dialect.H2Dialect
 
   data:
     redis:

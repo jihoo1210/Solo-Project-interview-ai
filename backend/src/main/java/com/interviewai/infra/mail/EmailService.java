@@ -1,20 +1,15 @@
 package com.interviewai.infra.mail;
 
-import java.time.LocalDateTime;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import com.interviewai.domain.user.entity.EmailVerification;
-import com.interviewai.domain.user.entity.PasswordResetToken;
 import com.interviewai.domain.user.entity.User;
-import com.interviewai.domain.user.repository.EmailVerificationRepository;
-import com.interviewai.domain.user.repository.PasswordResetTokenRepository;
 import com.interviewai.domain.user.repository.UserRepository;
 import com.interviewai.global.exception.CustomException;
 import com.interviewai.global.exception.ErrorCode;
+import com.interviewai.infra.redis.EmailTokenRepository;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -26,8 +21,7 @@ public class EmailService {
 
     private final JavaMailSender javaMailSender;
     private final UserRepository userRepository;
-    private final EmailVerificationRepository emailVerificationRepository;
-    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailTokenRepository emailTokenRepository;
 
     @Value("${spring.mail.username}")
     private String mailSender;
@@ -43,6 +37,11 @@ public class EmailService {
         savePasswordResetToken(email, token);
     }
 
+    public void sendDeleteAccountEmail(String email, String token) {
+        sendEmail(email, token, EmailType.DELETE_ACCOUNT);
+        savedDeleteAccountToken(email, token);
+    }
+
     // UTIL
     public String generateEmailToken(EmailType emailType) { 
         StringBuilder values = new StringBuilder();
@@ -56,9 +55,11 @@ public class EmailService {
         return values.toString();
     }
     private boolean existsToken(String token, EmailType emailType) {
-        return emailType == EmailType.VERIFICATION 
-            ? emailVerificationRepository.existsByToken(token)
-            : passwordResetTokenRepository.existsByToken(token);
+        return switch (emailType) {
+            case VERIFICATION -> emailTokenRepository.existsEmailVerificationToken(token);
+            case PASSWORD_RESET -> emailTokenRepository.existsPasswordResetToken(token);
+            case DELETE_ACCOUNT -> emailTokenRepository.existsDeleteAccountToken(token);
+        };
     }
 
     private void sendEmail(String email, String token, EmailType type) {
@@ -78,23 +79,19 @@ public class EmailService {
     private void saveEmailVerification(String email, String token) {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
-        EmailVerification emailVerification = EmailVerification.builder()
-            .user(user)
-            .token(token)
-            .expiresAt(LocalDateTime.now().plusMinutes(10))
-            .build();
-        emailVerificationRepository.save(emailVerification);
+        emailTokenRepository.saveEmailVerificationToken(token, user.getId());
     }
 
     private void savePasswordResetToken(String email, String token) {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
-        PasswordResetToken passwordResetToken = PasswordResetToken.builder()
-            .user(user)
-            .token(token)
-            .expiresAt(LocalDateTime.now().plusMinutes(10))
-            .build();
-        passwordResetTokenRepository.save(passwordResetToken);
+        emailTokenRepository.savePasswordResetToken(token, user.getId());
+    }
+
+    private void savedDeleteAccountToken(String email, String token) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
+        emailTokenRepository.saveDeleteAccountToken(token, user.getId());
     }
 
     // HTML

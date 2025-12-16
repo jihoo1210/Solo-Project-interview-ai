@@ -101,6 +101,11 @@ export default function LoginPage() {
               <p className="mt-1 text-xs text-gray-500">
                 8자 이상, 대문자, 소문자, 숫자, 특수문자 포함
               </p>
+              <div className="mt-2 text-right">
+                <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
+                  비밀번호를 잊으셨나요?
+                </Link>
+              </div>
             </div>
           </div>
 
@@ -124,6 +129,12 @@ export default function LoginPage() {
           </div>
 
           <OAuthButtons />
+        </div>
+
+        <div className="text-center">
+          <Link to="/delete-account" className="text-sm text-red-600 hover:text-red-500">
+            회원 탈퇴
+          </Link>
         </div>
       </div>
     </div>

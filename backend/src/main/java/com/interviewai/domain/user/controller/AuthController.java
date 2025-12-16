@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.interviewai.domain.user.dto.DeleteAccountRequest;
 import com.interviewai.domain.user.dto.LoginRequest;
 import com.interviewai.domain.user.dto.LoginResponse;
 import com.interviewai.domain.user.dto.PasswordResetConfirmRequest;
@@ -86,6 +87,18 @@ public class AuthController {
     @PostMapping("/logout")
     public ApiResponse<Void> logout(@RequestBody @Valid TokenRefreshRequest request) {
         authService.logout(request);
-        return  ApiResponse.success();
+        return ApiResponse.success();
+    }
+
+    @PostMapping("/delete-account")
+    public ApiResponse<Void> deleteAccount(@RequestBody @Valid DeleteAccountRequest request) {
+        authService.requestDeleteAccount(request);
+        return ApiResponse.success();
+    }
+    
+    @GetMapping("/confirm-delete-account")
+    public ApiResponse<Void> confirmDeleteAccount(@RequestParam String token) {
+        authService.confirmDeleteAccount(token);
+        return ApiResponse.success();
     }
 }

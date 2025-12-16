@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { LoadingSpinner } from '../../components/common';
 import type { ApiError } from '../../types';
 
 export default function NaverCallbackPage() {
@@ -14,7 +15,6 @@ export default function NaverCallbackPage() {
   const state = searchParams.get('state');
   const errorParam = searchParams.get('error');
 
-  // URL 파라미터에서 바로 감지 가능한 에러만 렌더링 단계에서 처리
   const immediateError = errorParam
     ? '네이버 로그인이 취소되었습니다.'
     : !code || !state
@@ -30,7 +30,6 @@ export default function NaverCallbackPage() {
     if (processedRef.current || !code || !state) return;
     processedRef.current = true;
 
-    // state 검증
     const savedState = sessionStorage.getItem('naver_oauth_state');
     if (state !== savedState) {
       errorRef.current = '보안 검증에 실패했습니다.';
@@ -64,12 +63,5 @@ export default function NaverCallbackPage() {
     );
   }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#03C75A] mx-auto mb-4"></div>
-        <div className="text-gray-600">네이버 로그인 처리 중...</div>
-      </div>
-    </div>
-  );
+  return <LoadingSpinner color="border-[#03C75A]" message="네이버 로그인 처리 중..." />;
 }
