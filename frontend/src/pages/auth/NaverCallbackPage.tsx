@@ -63,5 +63,12 @@ export default function NaverCallbackPage() {
     );
   }
 
-  return <LoadingSpinner color="border-[#03C75A]" message="네이버 로그인 처리 중..." />;
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#03C75A] border-t-transparent mx-auto mb-4" />
+        <div className="text-text-muted">네이버 로그인 처리 중...</div>
+      </div>
+    </div>
+  );
 }

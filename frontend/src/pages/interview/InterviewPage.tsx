@@ -146,40 +146,55 @@ export default function InterviewPage() {
           <div className="bg-white rounded-2xl shadow-lg p-8 sm:p-12">
             {/* 평가 결과 표시 */}
             {showEvaluation && currentEvaluation && (
-              <div className="text-center">
-                <h3 className="text-2xl sm:text-3xl font-bold text-text mb-8">답변 평가 결과</h3>
+              <div>
+                <h3 className="text-2xl sm:text-3xl font-bold text-text mb-6 text-center">답변 평가 결과</h3>
 
-                <div className="mb-8">
+                {/* 점수 */}
+                <div className="text-center mb-8">
                   <span className="text-sm text-text-muted">점수</span>
-                  <div className="text-6xl font-bold text-primary">
-                    {currentEvaluation.score} <span className="text-2xl text-text-muted">/ 10</span>
+                  <div className="text-5xl font-bold text-primary">
+                    {currentEvaluation.score} <span className="text-xl text-text-muted">/ 10</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 text-left">
-                  <div className="bg-background rounded-xl p-6">
-                    <h4 className="text-lg font-semibold text-text mb-3">피드백</h4>
-                    <p className="text-text-light leading-relaxed">{currentEvaluation.feedback}</p>
-                  </div>
-                  <div className="bg-accent/10 rounded-xl p-6">
-                    <h4 className="text-lg font-semibold text-accent mb-3">모범 답안</h4>
-                    <p className="text-text-light leading-relaxed">{currentEvaluation.modelAnswer}</p>
-                  </div>
+                {/* 내 답변 */}
+                <div className="bg-background rounded-xl p-6 mb-4">
+                  <h4 className="text-lg font-semibold text-text mb-3">내 답변</h4>
+                  <p className="text-text-light leading-relaxed whitespace-pre-wrap">
+                    {answerHistory[answerHistory.length - 1]?.userAnswer}
+                  </p>
                 </div>
 
-                <button
-                  onClick={currentQuestion ? handleNextQuestion : handleEndInterview}
-                  disabled={isEnding}
-                  className="px-10 py-4 text-lg font-semibold text-white bg-primary rounded-xl hover:bg-primary-dark transition-all shadow-lg disabled:opacity-50 inline-flex items-center justify-center min-w-[200px]"
-                >
-                  {isEnding ? (
-                    <LoadingSpinner />
-                  ) : currentQuestion ? (
-                    '다음 질문'
-                  ) : (
-                    '면접 종료 및 결과 보기'
-                  )}
-                </button>
+                {/* 피드백 */}
+                <div className="bg-primary/10 border border-primary/30 rounded-xl p-6 mb-4">
+                  <h4 className="text-lg font-semibold text-primary mb-3">피드백</h4>
+                  <p className="text-text-light leading-relaxed">{currentEvaluation.feedback}</p>
+                </div>
+
+                {/* AI 모범 답안 */}
+                <div className="bg-accent/10 border border-accent/30 rounded-xl p-6 mb-8">
+                  <h4 className="text-lg font-semibold text-accent mb-3">AI 모범 답안</h4>
+                  <p className="text-text-light leading-relaxed">{currentEvaluation.modelAnswer}</p>
+                </div>
+
+                <div className="text-center">
+                  <button
+                    onClick={currentQuestion ? handleNextQuestion : handleEndInterview}
+                    disabled={isEnding}
+                    className="px-10 py-4 text-lg font-semibold text-white bg-primary rounded-xl hover:bg-primary-dark transition-all shadow-lg disabled:opacity-50 inline-flex items-center justify-center gap-2 min-w-[200px]"
+                  >
+                    {isEnding ? (
+                      <>
+                        <LoadingSpinner size="sm" color="white" />
+                        <span>처리 중...</span>
+                      </>
+                    ) : currentQuestion ? (
+                      '다음 질문'
+                    ) : (
+                      '면접 종료 및 결과 보기'
+                    )}
+                  </button>
+                </div>
               </div>
             )}
 
@@ -215,13 +230,20 @@ export default function InterviewPage() {
                   <button
                     onClick={handleSubmitAnswer}
                     disabled={isSubmitting || !answer.trim()}
-                    className={`flex-1 py-4 px-8 text-lg font-semibold rounded-xl transition-all inline-flex items-center justify-center ${
+                    className={`flex-1 py-4 px-8 text-lg font-semibold rounded-xl transition-all inline-flex items-center justify-center gap-2 ${
                       isSubmitting || !answer.trim()
                         ? 'bg-background-dark text-text-muted cursor-not-allowed'
                         : 'bg-primary text-white hover:bg-primary-dark shadow-lg'
                     }`}
                   >
-                    {isSubmitting ? <LoadingSpinner /> : '답변 제출'}
+                    {isSubmitting ? (
+                      <>
+                        <LoadingSpinner size="sm" color="white" />
+                        <span>AI 평가 중...</span>
+                      </>
+                    ) : (
+                      '답변 제출'
+                    )}
                   </button>
                   <button
                     onClick={handleEndInterview}
@@ -246,9 +268,16 @@ export default function InterviewPage() {
                 <button
                   onClick={handleEndInterview}
                   disabled={isEnding}
-                  className="px-10 py-4 text-lg font-semibold text-white bg-primary rounded-xl hover:bg-primary-dark transition-all shadow-lg disabled:opacity-50 inline-flex items-center justify-center min-w-[200px]"
+                  className="px-10 py-4 text-lg font-semibold text-white bg-primary rounded-xl hover:bg-primary-dark transition-all shadow-lg disabled:opacity-50 inline-flex items-center justify-center gap-2 min-w-[200px]"
                 >
-                  {isEnding ? <LoadingSpinner /> : '결과 보기'}
+                  {isEnding ? (
+                    <>
+                      <LoadingSpinner size="sm" color="white" />
+                      <span>결과 생성 중...</span>
+                    </>
+                  ) : (
+                    '결과 보기'
+                  )}
                 </button>
               </div>
             )}

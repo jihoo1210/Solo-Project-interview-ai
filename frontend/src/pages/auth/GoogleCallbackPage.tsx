@@ -55,5 +55,12 @@ export default function GoogleCallbackPage() {
     );
   }
 
-  return <LoadingSpinner message="Google 로그인 처리 중..." />;
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center">
+        <LoadingSpinner size="lg" color="primary" className="mx-auto mb-4" />
+        <div className="text-text-muted">Google 로그인 처리 중...</div>
+      </div>
+    </div>
+  );
 }

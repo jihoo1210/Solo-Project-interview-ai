@@ -27,7 +27,8 @@
       "Bash(taskkill /PID 86648 /F)",
       "Bash(powershell -Command \"Stop-Process -Id 86648 -Force\")",
       "Bash(curl:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(git rm:*)"
     ]
   }
 }

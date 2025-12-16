@@ -151,13 +151,18 @@ export default function InterviewStartPage() {
             <button
               onClick={handleStart}
               disabled={isLoading || !selectedType || !selectedDifficulty || isLimitReached}
-              className={`flex-1 py-4 px-8 text-lg font-semibold rounded-xl transition-all flex items-center justify-center ${
+              className={`flex-1 py-4 px-8 text-lg font-semibold rounded-xl transition-all flex items-center justify-center gap-2 ${
                 isLoading || !selectedType || !selectedDifficulty || isLimitReached
                   ? 'bg-background-dark text-text-muted cursor-not-allowed'
                   : 'bg-primary text-white hover:bg-primary-dark shadow-lg'
               }`}
             >
-              {isLoading ? <LoadingSpinner /> : isLimitReached ? '오늘 횟수 소진' : '면접 시작'}
+              {isLoading ? (
+                <>
+                  <LoadingSpinner size="sm" color="white" />
+                  <span>면접 시작 중...</span>
+                </>
+              ) : isLimitReached ? '오늘 횟수 소진' : '면접 시작'}
             </button>
             <button
               onClick={() => navigate('/')}

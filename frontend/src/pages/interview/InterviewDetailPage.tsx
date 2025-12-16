@@ -56,8 +56,8 @@ export default function InterviewDetailPage() {
     return (
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="bg-white shadow rounded-xl p-8">
-          <div className="text-center py-16">
-            <LoadingSpinner />
+          <div className="text-center py-16 flex flex-col items-center">
+            <LoadingSpinner size="lg" color="primary" />
             <p className="text-text-muted mt-4">면접 정보를 불러오는 중...</p>
           </div>
         </div>

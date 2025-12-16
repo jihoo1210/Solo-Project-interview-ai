@@ -56,8 +56,8 @@ export default function InterviewListPage() {
       <h1 className="text-2xl font-bold text-text mb-6">면접 기록</h1>
       <div className="bg-white shadow rounded-xl p-6 sm:p-8">
         {isLoading ? (
-          <div className="text-center py-16">
-            <LoadingSpinner />
+          <div className="text-center py-16 flex flex-col items-center">
+            <LoadingSpinner size="lg" color="primary" />
             <p className="text-text-muted mt-4">면접 기록을 불러오는 중...</p>
           </div>
         ) : error ? (

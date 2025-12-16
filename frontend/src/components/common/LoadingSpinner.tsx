@@ -1,18 +1,29 @@
 interface LoadingSpinnerProps {
-  color?: string;
-  message?: string;
+  size?: 'sm' | 'md' | 'lg';
+  color?: 'primary' | 'white' | 'gray';
+  className?: string;
 }
 
 export default function LoadingSpinner({
-  color = 'border-blue-600',
-  message = '처리 중...'
+  size = 'md',
+  color = 'primary',
+  className = '',
 }: LoadingSpinnerProps) {
+  const sizeClasses = {
+    sm: 'h-4 w-4 border-2',
+    md: 'h-6 w-6 border-2',
+    lg: 'h-8 w-8 border-3',
+  };
+
+  const colorClasses = {
+    primary: 'border-primary border-t-transparent',
+    white: 'border-white border-t-transparent',
+    gray: 'border-text-muted border-t-transparent',
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <div className={`animate-spin rounded-full h-12 w-12 border-b-2 ${color} mx-auto mb-4`}></div>
-        <div className="text-gray-600">{message}</div>
-      </div>
-    </div>
+    <div
+      className={`animate-spin rounded-full ${sizeClasses[size]} ${colorClasses[color]} ${className}`}
+    />
   );
 }
