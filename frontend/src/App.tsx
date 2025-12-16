@@ -13,6 +13,7 @@ import GoogleCallbackPage from './pages/auth/GoogleCallbackPage';
 import NaverCallbackPage from './pages/auth/NaverCallbackPage';
 import HomePage from './pages/HomePage';
 import MyPage from './pages/MyPage';
+import ErrorPage from './pages/ErrorPage';
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
@@ -76,6 +77,9 @@ function App() {
         {/* OAuth Callback Routes */}
         <Route path="/oauth/callback/google" element={<GoogleCallbackPage />} />
         <Route path="/oauth/callback/naver" element={<NaverCallbackPage />} />
+
+        {/* Error Page */}
+        <Route path="/error" element={<ErrorPage />} />
 
         {/* Protected Routes */}
         <Route

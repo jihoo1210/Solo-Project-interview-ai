@@ -97,8 +97,13 @@ public class AuthController {
     }
     
     @GetMapping("/confirm-delete-account")
-    public ApiResponse<Void> confirmDeleteAccount(@RequestParam String token) {
-        authService.confirmDeleteAccount(token);
-        return ApiResponse.success();
+    public void confirmDeleteAccount(@RequestParam("token") String token, HttpServletResponse response) throws IOException {
+        try {
+            authService.confirmDeleteAccount(token);
+            response.sendRedirect("http://localhost:5173/confirm-delete-account?success=true");
+        } catch (Exception e) {
+            String errorMessage = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
+            response.sendRedirect("http://localhost:5173/confirm-delete-account?success=false&error=" + errorMessage);
+        }
     }
 }
