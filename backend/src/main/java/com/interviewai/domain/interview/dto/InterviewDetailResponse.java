@@ -16,6 +16,7 @@ public class InterviewDetailResponse {
     private InterviewDifficulty difficulty;
     private InterviewStatus status;
     private Integer totalScore;
+    private Boolean passed;
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;
     private List<QuestionWithAnswerResponse> questions;
@@ -27,6 +28,7 @@ public class InterviewDetailResponse {
                 .difficulty(interview.getDifficulty())
                 .status(interview.getStatus())
                 .totalScore(interview.getTotalScore())
+                .passed(interview.getPassed())
                 .startedAt(interview.getStartedAt())
                 .endedAt(interview.getEndedAt())
                 .questions(interview.getQuestions().stream()
@@ -63,6 +65,7 @@ public class InterviewDetailResponse {
         private Integer score;
         private String feedback;
         private String modelAnswer;
+        private Integer answerTimeSeconds;
 
         public static AnswerResponse from(Answer answer) {
             return AnswerResponse.builder()
@@ -71,6 +74,7 @@ public class InterviewDetailResponse {
                     .score(answer.getScore())
                     .feedback(answer.getFeedback())
                     .modelAnswer(answer.getModelAnswer())
+                    .answerTimeSeconds(answer.getAnswerTimeSeconds())
                     .build();
         }
     }

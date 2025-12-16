@@ -8,6 +8,7 @@ import com.interviewai.domain.interview.dto.AnswerSubmitResponse;
 import com.interviewai.domain.interview.dto.InterviewDetailResponse;
 import com.interviewai.domain.interview.dto.InterviewEndResponse;
 import com.interviewai.domain.interview.dto.InterviewListResponse;
+import com.interviewai.domain.interview.dto.InterviewResumeResponse;
 import com.interviewai.domain.interview.dto.InterviewStartRequest;
 import com.interviewai.domain.interview.dto.InterviewStartResponse;
 import com.interviewai.domain.interview.service.InterviewService;
@@ -70,5 +71,11 @@ public class InterviewController {
     public ApiResponse<Long> getTodayInterviewCount(@AuthenticationPrincipal UserDetails userDetails) {
         String email = userDetails.getUsername();
         return ApiResponse.success(interviewService.getTodayInterviewCount(email));
+    }
+
+    @PostMapping("/{id}/resume")
+    public ApiResponse<InterviewResumeResponse> resumeInterview(@AuthenticationPrincipal UserDetails userDetails, @PathVariable("id") Long id) {
+        String email = userDetails.getUsername();
+        return ApiResponse.success(interviewService.resumeInterview(email, id));
     }
 }

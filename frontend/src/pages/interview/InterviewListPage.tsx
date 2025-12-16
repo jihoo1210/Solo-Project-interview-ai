@@ -72,15 +72,10 @@ export default function InterviewListPage() {
           </div>
         ) : interviews.length === 0 ? (
           <div className="text-center py-16">
-            <div className="w-16 h-16 bg-background-dark rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </div>
             <p className="text-text-muted text-lg mb-6">아직 면접 기록이 없습니다.</p>
             <button
               onClick={() => navigate('/interview/start')}
-              className="px-8 py-4 text-lg font-bold text-white bg-primary rounded-xl hover:bg-primary-dark transition-colors shadow-lg"
+              className="px-8 py-4 text-lg font-bold text-white bg-primary rounded-xl hover:bg-primary-dark transition-colors shadow-lg cursor-pointer"
             >
               첫 면접 시작하기
             </button>

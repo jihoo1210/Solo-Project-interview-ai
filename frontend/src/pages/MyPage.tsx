@@ -205,9 +205,10 @@ export default function MyPage() {
                 <p className="mt-1 text-xs text-text-muted">2~20자</p>
               </div>
 
-              <div>
+              <div className="opacity-50">
                 <label htmlFor="profileImage" className="block text-sm font-medium text-text">
                   프로필 이미지 URL
+                  <span className="ml-2 text-xs text-text-muted">(준비 중)</span>
                 </label>
                 <input
                   id="profileImage"
@@ -215,8 +216,10 @@ export default function MyPage() {
                   value={profileImage}
                   onChange={(e) => setProfileImage(e.target.value)}
                   placeholder="https://example.com/image.png"
-                  className="mt-1 block w-full px-3 py-2 bg-white border border-background-dark rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                  disabled
+                  className="mt-1 block w-full px-3 py-2 bg-background border border-background-dark rounded-lg shadow-sm cursor-not-allowed"
                 />
+                <p className="mt-1 text-xs text-text-muted">프로필 이미지 기능은 추후 업데이트 예정입니다.</p>
               </div>
 
               <button

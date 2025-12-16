@@ -15,4 +15,7 @@ public class InterviewStartRequest {
 
     @NotNull(message = "난이도를 선택해주세요.")
     private InterviewDifficulty difficulty;
+
+    /** 기타 유형 선택 시 직접 입력한 직무 */
+    private String customType;
 }

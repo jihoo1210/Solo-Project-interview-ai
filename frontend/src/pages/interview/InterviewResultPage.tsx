@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { InterviewEndResponse, EvaluationResult, QuestionResponse } from '../../types';
 
@@ -5,6 +6,7 @@ interface AnswerHistory {
   question: QuestionResponse;
   userAnswer: string;
   evaluation: EvaluationResult;
+  answerTimeSeconds: number;
 }
 
 interface LocationState {
@@ -12,10 +14,33 @@ interface LocationState {
   history: AnswerHistory[];
 }
 
+// 시간 포맷팅 함수
+const formatTime = (seconds: number) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  if (mins > 0) {
+    return `${mins}분 ${secs}초`;
+  }
+  return `${secs}초`;
+};
+
 export default function InterviewResultPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state as LocationState | null;
+  const [expandedAnswers, setExpandedAnswers] = useState<Set<number>>(new Set());
+
+  const toggleAnswer = (index: number) => {
+    setExpandedAnswers((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  };
 
   if (!state) {
     return (
@@ -118,6 +143,30 @@ export default function InterviewResultPage() {
         <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-12">
           <h1 className="text-3xl sm:text-4xl font-bold text-center text-text mb-10">면접 결과</h1>
 
+          {/* 합격/불합격 배너 */}
+          <div className={`mb-8 py-6 px-8 rounded-2xl text-center ${
+            result.passed
+              ? 'bg-success/10 border-2 border-success'
+              : 'bg-error/10 border-2 border-error'
+          }`}>
+            <div className="flex items-center justify-center gap-3">
+              {result.passed ? (
+                <>
+                  <span className="text-3xl sm:text-4xl font-bold text-success">합격</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-3xl sm:text-4xl font-bold text-error">불합격</span>
+                </>
+              )}
+            </div>
+            <p className="mt-2 text-text-muted">
+              {result.passed
+                ? '축하합니다! 면접을 성공적으로 통과했습니다.'
+                : '아쉽지만 이번에는 통과하지 못했습니다. 피드백을 참고하여 다시 도전해보세요!'}
+            </p>
+          </div>
+
           {/* 종합 점수 */}
           <div className="text-center mb-12">
             <span className="text-lg text-text-muted">종합 점수</span>
@@ -126,6 +175,10 @@ export default function InterviewResultPage() {
                 {summary.overallScore}
               </span>
               <span className="text-2xl text-text-muted">/ 10</span>
+            </div>
+            {/* 총 소요 시간 */}
+            <div className="mt-4 text-text-muted">
+              총 소요 시간: <span className="font-semibold text-text">{formatTime(history.reduce((acc, item) => acc + item.answerTimeSeconds, 0))}</span>
             </div>
           </div>
 
@@ -164,26 +217,68 @@ export default function InterviewResultPage() {
           <div className="mb-12">
             <h2 className="text-xl font-semibold text-text mb-6">답변 기록</h2>
             <div className="space-y-6">
-              {history.map((item, index) => (
-                <div key={index} className="border border-background-dark rounded-xl p-6">
-                  <div className="mb-4">
-                    <span className="inline-block px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full mb-2">
-                      Q{item.question.orderNumber}
-                    </span>
-                    <p className="text-lg font-medium text-text">{item.question.content}</p>
+              {history.map((item, index) => {
+                const isExpanded = expandedAnswers.has(index);
+                return (
+                  <div key={index} className="border border-background-dark rounded-xl overflow-hidden">
+                    {/* 질문 헤더 */}
+                    <div
+                      className="p-6 cursor-pointer hover:bg-background/50 transition-colors"
+                      onClick={() => toggleAnswer(index)}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="inline-block px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full">
+                              Q{item.question.orderNumber}
+                            </span>
+                            <span className="text-sm text-text-muted">
+                              소요 시간: {formatTime(item.answerTimeSeconds)}
+                            </span>
+                          </div>
+                          <p className="text-lg font-medium text-text">{item.question.content}</p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className={`text-2xl font-bold ${getScoreColor(item.evaluation.score)}`}>
+                            {item.evaluation.score}/10
+                          </span>
+                          <svg
+                            className={`w-5 h-5 text-text-muted transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 상세 내용 (펼쳐졌을 때) */}
+                    {isExpanded && (
+                      <div className="px-6 pb-6 space-y-4 border-t border-background-dark pt-4">
+                        {/* 내 답변 */}
+                        <div className="bg-background rounded-lg p-4">
+                          <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">내 답변</span>
+                          <p className="text-text-light mt-2 whitespace-pre-wrap">{item.userAnswer}</p>
+                        </div>
+
+                        {/* 피드백 */}
+                        <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
+                          <span className="text-xs font-semibold text-primary uppercase tracking-wider">AI 피드백</span>
+                          <p className="text-text-light mt-2 whitespace-pre-wrap">{item.evaluation.feedback}</p>
+                        </div>
+
+                        {/* 모범 답안 */}
+                        <div className="bg-accent/10 border border-accent/30 rounded-lg p-4">
+                          <span className="text-xs font-semibold text-accent uppercase tracking-wider">모범 답안</span>
+                          <p className="text-text-light mt-2 whitespace-pre-wrap">{item.evaluation.modelAnswer}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="bg-background rounded-lg p-4 mb-3">
-                    <span className="text-xs font-semibold text-text-muted uppercase">내 답변</span>
-                    <p className="text-text-light mt-1">{item.userAnswer}</p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-text-muted">점수: </span>
-                    <span className={`font-bold ${getScoreColor(item.evaluation.score)}`}>
-                      {item.evaluation.score}/10
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

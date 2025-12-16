@@ -33,10 +33,14 @@ public class Answer extends BaseTimeEntity {
     @Column(name = "model_answer", columnDefinition = "TEXT")
     private String modelAnswer;
 
+    @Column(name = "answer_time_seconds")
+    private Integer answerTimeSeconds;
+
     @Builder
-    public Answer(Question question, String content) {
+    public Answer(Question question, String content, Integer answerTimeSeconds) {
         this.question = question;
         this.content = content;
+        this.answerTimeSeconds = answerTimeSeconds;
     }
 
     public void evaluate(int score, String feedback, String modelAnswer) {

@@ -147,6 +147,13 @@ public class GeminiService implements AiService {
                     "네이티브 API",
                     "커뮤니케이션"
             );
+            case OTHER -> Arrays.asList(
+                    "기본 지식",      // 직무 관련 기초
+                    "실무 역량",      // 실제 업무 수행 능력
+                    "문제 해결",      // 트러블슈팅, 논리적 사고
+                    "도구/기술",      // 관련 도구 및 기술 스택
+                    "커뮤니케이션"    // 답변의 명확성, 논리성
+            );
         };
     }
 
@@ -296,7 +303,7 @@ public class GeminiService implements AiService {
         if (previousAnswer == null) {
             // 첫 질문
             return String.format(
-                    "면접을 시작합니다. %s 개발자 면접의 첫 번째 기술 질문을 해주세요.",
+                    "면접을 시작합니다. %s 개발자 면접의 첫 번째 기술 질문을 해주세요. 또한 중복되는 질문을 방지하기 위해 새롭고 특이한 질문을 위주로 구성하세요.",
                     interview.getType().getDescription()
             );
         }
@@ -317,7 +324,7 @@ public class GeminiService implements AiService {
      * 답변 평가를 위한 시스템 프롬프트 구성
      */
     private String buildEvaluationSystemPrompt() {
-        return "당신은 기술 면접 평가자입니다.\n\n" +
+        return "당신은 한국 테크 기업의 기술 면접 평가자입니다.\n\n" +
                 "답변을 평가하고 반드시 아래 형식으로만 응답하세요:\n\n" +
                 "점수: [1-10 사이 정수]\n" +
                 "피드백: [답변의 좋은 점과 부족한 점을 구체적으로 설명]\n" +
@@ -326,7 +333,7 @@ public class GeminiService implements AiService {
                 "- 1-3점: 핵심 개념 이해 부족\n" +
                 "- 4-6점: 기본 개념 이해, 세부사항 부족\n" +
                 "- 7-8점: 개념 이해 충분, 실무 적용 가능\n" +
-                "- 9-10점: 깊은 이해와 실무 경험 반영";
+                "- 9-10점: 깊은 이해 또는 실무 경험 반영";
     }
 
     /**

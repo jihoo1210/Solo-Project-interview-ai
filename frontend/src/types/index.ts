@@ -35,7 +35,7 @@ export interface AuthResponse {
 }
 
 // Interview Types
-export type InterviewType = 'FRONTEND' | 'BACKEND' | 'FULLSTACK' | 'DEVOPS' | 'DATA' | 'MOBILE';
+export type InterviewType = 'FRONTEND' | 'BACKEND' | 'FULLSTACK' | 'DEVOPS' | 'DATA' | 'MOBILE' | 'OTHER';
 export type InterviewDifficulty = 'JUNIOR' | 'MID' | 'SENIOR';
 export type InterviewStatus = 'IN_PROGRESS' | 'COMPLETED';
 
@@ -44,8 +44,9 @@ export const INTERVIEW_TYPE_LABELS: Record<InterviewType, string> = {
   BACKEND: '백엔드',
   FULLSTACK: '풀스택',
   DEVOPS: '데브옵스',
-  DATA: '데이터 엔지니어링',
+  DATA: '데이터',
   MOBILE: '모바일',
+  OTHER: '기타',
 };
 
 export const INTERVIEW_DIFFICULTY_LABELS: Record<InterviewDifficulty, { label: string; experience: string }> = {
@@ -58,6 +59,7 @@ export const INTERVIEW_DIFFICULTY_LABELS: Record<InterviewDifficulty, { label: s
 export interface InterviewStartRequest {
   type: InterviewType;
   difficulty: InterviewDifficulty;
+  customType?: string;
 }
 
 export interface QuestionResponse {
@@ -77,6 +79,7 @@ export interface InterviewStartResponse {
 export interface AnswerSubmitRequest {
   questionId: number;
   content: string;
+  answerTimeSeconds?: number;
 }
 
 export interface EvaluationResult {
@@ -99,8 +102,17 @@ export interface SummaryResult {
 export interface InterviewEndResponse {
   interviewId: number;
   totalScore: number;
+  passed: boolean;
   questionCount: number;
   summary: SummaryResult;
+}
+
+export interface InterviewResumeResponse {
+  interviewId: number;
+  type: InterviewType;
+  difficulty: InterviewDifficulty;
+  currentQuestion: QuestionResponse;
+  answeredCount: number;
 }
 
 // Interview List Response
@@ -121,6 +133,7 @@ export interface InterviewDetailAnswer {
   score: number;
   feedback: string;
   modelAnswer: string;
+  answerTimeSeconds?: number;
 }
 
 export interface InterviewDetailQuestion {
@@ -137,6 +150,7 @@ export interface InterviewDetailResponse {
   difficulty: InterviewDifficulty;
   status: InterviewStatus;
   totalScore: number | null;
+  passed: boolean | null;
   startedAt: string;
   endedAt: string | null;
   questions: InterviewDetailQuestion[];

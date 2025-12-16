@@ -10,6 +10,7 @@ public class InterviewEndResponse {
 
     private Long interviewId;
     private Integer totalScore;
+    private Boolean passed;
     private Integer questionCount;
     private SummaryResult summary;
 
@@ -17,6 +18,7 @@ public class InterviewEndResponse {
         return InterviewEndResponse.builder()
                 .interviewId(interview.getId())
                 .totalScore(interview.getTotalScore())
+                .passed(interview.getPassed())
                 .questionCount(interview.getQuestionCount())
                 .summary(summary)
                 .build();

@@ -130,7 +130,7 @@ export default function ResetPasswordPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-text-muted hover:text-text cursor-pointer"
                 >
-                  {showPassword ? '숨기기' : '보기'}
+                  {showPassword ? '🙈' : '🙊'}
                 </button>
               </div>
               <p className="mt-1 text-xs text-text-muted">
@@ -158,7 +158,7 @@ export default function ResetPasswordPage() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-text-muted hover:text-text cursor-pointer"
                 >
-                  {showConfirmPassword ? '숨기기' : '보기'}
+                  {showConfirmPassword ? '🙈' : '🙊'}
                 </button>
               </div>
             </div>

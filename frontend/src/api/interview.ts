@@ -6,6 +6,7 @@ import type {
   AnswerSubmitRequest,
   AnswerSubmitResponse,
   InterviewEndResponse,
+  InterviewResumeResponse,
   InterviewListItem,
   InterviewDetailResponse,
 } from '../types';
@@ -77,6 +78,16 @@ export const getInterviewDetail = async (
 export const getTodayInterviewCount = async (): Promise<number> => {
   const response = await apiClient.get<ApiResponse<number>>(
     '/api/interviews/today-count'
+  );
+  return response.data.data!;
+};
+
+// 면접 계속하기
+export const resumeInterview = async (
+  interviewId: number
+): Promise<InterviewResumeResponse> => {
+  const response = await apiClient.post<ApiResponse<InterviewResumeResponse>>(
+    `/api/interviews/${interviewId}/resume`
   );
   return response.data.data!;
 };

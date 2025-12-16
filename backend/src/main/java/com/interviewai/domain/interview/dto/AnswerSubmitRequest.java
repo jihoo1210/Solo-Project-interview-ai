@@ -14,4 +14,7 @@ public class AnswerSubmitRequest {
 
     @NotBlank(message = "답변 내용을 입력해주세요.")
     private String content;
+
+    /** 답변 소요 시간 (초) */
+    private Integer answerTimeSeconds;
 }

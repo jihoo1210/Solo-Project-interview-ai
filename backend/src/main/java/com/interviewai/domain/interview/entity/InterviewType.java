@@ -5,8 +5,9 @@ public enum InterviewType {
     BACKEND("백엔드"),
     FULLSTACK("풀스택"),
     DEVOPS("데브옵스"),
-    DATA("데이터 엔지니어링"),
-    MOBILE("모바일");
+    DATA("데이터"),
+    MOBILE("모바일"),
+    OTHER("기타");
 
     private final String description;
 

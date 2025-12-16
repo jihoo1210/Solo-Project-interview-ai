@@ -30,6 +30,9 @@ public class Interview extends BaseTimeEntity {
     @Column(nullable = false)
     private InterviewType type;
 
+    @Column(name = "custom_type")
+    private String customType;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private InterviewDifficulty difficulty;
@@ -41,6 +44,9 @@ public class Interview extends BaseTimeEntity {
     @Column(name = "total_score")
     private Integer totalScore;
 
+    @Column(name = "passed")
+    private Boolean passed;
+
     @Column(name = "started_at")
     private LocalDateTime startedAt;
 
@@ -51,17 +57,29 @@ public class Interview extends BaseTimeEntity {
     private List<Question> questions = new ArrayList<>();
 
     @Builder
-    public Interview(User user, InterviewType type, InterviewDifficulty difficulty) {
+    public Interview(User user, InterviewType type, String customType, InterviewDifficulty difficulty) {
         this.user = user;
         this.type = type;
+        this.customType = customType;
         this.difficulty = difficulty;
         this.status = InterviewStatus.IN_PROGRESS;
         this.startedAt = LocalDateTime.now();
     }
 
-    public void complete(int totalScore) {
+    /**
+     * 면접 유형 표시명 (OTHER인 경우 customType 반환)
+     */
+    public String getTypeDisplayName() {
+        if (type == InterviewType.OTHER && customType != null) {
+            return customType;
+        }
+        return type.getDescription();
+    }
+
+    public void complete(int totalScore, boolean passed) {
         this.status = InterviewStatus.COMPLETED;
         this.totalScore = totalScore;
+        this.passed = passed;
         this.endedAt = LocalDateTime.now();
     }
 

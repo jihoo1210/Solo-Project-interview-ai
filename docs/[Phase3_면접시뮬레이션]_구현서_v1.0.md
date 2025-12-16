@@ -1,7 +1,8 @@
 # [Phase 3] 면접 시뮬레이션 구현서 v1.0
 
 > 작성일: 2024-12-16
-> 버전: 2.0 (Task 1~12 완료 + FREE 사용자 일일 제한)
+> 버전: 3.0 (Task 1~12 완료 + 추가 기능 구현)
+> 최종 수정일: 2025-12-16
 > 작성자: AI Interview Simulator Team
 
 ---
@@ -77,6 +78,13 @@ Phase 3에서는 AI 기술 면접 시뮬레이터의 핵심 기능인 면접 시
 - [x] FREE 사용자 일일 면접 제한 (3회/일)
 - [x] 홈페이지 오늘 면접 횟수 표시
 - [x] 면접 시작 페이지 제한 안내 UI
+- [x] 면접 계속하기 (Resume Interview) 기능
+- [x] 중간 평가 화면 제거 (답변 후 바로 다음 질문으로 이동)
+- [x] OTHER 면접 유형 카테고리 추가 (GeminiService)
+
+### 다음 구현 예정
+
+- [ ] Premium 기능: 면접 질문 갯수 설정 (3~10개)
 
 ---
 
@@ -256,6 +264,27 @@ Response:
 }
 ```
 
+### 6.6 면접 계속하기
+```
+POST /api/v1/interviews/{interviewId}/resume
+
+Response:
+{
+  "success": true,
+  "data": {
+    "interviewId": 1,
+    "type": "BACKEND",
+    "difficulty": "JUNIOR",
+    "currentQuestion": {
+      "id": 3,
+      "content": "Spring Security에서 JWT 인증 흐름을 설명해주세요.",
+      "orderNumber": 3
+    },
+    "answeredCount": 2
+  }
+}
+```
+
 ---
 
 ## 7. Claude API 연동
@@ -329,15 +358,29 @@ spring:
 - [x] 제한 초과 시 버튼 비활성화 및 안내 메시지
 - [x] 3D 캐릭터 (토끼가 행성 위에서 점프)
 - [x] Duolingo 스타일 따뜻한 디자인
+- [x] 면접 계속하기 API (POST /api/interviews/{id}/resume)
+- [x] InterviewDetailPage에서 IN_PROGRESS 상태일 때 "면접 계속하기" 버튼 표시
+- [x] 중간 평가 화면 제거 - 답변 제출 후 바로 다음 질문으로 이동
+- [x] 질문별 타이머 기능 (자동 리셋)
 
 ### 8.2 현재 진행 중
 
-Phase 3 완료! Phase 4 준비 중
+Phase 3 핵심 기능 완료! 추가 기능 개발 중
 
 ---
 
 ## 9. 다음 단계
 
-Phase 3 완료 후:
-- Phase 4: 대시보드 및 통계
-- Phase 5: 배포 및 최적화
+### 9.1 Phase 3 추가 기능 (진행 예정)
+- [ ] Premium 기능: 면접 질문 갯수 설정 (3~10개)
+- [ ] 면접 유형별 세부 카테고리 선택 기능
+
+### 9.2 Phase 4: 대시보드 및 통계
+- 면접 성적 추이 차트
+- 카테고리별 강약점 분석
+- 학습 추천 기능
+
+### 9.3 Phase 5: 배포 및 최적화
+- Docker 컨테이너화
+- CI/CD 파이프라인 구축
+- 성능 최적화

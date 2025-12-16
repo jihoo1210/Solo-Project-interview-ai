@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getInterviewDetail } from '../../api/interview';
+import { getInterviewDetail, resumeInterview } from '../../api/interview';
 import type { InterviewDetailResponse } from '../../types';
 import { INTERVIEW_TYPE_LABELS, INTERVIEW_DIFFICULTY_LABELS } from '../../types';
 import { LoadingSpinner } from '../../components/common';
@@ -10,6 +10,7 @@ export default function InterviewDetailPage() {
   const navigate = useNavigate();
   const [interview, setInterview] = useState<InterviewDetailResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isResuming, setIsResuming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -52,6 +53,30 @@ export default function InterviewDetailPage() {
     return 'text-error';
   };
 
+  const handleResumeInterview = async () => {
+    if (!interview) return;
+
+    setIsResuming(true);
+    setError(null);
+
+    try {
+      const response = await resumeInterview(interview.id);
+      navigate(`/interview/${interview.id}`, {
+        state: {
+          interviewId: response.interviewId,
+          type: response.type,
+          difficulty: response.difficulty,
+          currentQuestion: response.currentQuestion,
+        },
+      });
+    } catch (err) {
+      setError('면접을 계속할 수 없습니다. 다시 시도해주세요.');
+      console.error(err);
+    } finally {
+      setIsResuming(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -70,10 +95,10 @@ export default function InterviewDetailPage() {
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="bg-white shadow rounded-xl p-8">
           <div className="text-center py-16">
-            <p className="text-error mb-4">{error || '면접 정보를 찾을 수 없습니다.'}</p>
+            <p className="text-error mb-4 cursor-pointer">{error || '면접 정보를 찾을 수 없습니다.'}</p>
             <button
               onClick={() => navigate('/interviews')}
-              className="px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition-colors"
+              className="px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition-colors cursor-pointer"
             >
               목록으로 돌아가기
             </button>
@@ -186,17 +211,34 @@ export default function InterviewDetailPage() {
         </div>
       </div>
 
+      {/* 에러 메시지 */}
+      {error && (
+        <div className="mt-6 p-4 bg-error/10 border border-error/30 rounded-xl text-center">
+          <p className="text-error">{error}</p>
+        </div>
+      )}
+
       {/* 하단 버튼 */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-        <button
-          onClick={() => navigate('/interview/start')}
-          className="px-8 py-4 text-lg font-bold text-white bg-primary rounded-xl hover:bg-primary-dark transition-colors shadow-lg"
-        >
-          새 면접 시작
-        </button>
+        {interview.status === 'IN_PROGRESS' && (
+          <button
+            onClick={handleResumeInterview}
+            disabled={isResuming}
+            className="px-8 py-4 text-lg font-bold text-white bg-primary rounded-xl hover:bg-primary-dark transition-colors shadow-lg disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer"
+          >
+            {isResuming ? (
+              <>
+                <LoadingSpinner size="sm" color="white" />
+                <span>불러오는 중...</span>
+              </>
+            ) : (
+              '면접 계속하기'
+            )}
+          </button>
+        )}
         <button
           onClick={() => navigate('/interviews')}
-          className="px-8 py-4 text-lg font-semibold text-text-light bg-white border-2 border-background-dark rounded-xl hover:border-primary hover:text-primary transition-all"
+          className="px-8 py-4 text-lg font-semibold text-text-light bg-white border-2 border-background-dark rounded-xl hover:border-primary hover:text-primary transition-all cursor-pointer"
         >
           목록으로
         </button>

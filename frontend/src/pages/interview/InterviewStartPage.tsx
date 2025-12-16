@@ -6,7 +6,7 @@ import { INTERVIEW_TYPE_LABELS, INTERVIEW_DIFFICULTY_LABELS } from '../../types'
 import { LoadingSpinner } from '../../components/common';
 import { useAuthStore } from '../../store/authStore';
 
-const INTERVIEW_TYPES: InterviewType[] = ['FRONTEND', 'BACKEND', 'FULLSTACK', 'DEVOPS', 'DATA', 'MOBILE'];
+const INTERVIEW_TYPES: InterviewType[] = ['FRONTEND', 'BACKEND', 'FULLSTACK', 'DEVOPS', 'DATA', 'MOBILE', 'OTHER'];
 const DIFFICULTIES: InterviewDifficulty[] = ['JUNIOR', 'MID', 'SENIOR'];
 const FREE_DAILY_LIMIT = 3;
 
@@ -14,6 +14,7 @@ export default function InterviewStartPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [selectedType, setSelectedType] = useState<InterviewType | null>(null);
+  const [customType, setCustomType] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<InterviewDifficulty | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +41,11 @@ export default function InterviewStartPage() {
       return;
     }
 
+    if (selectedType === 'OTHER' && !customType.trim()) {
+      setError('기타 유형을 입력해주세요.');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -47,6 +53,7 @@ export default function InterviewStartPage() {
       const response = await startInterview({
         type: selectedType,
         difficulty: selectedDifficulty,
+        customType: selectedType === 'OTHER' ? customType.trim() : undefined,
       });
 
       navigate(`/interview/${response.interviewId}`, {
@@ -98,12 +105,15 @@ export default function InterviewStartPage() {
           {/* 면접 유형 선택 */}
           <div className="mb-10">
             <h2 className="text-xl font-semibold text-text mb-4">면접 유형</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
               {INTERVIEW_TYPES.map((type) => (
                 <button
                   key={type}
-                  onClick={() => setSelectedType(type)}
-                  className={`p-4 border-2 rounded-xl font-medium transition-all text-sm ${
+                  onClick={() => {
+                    setSelectedType(type);
+                    if (type !== 'OTHER') setCustomType('');
+                  }}
+                  className={`p-4 border-2 rounded-xl font-medium transition-all text-sm whitespace-nowrap cursor-pointer ${
                     selectedType === type
                       ? 'border-primary bg-background text-primary'
                       : 'border-background-dark bg-white text-text-light hover:border-primary/50'
@@ -113,6 +123,18 @@ export default function InterviewStartPage() {
                 </button>
               ))}
             </div>
+            {/* 기타 직접 입력 */}
+            {selectedType === 'OTHER' && (
+              <div className="mt-4">
+                <input
+                  type="text"
+                  value={customType}
+                  onChange={(e) => setCustomType(e.target.value)}
+                  placeholder="면접 직무를 입력하세요 (예: AI 엔지니어, 보안 전문가)"
+                  className="w-full px-4 py-3 border-2 border-primary rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
+            )}
           </div>
 
           {/* 난이도 선택 */}
@@ -123,7 +145,7 @@ export default function InterviewStartPage() {
                 <button
                   key={difficulty}
                   onClick={() => setSelectedDifficulty(difficulty)}
-                  className={`p-5 border-2 rounded-xl transition-all flex flex-col items-center gap-2 ${
+                  className={`p-5 border-2 rounded-xl transition-all flex flex-col items-center gap-2 cursor-pointer ${
                     selectedDifficulty === difficulty
                       ? 'border-primary bg-background'
                       : 'border-background-dark bg-white hover:border-primary/50'
@@ -151,7 +173,7 @@ export default function InterviewStartPage() {
             <button
               onClick={handleStart}
               disabled={isLoading || !selectedType || !selectedDifficulty || isLimitReached}
-              className={`flex-1 py-4 px-8 text-lg font-semibold rounded-xl transition-all flex items-center justify-center gap-2 ${
+              className={`flex-1 py-4 px-8 text-lg font-semibold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 isLoading || !selectedType || !selectedDifficulty || isLimitReached
                   ? 'bg-background-dark text-text-muted cursor-not-allowed'
                   : 'bg-primary text-white hover:bg-primary-dark shadow-lg'

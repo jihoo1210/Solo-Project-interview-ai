@@ -119,7 +119,7 @@ export default function SignupPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-text-muted hover:text-text cursor-pointer"
                 >
-                  {showPassword ? '숨기기' : '보기'}
+                  {showPassword ? '🙈' : '🙊'}
                 </button>
               </div>
               <p className="mt-1 text-xs text-text-muted">
@@ -147,7 +147,7 @@ export default function SignupPage() {
                   onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-text-muted hover:text-text cursor-pointer"
                 >
-                  {showPasswordConfirm ? '숨기기' : '보기'}
+                  {showPasswordConfirm ? '🙈' : '🙊'}
                 </button>
               </div>
             </div>
