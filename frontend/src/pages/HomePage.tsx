@@ -106,7 +106,7 @@ export default function HomePage() {
                   </div>
                 }
               >
-                <CoachCharacter className="w-full h-full" />
+                <CoachCharacter className="w-full h-full" isPremium={user?.subscriptionType === 'PREMIUM'} />
               </Suspense>
             </div>
           </div>

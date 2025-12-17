@@ -3,8 +3,20 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, MeshDistortMaterial, GradientTexture, Line } from '@react-three/drei';
 import * as THREE from 'three';
 
-// 행성 위를 뛰어다니는 흰색 토끼
-function JumpingRabbitOnPlanet({ planetRadius = 1.5 }: { planetRadius?: number }) {
+// 행성 위를 뛰어다니는 토끼
+function JumpingRabbitOnPlanet({
+  planetRadius = 1.5,
+  color = '#FFFFFF',
+  innerEarColor = '#FFB6C1',
+  startAngle = 0,
+  orbitSpeed = 0.5
+}: {
+  planetRadius?: number;
+  color?: string;
+  innerEarColor?: string;
+  startAngle?: number;
+  orbitSpeed?: number;
+}) {
   const groupRef = useRef<THREE.Group>(null);
   const rabbitRef = useRef<THREE.Group>(null);
   const earLeftRef = useRef<THREE.Mesh>(null);
@@ -16,7 +28,7 @@ function JumpingRabbitOnPlanet({ planetRadius = 1.5 }: { planetRadius?: number }
       const time = state.clock.elapsedTime;
 
       // 행성 주위를 도는 각도 (천천히)
-      const orbitAngle = time * 0.5;
+      const orbitAngle = startAngle + time * orbitSpeed;
 
       // 토끼의 위치 (행성 표면 위)
       const surfaceOffset = 0.35; // 토끼 높이
@@ -53,35 +65,35 @@ function JumpingRabbitOnPlanet({ planetRadius = 1.5 }: { planetRadius?: number }
         {/* 몸통 */}
         <mesh position={[0, 0.15, 0]}>
           <sphereGeometry args={[0.35, 32, 32]} />
-          <meshStandardMaterial color="#FFFFFF" roughness={0.3} />
+          <meshStandardMaterial color={color} roughness={0.3} />
         </mesh>
 
         {/* 머리 */}
         <mesh position={[0, 0.55, 0]}>
           <sphereGeometry args={[0.28, 32, 32]} />
-          <meshStandardMaterial color="#FFFFFF" roughness={0.3} />
+          <meshStandardMaterial color={color} roughness={0.3} />
         </mesh>
 
         {/* 왼쪽 귀 */}
         <mesh ref={earLeftRef} position={[-0.12, 0.85, 0]} rotation={[0, 0, 0.2]}>
           <capsuleGeometry args={[0.06, 0.3, 8, 16]} />
-          <meshStandardMaterial color="#FFFFFF" roughness={0.3} />
+          <meshStandardMaterial color={color} roughness={0.3} />
         </mesh>
         {/* 왼쪽 귀 안쪽 */}
         <mesh position={[-0.12, 0.87, 0.04]} rotation={[0, 0, 0.2]}>
           <capsuleGeometry args={[0.03, 0.2, 8, 16]} />
-          <meshStandardMaterial color="#FFB6C1" roughness={0.3} />
+          <meshStandardMaterial color={innerEarColor} roughness={0.3} />
         </mesh>
 
         {/* 오른쪽 귀 */}
         <mesh ref={earRightRef} position={[0.12, 0.85, 0]} rotation={[0, 0, -0.2]}>
           <capsuleGeometry args={[0.06, 0.3, 8, 16]} />
-          <meshStandardMaterial color="#FFFFFF" roughness={0.3} />
+          <meshStandardMaterial color={color} roughness={0.3} />
         </mesh>
         {/* 오른쪽 귀 안쪽 */}
         <mesh position={[0.12, 0.87, 0.04]} rotation={[0, 0, -0.2]}>
           <capsuleGeometry args={[0.03, 0.2, 8, 16]} />
-          <meshStandardMaterial color="#FFB6C1" roughness={0.3} />
+          <meshStandardMaterial color={innerEarColor} roughness={0.3} />
         </mesh>
 
         {/* 왼쪽 눈 */}
@@ -127,27 +139,27 @@ function JumpingRabbitOnPlanet({ planetRadius = 1.5 }: { planetRadius?: number }
         {/* 꼬리 */}
         <mesh position={[0, 0.1, -0.35]}>
           <sphereGeometry args={[0.1, 16, 16]} />
-          <meshStandardMaterial color="#FFFFFF" roughness={0.2} />
+          <meshStandardMaterial color={color} roughness={0.2} />
         </mesh>
 
         {/* 앞발 */}
         <mesh position={[-0.15, -0.1, 0.1]}>
           <sphereGeometry args={[0.08, 16, 16]} />
-          <meshStandardMaterial color="#FFFFFF" roughness={0.3} />
+          <meshStandardMaterial color={color} roughness={0.3} />
         </mesh>
         <mesh position={[0.15, -0.1, 0.1]}>
           <sphereGeometry args={[0.08, 16, 16]} />
-          <meshStandardMaterial color="#FFFFFF" roughness={0.3} />
+          <meshStandardMaterial color={color} roughness={0.3} />
         </mesh>
 
         {/* 뒷발 */}
         <mesh position={[-0.12, -0.15, -0.1]}>
           <capsuleGeometry args={[0.06, 0.12, 8, 16]} />
-          <meshStandardMaterial color="#FFFFFF" roughness={0.3} />
+          <meshStandardMaterial color={color} roughness={0.3} />
         </mesh>
         <mesh position={[0.12, -0.15, -0.1]}>
           <capsuleGeometry args={[0.06, 0.12, 8, 16]} />
-          <meshStandardMaterial color="#FFFFFF" roughness={0.3} />
+          <meshStandardMaterial color={color} roughness={0.3} />
         </mesh>
       </group>
     </group>
@@ -389,7 +401,7 @@ function ParticleField() {
 }
 
 // 메인 Scene
-function Scene() {
+function Scene({ isPremium = false }: { isPremium?: boolean }) {
   return (
     <>
       <ambientLight intensity={0.5} />
@@ -405,6 +417,17 @@ function Scene() {
 
       {/* 행성 위를 뛰어다니는 흰색 토끼 */}
       <JumpingRabbitOnPlanet planetRadius={1.5} />
+
+      {/* Premium 사용자: 노란색 토끼 추가 (반대편에서 뛰어다님) */}
+      {isPremium && (
+        <JumpingRabbitOnPlanet
+          planetRadius={1.5}
+          color="#FBBF24"
+          innerEarColor="#F59E0B"
+          startAngle={Math.PI}
+          orbitSpeed={0.6}
+        />
+      )}
     </>
   );
 }
@@ -412,9 +435,10 @@ function Scene() {
 interface CoachCharacterProps {
   className?: string;
   mood?: 'happy' | 'thinking' | 'excited';
+  isPremium?: boolean;
 }
 
-export default function CoachCharacter({ className = '' }: CoachCharacterProps) {
+export default function CoachCharacter({ className = '', isPremium = false }: CoachCharacterProps) {
   return (
     <div className={`${className}`}>
       <Canvas
@@ -422,7 +446,7 @@ export default function CoachCharacter({ className = '' }: CoachCharacterProps) 
         style={{ background: 'transparent' }}
         gl={{ antialias: true, alpha: true }}
       >
-        <Scene />
+        <Scene isPremium={isPremium} />
       </Canvas>
     </div>
   );
