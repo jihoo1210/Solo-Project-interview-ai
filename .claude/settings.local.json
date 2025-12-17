@@ -30,7 +30,10 @@
       "Bash(netstat:*)",
       "Bash(del \"c:\\dev\\Portfolios\\Solo\\Solo-Project-interview-ai\\frontend\\test-*.json\")",
       "Bash(git checkout:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(./gradlew:*)",
+      "Bash(del \"c:\\dev\\portfolio\\Solo-Project-interview-ai\\backend\\src\\main\\java\\com\\interviewai\\global\\config\\AiConfig.java\")",
+      "Bash(xargs:*)"
     ]
   }
 }
