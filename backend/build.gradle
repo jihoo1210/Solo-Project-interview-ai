@@ -25,7 +25,7 @@ repositories {
 }
 
 ext {
-  set('springAiVersion', "1.1.2")
+	set('springAiVersion', "1.1.2")
 }
 
 dependencies {
@@ -72,10 +72,11 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+
 dependencyManagement {
-  imports {
-    mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
-  }
+	imports {
+		mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+	}
 }
 
 tasks.named('test') {
