@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +36,9 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @Value("${app.frontend-url:http://localhost:5173}")
+    private String frontendUrl;
+
     @PostMapping("/signup")
     public ApiResponse<SignupResponse> signup(@RequestBody @Valid SignupRequest request) {
         return ApiResponse.<SignupResponse>success(authService.signup(request));
@@ -44,10 +48,10 @@ public class AuthController {
     public void verifyEmail(@RequestParam("token") String token, HttpServletResponse response) throws IOException {
         try {
             authService.verifyEmail(token);
-            response.sendRedirect("http://localhost:5173/verify-email?success=true");
+            response.sendRedirect(frontendUrl + "/verify-email?success=true");
         } catch (Exception e) {
             String errorMessage = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
-            response.sendRedirect("http://localhost:5173/verify-email?success=false&error=" + errorMessage);
+            response.sendRedirect(frontendUrl + "/verify-email?success=false&error=" + errorMessage);
         }
     }
 
@@ -100,10 +104,10 @@ public class AuthController {
     public void confirmDeleteAccount(@RequestParam("token") String token, HttpServletResponse response) throws IOException {
         try {
             authService.confirmDeleteAccount(token);
-            response.sendRedirect("http://localhost:5173/confirm-delete-account?success=true");
+            response.sendRedirect(frontendUrl + "/confirm-delete-account?success=true");
         } catch (Exception e) {
             String errorMessage = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
-            response.sendRedirect("http://localhost:5173/confirm-delete-account?success=false&error=" + errorMessage);
+            response.sendRedirect(frontendUrl + "/confirm-delete-account?success=false&error=" + errorMessage);
         }
     }
 }
