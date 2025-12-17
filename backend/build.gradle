@@ -25,7 +25,7 @@ repositories {
 }
 
 ext {
-  set('springAiVersion', "1.1.2")
+	set('springAiVersion', "1.1.2")
 }
 
 dependencies {
@@ -65,7 +65,6 @@ dependencies {
 
 	// Spring AI - Gemini
 	implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
-	implementation 'com.google.genai:google-genai:0.7.0'
 
 	// Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -73,10 +72,11 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+
 dependencyManagement {
-  imports {
-    mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
-  }
+	imports {
+		mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+	}
 }
 
 tasks.named('test') {
