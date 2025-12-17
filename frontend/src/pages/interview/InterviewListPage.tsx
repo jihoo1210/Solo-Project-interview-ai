@@ -46,8 +46,8 @@ export default function InterviewListPage() {
 
   const getScoreColor = (score: number | null) => {
     if (score === null) return 'text-text-muted';
-    if (score >= 8) return 'text-success';
-    if (score >= 6) return 'text-primary';
+    if (score >= 7) return 'text-success';
+    if (score >= 5) return 'text-primary';
     return 'text-error';
   };
 

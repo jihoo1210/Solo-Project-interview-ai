@@ -16,7 +16,6 @@ public class InterviewDetailResponse {
     private InterviewDifficulty difficulty;
     private InterviewStatus status;
     private Integer totalScore;
-    private Boolean passed;
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;
     private List<QuestionWithAnswerResponse> questions;
@@ -28,7 +27,6 @@ public class InterviewDetailResponse {
                 .difficulty(interview.getDifficulty())
                 .status(interview.getStatus())
                 .totalScore(interview.getTotalScore())
-                .passed(interview.getPassed())
                 .startedAt(interview.getStartedAt())
                 .endedAt(interview.getEndedAt())
                 .questions(interview.getQuestions().stream()

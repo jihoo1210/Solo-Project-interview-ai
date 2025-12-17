@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { LoadingSpinner } from '../../components/common';
 import type { ApiError } from '../../types';
 
 export default function NaverCallbackPage() {

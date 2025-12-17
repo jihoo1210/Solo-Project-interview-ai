@@ -1,8 +1,8 @@
 # [Phase 3] 면접 시뮬레이션 구현서 v1.0
 
 > 작성일: 2024-12-16
-> 버전: 3.0 (Task 1~12 완료 + 추가 기능 구현)
-> 최종 수정일: 2025-12-16
+> 버전: 3.1 (Task 1~12 완료 + 추가 기능 구현 + 합격/불합격 기능 제거)
+> 최종 수정일: 2025-12-17
 > 작성자: AI Interview Simulator Team
 
 ---
@@ -81,10 +81,7 @@ Phase 3에서는 AI 기술 면접 시뮬레이터의 핵심 기능인 면접 시
 - [x] 면접 계속하기 (Resume Interview) 기능
 - [x] 중간 평가 화면 제거 (답변 후 바로 다음 질문으로 이동)
 - [x] OTHER 면접 유형 카테고리 추가 (GeminiService)
-
-### 다음 구현 예정
-
-- [ ] Premium 기능: 면접 질문 갯수 설정 (3~10개)
+- [x] 합격/불합격 기능 제거 (점수만 표시)
 
 ---
 
@@ -111,10 +108,11 @@ User (1) ──────< Interview (N)
 |--------|------|------|
 | id | BIGINT | PK |
 | user_id | BIGINT | FK → users |
-| type | VARCHAR | 면접 유형 (FRONTEND, BACKEND, FULLSTACK) |
+| type | VARCHAR | 면접 유형 (FRONTEND, BACKEND, FULLSTACK, OTHER 등) |
+| custom_type | VARCHAR | 기타 유형명 (type이 OTHER일 때) |
 | difficulty | VARCHAR | 난이도 (JUNIOR, MID, SENIOR) |
 | status | VARCHAR | 상태 (IN_PROGRESS, COMPLETED, CANCELLED) |
-| total_score | INT | 총점 |
+| total_score | INT | 총점 (0-10) |
 | started_at | DATETIME | 시작 시간 |
 | ended_at | DATETIME | 종료 시간 |
 | created_at | DATETIME | 생성일 |
@@ -136,9 +134,10 @@ User (1) ──────< Interview (N)
 | id | BIGINT | PK |
 | question_id | BIGINT | FK → questions |
 | content | TEXT | 답변 내용 |
-| score | INT | 점수 (0-100) |
+| score | INT | 점수 (0-10) |
 | feedback | TEXT | AI 피드백 |
 | model_answer | TEXT | 모범 답안 |
+| answer_time_seconds | INT | 답변 소요 시간 (초) |
 | created_at | DATETIME | 생성일 |
 
 ---
@@ -362,25 +361,63 @@ spring:
 - [x] InterviewDetailPage에서 IN_PROGRESS 상태일 때 "면접 계속하기" 버튼 표시
 - [x] 중간 평가 화면 제거 - 답변 제출 후 바로 다음 질문으로 이동
 - [x] 질문별 타이머 기능 (자동 리셋)
+- [x] 합격/불합격 기능 제거 - 점수만 표시하도록 변경
 
-### 8.2 현재 진행 중
+### 8.2 삭제된 기능
 
-Phase 3 핵심 기능 완료! 추가 기능 개발 중
+#### 합격/불합격 판단 기능 제거 (2025-12-17)
+
+면접 시뮬레이터의 목적은 학습과 연습이므로, 합격/불합격 판단 기능을 제거했습니다.
+
+**제거된 항목:**
+- `Interview.passed` 필드
+- `InterviewService.determinePassed()` 메서드
+- `InterviewEndResponse.passed`, `InterviewDetailResponse.passed` 필드
+- Frontend `InterviewResultPage` 합격/불합격 배너 UI
+
+**변경 이유:**
+- 면접 연습의 본질은 학습과 개선이지 합격/불합격 판정이 아님
+- 점수와 피드백만으로 충분한 학습 효과 제공
+- 불필요한 심리적 압박 제거
 
 ---
 
 ## 9. 다음 단계
 
-### 9.1 Phase 3 추가 기능 (진행 예정)
-- [ ] Premium 기능: 면접 질문 갯수 설정 (3~10개)
-- [ ] 면접 유형별 세부 카테고리 선택 기능
-
-### 9.2 Phase 4: 대시보드 및 통계
+### 9.1 Phase 4: 대시보드 및 통계
 - 면접 성적 추이 차트
 - 카테고리별 강약점 분석
 - 학습 추천 기능
 
-### 9.3 Phase 5: 배포 및 최적화
+### 9.2 Phase 5: Premium 기능
+- 면접 질문 갯수 설정 (3~10개)
+- 꼬리질문 기능
+- 무제한 면접 (일일 제한 해제)
+- 면접 유형별 세부 카테고리 선택 기능
+
+### 9.3 Phase 6: 결제 시스템
+- Payment 엔티티/Repository
+- PG사 연동 (토스페이먼츠/카카오페이)
+- 구독 관리 API
+
+### 9.4 Phase 7: 배포 및 최적화
 - Docker 컨테이너화
 - CI/CD 파이프라인 구축
 - 성능 최적화
+
+---
+
+## 10. Phase 3 완료 체크리스트
+
+- [x] 면접 시작/진행/종료 API (Backend)
+- [x] AI 질문 생성 및 답변 평가 (GeminiService)
+- [x] 면접 기록 목록/상세 조회 API
+- [x] 면접 시작 페이지 (Frontend)
+- [x] 면접 진행 페이지 (질문/답변 UI)
+- [x] 면접 결과 페이지 (레이더 차트, 상세 피드백)
+- [x] 면접 기록 목록/상세 페이지
+- [x] FREE 사용자 일일 면접 제한 (3회)
+- [x] 면접 계속하기 기능
+- [x] 빌드 테스트 통과 (Backend & Frontend)
+
+**Phase 3 완료! → Phase 4 진행**

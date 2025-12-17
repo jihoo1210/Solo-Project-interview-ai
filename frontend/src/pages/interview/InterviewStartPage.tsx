@@ -95,7 +95,6 @@ export default function InterviewStartPage() {
               <span className={`font-medium ${isLimitReached ? 'text-error' : 'text-primary'}`}>
                 오늘 남은 면접: {FREE_DAILY_LIMIT - todayCount}회
               </span>
-              <span className="text-text-muted ml-2">({todayCount}/{FREE_DAILY_LIMIT}회 사용)</span>
               {isLimitReached && (
                 <p className="text-sm text-error mt-1">일일 면접 횟수를 모두 사용했습니다. 내일 다시 시도해주세요.</p>
               )}
@@ -127,6 +126,7 @@ export default function InterviewStartPage() {
             {selectedType === 'OTHER' && (
               <div className="mt-4">
                 <input
+                  autoFocus
                   type="text"
                   value={customType}
                   onChange={(e) => setCustomType(e.target.value)}

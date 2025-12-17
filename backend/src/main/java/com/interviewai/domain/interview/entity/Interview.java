@@ -44,9 +44,6 @@ public class Interview extends BaseTimeEntity {
     @Column(name = "total_score")
     private Integer totalScore;
 
-    @Column(name = "passed")
-    private Boolean passed;
-
     @Column(name = "started_at")
     private LocalDateTime startedAt;
 
@@ -76,10 +73,9 @@ public class Interview extends BaseTimeEntity {
         return type.getDescription();
     }
 
-    public void complete(int totalScore, boolean passed) {
+    public void complete(int totalScore) {
         this.status = InterviewStatus.COMPLETED;
         this.totalScore = totalScore;
-        this.passed = passed;
         this.endedAt = LocalDateTime.now();
     }
 

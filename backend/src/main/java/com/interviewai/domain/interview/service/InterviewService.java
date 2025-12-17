@@ -125,10 +125,7 @@ public class InterviewService {
         Double avgScore = answerRepository.calculateAverageScoreByInterview(interview);
         int totalScore = avgScore != null ? avgScore.intValue() : 0;
 
-        // 합격 여부 판단 (난이도에 따라 기준 다름)
-        boolean passed = determinePassed(totalScore, interview.getDifficulty());
-
-        interview.complete(totalScore, passed);
+        interview.complete(totalScore);
 
         // AI로 종합 평가
         SummaryResult summary = aiService.generateSummary(interview);
@@ -225,17 +222,4 @@ public class InterviewService {
         return interviewRepository.countByUserAndCreatedAtAfter(user, startOfDay);
     }
 
-    /**
-     * 합격 여부 판단
-     * - JUNIOR: 5점 이상 합격
-     * - MID: 6점 이상 합격
-     * - SENIOR: 7점 이상 합격
-     */
-    private boolean determinePassed(int totalScore, InterviewDifficulty difficulty) {
-        return switch (difficulty) {
-            case JUNIOR -> totalScore >= 5;
-            case MID -> totalScore >= 6;
-            case SENIOR -> totalScore >= 7;
-        };
-    }
 }

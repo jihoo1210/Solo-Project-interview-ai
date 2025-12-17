@@ -102,7 +102,6 @@ export interface SummaryResult {
 export interface InterviewEndResponse {
   interviewId: number;
   totalScore: number;
-  passed: boolean;
   questionCount: number;
   summary: SummaryResult;
 }
@@ -150,7 +149,6 @@ export interface InterviewDetailResponse {
   difficulty: InterviewDifficulty;
   status: InterviewStatus;
   totalScore: number | null;
-  passed: boolean | null;
   startedAt: string;
   endedAt: string | null;
   questions: InterviewDetailQuestion[];

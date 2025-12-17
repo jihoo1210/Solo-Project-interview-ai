@@ -303,7 +303,7 @@ public class GeminiService implements AiService {
         if (previousAnswer == null) {
             // 첫 질문
             return String.format(
-                    "면접을 시작합니다. %s 개발자 면접의 첫 번째 기술 질문을 해주세요. 또한 중복되는 질문을 방지하기 위해 새롭고 특이한 질문을 위주로 구성하세요.",
+                    "면접을 시작합니다. %s 개발자 면접의 첫 번째 기술 질문을 해주세요. 질문은 오늘 가장 이슈된 문제와 연관지어 5개 이상 생각한 후에 무작위적으로 하나를 선택하여 시작하세요.",
                     interview.getType().getDescription()
             );
         }

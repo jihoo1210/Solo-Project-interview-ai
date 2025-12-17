@@ -48,8 +48,8 @@ export default function InterviewDetailPage() {
 
   const getScoreColor = (score: number | null) => {
     if (score === null) return 'text-text-muted';
-    if (score >= 8) return 'text-success';
-    if (score >= 6) return 'text-primary';
+    if (score >= 7) return 'text-success';
+    if (score >= 5) return 'text-primary';
     return 'text-error';
   };
 
@@ -192,13 +192,13 @@ export default function InterviewDetailPage() {
                   </div>
 
                   {/* 피드백 */}
-                  <div>
+                  <div className='bg-white border border-background-dark rounded-lg p-4'>
                     <h4 className="text-xs font-semibold text-text-muted uppercase mb-2">피드백</h4>
                     <p className="text-text-light leading-relaxed">{question.answer.feedback}</p>
                   </div>
 
                   {/* 모범 답안 */}
-                  <div className="bg-accent/10 rounded-lg p-4">
+                  <div className="bg-white border border-background-dark rounded-lg p-4">
                     <h4 className="text-xs font-semibold text-accent uppercase mb-2">모범 답안</h4>
                     <p className="text-text-light leading-relaxed">{question.answer.modelAnswer}</p>
                   </div>

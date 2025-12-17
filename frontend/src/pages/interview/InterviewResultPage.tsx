@@ -143,30 +143,6 @@ export default function InterviewResultPage() {
         <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-12">
           <h1 className="text-3xl sm:text-4xl font-bold text-center text-text mb-10">면접 결과</h1>
 
-          {/* 합격/불합격 배너 */}
-          <div className={`mb-8 py-6 px-8 rounded-2xl text-center ${
-            result.passed
-              ? 'bg-success/10 border-2 border-success'
-              : 'bg-error/10 border-2 border-error'
-          }`}>
-            <div className="flex items-center justify-center gap-3">
-              {result.passed ? (
-                <>
-                  <span className="text-3xl sm:text-4xl font-bold text-success">합격</span>
-                </>
-              ) : (
-                <>
-                  <span className="text-3xl sm:text-4xl font-bold text-error">불합격</span>
-                </>
-              )}
-            </div>
-            <p className="mt-2 text-text-muted">
-              {result.passed
-                ? '축하합니다! 면접을 성공적으로 통과했습니다.'
-                : '아쉽지만 이번에는 통과하지 못했습니다. 피드백을 참고하여 다시 도전해보세요!'}
-            </p>
-          </div>
-
           {/* 종합 점수 */}
           <div className="text-center mb-12">
             <span className="text-lg text-text-muted">종합 점수</span>
@@ -286,19 +262,13 @@ export default function InterviewResultPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => navigate('/interview/start')}
-              className="px-8 py-4 text-lg font-bold text-white bg-primary rounded-xl hover:bg-primary-dark transition-all shadow-lg"
+              className="px-8 py-4 text-lg font-bold text-white bg-primary rounded-xl hover:bg-primary-dark transition-all shadow-lg cursor-pointer"
             >
               새 면접 시작
             </button>
             <button
-              onClick={() => navigate('/interviews')}
-              className="px-8 py-4 text-lg font-bold text-white bg-accent rounded-xl hover:opacity-90 transition-all shadow-lg"
-            >
-              면접 기록 보기
-            </button>
-            <button
               onClick={() => navigate('/')}
-              className="px-8 py-4 text-lg font-semibold text-text-light bg-white border-2 border-background-dark rounded-xl hover:border-primary hover:text-primary transition-all"
+              className="px-8 py-4 text-lg font-semibold text-text-light bg-white border-2 border-background-dark rounded-xl hover:border-primary hover:text-primary transition-all cursor-pointer"
             >
               홈으로
             </button>
