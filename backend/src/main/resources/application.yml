@@ -51,6 +51,7 @@ spring:
   ai:
     google:
       genai:
+        project-id: ${GOOGLE_AI_PROJECT_ID:interview-ai}
         api-key: ${GOOGLE_AI_API_KEY}
         chat:
           options:
@@ -189,6 +190,7 @@ oauth2:
   ai:
     google:
       genai:
+        project-id: ${GOOGLE_AI_PROJECT_ID:interview-ai}
         api-key: ${GOOGLE_AI_API_KEY}
         chat:
           options:
