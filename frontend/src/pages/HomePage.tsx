@@ -32,17 +32,19 @@ export default function HomePage() {
             {/* 텍스트 콘텐츠 */}
             <div className="text-center lg:text-left">
               <p className="text-sm font-medium text-primary mb-4">
-                AI 기반 면접 코칭 서비스
+                AI 면접 코칭 서비스
               </p>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-text mb-6 leading-tight">
-                긴장은 줄이고,
+                <span className="text-primary">AI</span>와 함께하는
                 <br />
-                <span className="text-primary">자신감</span>은 높이세요
+                실전 <span className="text-primary">면접</span> 연습
               </h1>
 
               <p className="text-lg text-text-light mb-8 max-w-xl mx-auto lg:mx-0">
-                당신의 친근한 AI 면접 코치와 함께 편안하게 연습하고, 실전에서 빛나세요.
+                AI 면접관이 실제 면접처럼 질문하고, 피드백을 제공합니다.
+                <br className="hidden sm:block" />
+                언제 어디서나 편하게 면접을 연습하세요.
               </p>
 
               {/* 사용자 상태 (로그인된 경우만 표시) */}
