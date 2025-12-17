@@ -4,6 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.interviewai.domain.user.entity.AuthProvider;
 import com.interviewai.domain.user.entity.SubscriptionType;
 import com.interviewai.domain.user.entity.User;
 import com.interviewai.domain.user.repository.UserRepository;
@@ -28,6 +29,7 @@ public class DataInitializer implements CommandLineRunner {
                     .nickname("Admin")
                     .password(passwordEncoder.encode("Admin123!"))
                     .emailVerified(true)
+                    .provider(AuthProvider.LOCAL)
                     .subscriptionType(SubscriptionType.PREMIUM)
                     .build();
             userRepository.save(admin);
