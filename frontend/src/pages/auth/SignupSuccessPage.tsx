@@ -33,7 +33,7 @@ export default function SignupSuccessPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4">
+    <div className="flex-1 flex items-center justify-center py-12 px-4">
       <div className="max-w-md w-full text-center">
         <div className="bg-white rounded-xl shadow-md p-8">
 

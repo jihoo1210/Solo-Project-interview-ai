@@ -162,3 +162,49 @@ body {
 .btn-bounce:active {
   transform: translateY(0);
 }
+
+/* Markdown Table Styles */
+.markdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.875rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.markdown-table th,
+.markdown-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-background-dark);
+}
+
+.markdown-table th {
+  background-color: var(--color-background-dark);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.markdown-table tbody tr:hover {
+  background-color: var(--color-background);
+}
+
+.markdown-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Code Badge Style */
+.code-badge {
+  display: inline-block;
+  padding: 0.05rem 0.1rem;
+  background-color: var(--color-primary-light);
+  color: var(--color-text);
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.875em;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  opacity: .8;
+}

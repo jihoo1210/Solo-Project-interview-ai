@@ -28,7 +28,7 @@ export default function ForgotPasswordPage() {
   // 성공 화면
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4">
+      <div className="flex-1 flex items-center justify-center py-12 px-4">
         <div className="max-w-md w-full text-center">
           <div className="bg-white rounded-xl shadow-md p-8">
             <h2 className="text-2xl font-bold text-text mb-2">이메일을 확인해주세요</h2>
@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
 
   // 입력 화면
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
+    <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-text">비밀번호 찾기</h2>

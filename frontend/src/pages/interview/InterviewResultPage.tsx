@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { InterviewEndResponse, EvaluationResult, QuestionResponse } from '../../types';
+import { formatMarkdown } from '../../utils/formatMarkdown';
 
 interface AnswerHistory {
   question: QuestionResponse;
@@ -186,7 +187,7 @@ export default function InterviewResultPage() {
           {/* 종합 평가 */}
           <div className="bg-background rounded-xl p-6 mb-12">
             <h2 className="text-xl font-semibold text-text mb-4">종합 평가</h2>
-            <p className="text-text-light leading-relaxed whitespace-pre-wrap">{summary.summary}</p>
+            <p className="text-text-light leading-relaxed whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: formatMarkdown(summary.summary) }} />
           </div>
 
           {/* 답변 기록 */}
@@ -212,7 +213,7 @@ export default function InterviewResultPage() {
                               소요 시간: {formatTime(item.answerTimeSeconds)}
                             </span>
                           </div>
-                          <p className="text-lg font-medium text-text">{item.question.content}</p>
+                          <p className="text-lg font-medium text-text" dangerouslySetInnerHTML={{ __html: formatMarkdown(item.question.content) }} />
                         </div>
                         <div className="flex items-center gap-3">
                           <span className={`text-2xl font-bold ${getScoreColor(item.evaluation.score)}`}>
@@ -242,13 +243,13 @@ export default function InterviewResultPage() {
                         {/* 피드백 */}
                         <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
                           <span className="text-xs font-semibold text-primary uppercase tracking-wider">AI 피드백</span>
-                          <p className="text-text-light mt-2 whitespace-pre-wrap">{item.evaluation.feedback}</p>
+                          <p className="text-text-light mt-2 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: formatMarkdown(item.evaluation.feedback) }} />
                         </div>
 
                         {/* 모범 답안 */}
                         <div className="bg-accent/10 border border-accent/30 rounded-lg p-4">
                           <span className="text-xs font-semibold text-accent uppercase tracking-wider">모범 답안</span>
-                          <p className="text-text-light mt-2 whitespace-pre-wrap">{item.evaluation.modelAnswer}</p>
+                          <p className="text-text-light mt-2 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: formatMarkdown(item.evaluation.modelAnswer) }} />
                         </div>
                       </div>
                     )}

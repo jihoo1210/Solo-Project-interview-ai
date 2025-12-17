@@ -38,63 +38,62 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Auth Routes (No Layout) */}
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
-              <LoginPage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            <PublicRoute>
-              <SignupPage />
-            </PublicRoute>
-          }
-        />
-        <Route path="/signup-success" element={<SignupSuccessPage />} />
-        <Route path="/verify-email" element={<EmailVerifyPage />} />
-        <Route
-          path="/forgot-password"
-          element={
-            <PublicRoute>
-              <ForgotPasswordPage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/reset-password"
-          element={
-            <PublicRoute>
-              <ResetPasswordPage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/delete-account"
-          element={
-            <PublicRoute>
-              <DeleteAccountPage />
-            </PublicRoute>
-          }
-        />
-        <Route path="/confirm-delete-account" element={<DeleteAccountConfirmPage />} />
-
-        {/* OAuth Callback Routes */}
+        {/* OAuth Callback Routes (No Layout - 처리 후 리다이렉트) */}
         <Route path="/oauth/callback/google" element={<GoogleCallbackPage />} />
         <Route path="/oauth/callback/naver" element={<NaverCallbackPage />} />
 
-        {/* Error Page */}
-        <Route path="/error" element={<ErrorPage />} />
-
-        {/* Public Routes with PublicLayout */}
+        {/* All Routes with PublicLayout */}
         <Route element={<PublicLayout />}>
+          {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
+          <Route path="/error" element={<ErrorPage />} />
 
-          {/* Protected Routes */}
+          {/* Auth Routes (비로그인 사용자 전용) */}
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <PublicRoute>
+                <SignupPage />
+              </PublicRoute>
+            }
+          />
+          <Route path="/signup-success" element={<SignupSuccessPage />} />
+          <Route path="/verify-email" element={<EmailVerifyPage />} />
+          <Route
+            path="/forgot-password"
+            element={
+              <PublicRoute>
+                <ForgotPasswordPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/reset-password"
+            element={
+              <PublicRoute>
+                <ResetPasswordPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/delete-account"
+            element={
+              <PublicRoute>
+                <DeleteAccountPage />
+              </PublicRoute>
+            }
+          />
+          <Route path="/confirm-delete-account" element={<DeleteAccountConfirmPage />} />
+
+          {/* Protected Routes (로그인 사용자 전용) */}
           <Route element={<PrivateRoute />}>
             <Route path="/mypage" element={<MyPage />} />
             <Route path="/interviews" element={<InterviewListPage />} />

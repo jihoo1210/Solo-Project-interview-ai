@@ -19,7 +19,16 @@
       "Bash(npm run build:*)",
       "Bash(git merge:*)",
       "Bash(powershell -Command:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(node -e:*)",
+      "Bash(node test-table.js:*)",
+      "Bash(curl:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJhZG1pbkB0ZXN0LmNvbSIsInN1YnNjcmlwdGlvblR5cGUiOiJQUkVNSVVNIiwiaWF0IjoxNzY1OTUyMDgwLCJleHAiOjE3NjU5NTU2ODB9.qkmvA_iapnzb8UH6-QFjoIVPf4bROaizZuLZlVskY0wGNz9USJvu1jD02IXZHzA8uwSe7ScPP5XMSCzd435iww\")",
+      "Bash(__NEW_LINE__ echo \"=== 1. 면접 목록 조회 ===\")",
+      "Bash(__NEW_LINE__ echo \"\")",
+      "Bash(__NEW_LINE__ echo \"=== 면접 시작 ===\")",
+      "Bash(netstat:*)",
+      "Bash(del \"c:\\dev\\Portfolios\\Solo\\Solo-Project-interview-ai\\frontend\\test-*.json\")"
     ]
   }
 }

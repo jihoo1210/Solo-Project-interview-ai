@@ -70,7 +70,7 @@ export default function ResetPasswordPage() {
   // 토큰이 없는 경우
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4">
+      <div className="flex-1 flex items-center justify-center py-12 px-4">
         <div className="max-w-md w-full text-center">
           <div className="bg-white rounded-xl shadow-md p-8">
             <div className="w-16 h-16 bg-error/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -93,7 +93,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
+    <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-text">새 비밀번호 설정</h2>

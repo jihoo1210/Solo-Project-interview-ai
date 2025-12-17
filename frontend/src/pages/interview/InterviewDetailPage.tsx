@@ -4,6 +4,7 @@ import { getInterviewDetail, resumeInterview } from '../../api/interview';
 import type { InterviewDetailResponse } from '../../types';
 import { INTERVIEW_TYPE_LABELS, INTERVIEW_DIFFICULTY_LABELS } from '../../types';
 import { LoadingSpinner } from '../../components/common';
+import { formatMarkdown } from '../../utils/formatMarkdown';
 
 export default function InterviewDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -51,6 +52,16 @@ export default function InterviewDetailPage() {
     if (score >= 7) return 'text-success';
     if (score >= 5) return 'text-primary';
     return 'text-error';
+  };
+
+  const formatTime = (seconds: number | undefined) => {
+    if (seconds === undefined) return '-';
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    if (mins > 0) {
+      return `${mins}분 ${secs}초`;
+    }
+    return `${secs}초`;
   };
 
   const handleResumeInterview = async () => {
@@ -169,9 +180,10 @@ export default function InterviewDetailPage() {
               </div>
 
               {/* 질문 내용 */}
-              <p className="text-lg font-medium text-text mb-4 leading-relaxed">
-                {question.content}
-              </p>
+              <p
+                className="text-lg font-medium text-text mb-4 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: formatMarkdown(question.content) }}
+              />
 
               {question.answer ? (
                 <div className="bg-background rounded-xl p-5 space-y-4">
@@ -183,24 +195,34 @@ export default function InterviewDetailPage() {
                     </div>
                   </div>
 
-                  {/* 점수 */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-text-muted">점수:</span>
-                    <span className={`text-xl font-bold ${getScoreColor(question.answer.score)}`}>
-                      {question.answer.score}/10
-                    </span>
+                  {/* 점수 및 소요 시간 */}
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-text-muted">점수:</span>
+                      <span className={`text-xl font-bold ${getScoreColor(question.answer.score)}`}>
+                        {question.answer.score}/10
+                      </span>
+                    </div>
+                    {question.answer.answerTimeSeconds !== undefined && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-text-muted">소요 시간:</span>
+                        <span className="text-sm font-medium text-text">
+                          {formatTime(question.answer.answerTimeSeconds)}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* 피드백 */}
                   <div className='bg-white border border-background-dark rounded-lg p-4'>
                     <h4 className="text-xs font-semibold text-text-muted uppercase mb-2">피드백</h4>
-                    <p className="text-text-light leading-relaxed">{question.answer.feedback}</p>
+                    <p className="text-text-light leading-relaxed" dangerouslySetInnerHTML={{ __html: formatMarkdown(question.answer.feedback) }} />
                   </div>
 
                   {/* 모범 답안 */}
                   <div className="bg-white border border-background-dark rounded-lg p-4">
                     <h4 className="text-xs font-semibold text-accent uppercase mb-2">모범 답안</h4>
-                    <p className="text-text-light leading-relaxed">{question.answer.modelAnswer}</p>
+                    <p className="text-text-light leading-relaxed" dangerouslySetInnerHTML={{ __html: formatMarkdown(question.answer.modelAnswer) }} />
                   </div>
                 </div>
               ) : (

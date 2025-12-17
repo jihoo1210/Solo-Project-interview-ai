@@ -9,6 +9,7 @@ import type {
 } from '../../types';
 import { INTERVIEW_TYPE_LABELS, INTERVIEW_DIFFICULTY_LABELS } from '../../types';
 import { LoadingSpinner } from '../../components/common';
+import { formatMarkdown } from '../../utils/formatMarkdown';
 
 interface LocationState {
   interviewId: number;
@@ -204,9 +205,10 @@ export default function InterviewPage() {
                   <span className="inline-block px-4 py-1.5 bg-primary text-white rounded-lg text-sm font-semibold mb-4">
                     Q{currentQuestion.orderNumber}
                   </span>
-                  <p className="text-xl sm:text-2xl font-medium text-text leading-relaxed">
-                    {currentQuestion.content}
-                  </p>
+                  <p
+                    className="text-xl sm:text-2xl font-medium text-text leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: formatMarkdown(currentQuestion.content) }}
+                  />
                 </div>
 
                 <div className="mb-6">
@@ -299,22 +301,33 @@ export default function InterviewPage() {
                 아직 {5 - answerHistory.length}개의 질문이 남았습니다.<br />
                 종료하면 현재까지의 답변으로 결과가 생성됩니다.
               </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowEndConfirm(false)}
-                  className="flex-1 py-3 px-4 text-text-light font-semibold border border-background-dark rounded-xl hover:border-primary hover:text-primary transition-all cursor-pointer"
-                >
-                  취소
-                </button>
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowEndConfirm(false)}
+                    className="flex-1 py-3 px-4 text-text-light font-semibold border border-background-dark rounded-xl hover:border-primary hover:text-primary transition-all cursor-pointer"
+                  >
+                    취소
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowEndConfirm(false);
+                      handleEndInterview();
+                    }}
+                    disabled={isEnding}
+                    className="flex-1 py-3 px-4 text-white font-semibold bg-primary rounded-xl hover:bg-primary-dark/50 transition-all disabled:opacity-50 cursor-pointer"
+                  >
+                    {isEnding ? '종료 중...' : '면접 종료'}
+                  </button>
+                </div>
                 <button
                   onClick={() => {
                     setShowEndConfirm(false);
-                    handleEndInterview();
+                    navigate('/interviews');
                   }}
-                  disabled={isEnding}
-                  className="flex-1 py-3 px-4 text-white font-semibold bg-primary rounded-xl hover:bg-primary-dark transition-all disabled:opacity-50 cursor-pointer"
+                  className="w-full py-3 px-4 text-white font-semibold bg-primary-dark rounded-xl hover:bg-primary-dark/90 transition-all cursor-pointer"
                 >
-                  {isEnding ? '종료 중...' : '면접 종료'}
+                  다음에 하기(면접 내용 저장)
                 </button>
               </div>
             </div>
