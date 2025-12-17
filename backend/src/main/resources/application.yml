@@ -49,14 +49,15 @@ spring:
             enable: true
 
   ai:
+    model:
+      chat: google-genai
     google:
       genai:
-        project-id: ${GOOGLE_AI_PROJECT_ID}
         api-key: ${GOOGLE_AI_API_KEY}
         chat:
           options:
             model: gemini-2.0-flash-lite
-            temperature: 2
+            temperature: 0.7
 
 server:
   port: 8080
@@ -188,9 +189,10 @@ oauth2:
 
 
   ai:
+    model:
+      chat: google-genai
     google:
       genai:
-        project-id: ${GOOGLE_AI_PROJECT_ID:gen-lang-client-0514433569}
         api-key: ${GOOGLE_AI_API_KEY}
         chat:
           options:
