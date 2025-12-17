@@ -27,13 +27,20 @@ export default function PaymentPage() {
     try {
       // 1. 클라이언트 키 조회
       const clientKey = await getClientKey();
+      console.log('clientKey:', clientKey);
 
       // 2. 결제 준비 (customerKey 생성)
       const prepareResponse = await preparePayment('PREMIUM_MONTHLY');
+      console.log('prepareResponse:', prepareResponse);
 
       // 3. 토스페이먼츠 SDK 로드 확인
       if (!window.TossPayments) {
         throw new Error('결제 모듈을 불러올 수 없습니다.');
+      }
+
+      // customerKey 검증
+      if (!prepareResponse?.customerKey) {
+        throw new Error('customerKey가 없습니다. 서버 응답을 확인해주세요.');
       }
 
       // 4. 토스페이먼츠 빌링키 발급 요청
