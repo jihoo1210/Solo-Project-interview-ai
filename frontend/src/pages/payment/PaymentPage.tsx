@@ -43,16 +43,16 @@ export default function PaymentPage() {
         throw new Error('customerKey가 없습니다. 서버 응답을 확인해주세요.');
       }
 
-      // 4. 토스페이먼츠 빌링키 발급 요청
+      // 4. 토스페이먼츠 빌링키 발급 요청 (v2 SDK)
       const tossPayments = window.TossPayments(clientKey);
       const payment = tossPayments.payment({ customerKey: prepareResponse.customerKey });
 
-      await payment.requestBillingKeyAuth('카드', {
-        scope: 'BILLING',
-        customerEmail: prepareResponse.customerEmail,
-        customerName: prepareResponse.customerName,
+      await payment.requestBillingAuth({
+        method: 'CARD',
         successUrl: `${window.location.origin}/payment/success`,
         failUrl: `${window.location.origin}/payment/fail`,
+        customerEmail: prepareResponse.customerEmail,
+        customerName: prepareResponse.customerName,
       });
     } catch (err) {
       console.error('결제 요청 실패:', err);
