@@ -31,9 +31,6 @@ export default function ForgotPasswordPage() {
       <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4">
         <div className="max-w-md w-full text-center">
           <div className="bg-white rounded-xl shadow-md p-8">
-            <div className="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <div className="w-8 h-8 bg-success rounded-full" />
-            </div>
             <h2 className="text-2xl font-bold text-text mb-2">이메일을 확인해주세요</h2>
             <p className="text-text-muted mb-6">
               {email}로 비밀번호 재설정 링크를 발송했습니다.<br />

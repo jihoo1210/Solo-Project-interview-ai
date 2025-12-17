@@ -147,6 +147,9 @@ public class AuthService {
 
     public void requestPasswordReset(PasswordResetRequest request) {
         if(userRepository.existsByEmail(request.getEmail())) {
+            User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
+            if(!user.getProvider().equals(AuthProvider.LOCAL)) return;
+
             String token = emailService.generateEmailToken(EmailType.PASSWORD_RESET);
             emailService.sendPasswordResetEmail(request.getEmail(), token);
         }
