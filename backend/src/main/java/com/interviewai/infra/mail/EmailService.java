@@ -97,19 +97,19 @@ public class EmailService {
     // HTML
     private String getEmailHtml(String token, EmailType type) {
         return """
-            <div style='max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; background-color: #FFF7ED;'>
+            <div style='max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; background-color: #FFFBF7;'>
                 <div style='text-align: center; padding: 20px 0;'>
-                    <h2 style='color: #EA580C; margin: 0; font-size: 24px;'>AI 면접 시뮬레이터</h2>
-                    <p style='color: #F97316; margin: 5px 0 0 0; font-size: 14px;'>취업 면접 AI 코칭 서비스</p>
+                    <h2 style='color: #FB923C; margin: 0; font-size: 24px;'>AI 면접 시뮬레이터</h2>
+                    <p style='color: #FDBA74; margin: 5px 0 0 0; font-size: 14px;'>취업 면접 AI 코칭 서비스</p>
                 </div>
-                <div style='background-color: #FFFFFF; padding: 40px 30px; border-radius: 16px; box-shadow: 0 4px 6px rgba(234, 88, 12, 0.1);'>
-                    <h3 style='color: #EA580C; text-align: center; margin: 0 0 20px 0; font-size: 20px;'>%s</h3>
+                <div style='background-color: #FFFFFF; padding: 40px 30px; border-radius: 16px; box-shadow: 0 2px 8px rgba(251, 146, 60, 0.08);'>
+                    <h3 style='color: #FB923C; text-align: center; margin: 0 0 20px 0; font-size: 20px;'>%s</h3>
                     <p style='color: #78716C; line-height: 1.8; text-align: center; margin: 0 0 30px 0;'>
                         %s
                     </p>
                     <div style='text-align: center; margin: 30px 0;'>
                         <a href='%s%s'
-                           style='display: inline-block; background: linear-gradient(135deg, #F97316 0%%, #EA580C 100%%); color: white; padding: 16px 40px; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);'>
+                           style='display: inline-block; background-color: #FB923C; color: white; padding: 14px 36px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 15px;'>
                             %s
                         </a>
                     </div>
