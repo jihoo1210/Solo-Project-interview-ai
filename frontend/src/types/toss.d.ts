@@ -1,14 +1,11 @@
 interface TossPaymentWidget {
-  requestBillingKeyAuth(
-    method: '카드',
-    options: {
-      scope: 'BILLING';
-      customerEmail?: string;
-      customerName?: string;
-      successUrl: string;
-      failUrl: string;
-    }
-  ): Promise<void>;
+  requestBillingAuth(options: {
+    method: 'CARD';
+    successUrl: string;
+    failUrl: string;
+    customerEmail?: string;
+    customerName?: string;
+  }): Promise<void>;
 }
 
 interface TossPaymentsInstance {
