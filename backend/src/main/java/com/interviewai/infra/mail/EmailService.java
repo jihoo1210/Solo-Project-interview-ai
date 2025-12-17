@@ -97,23 +97,31 @@ public class EmailService {
     // HTML
     private String getEmailHtml(String token, EmailType type) {
         return """
-            <div style='max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;'>
-                <h2 style='color: #333; text-align: center;'>AI 면접 시뮬레이터</h2>
-                <div style='background-color: #f8f9fa; padding: 30px; border-radius: 10px;'>
-                    <h3 style='color: #333; text-align: center;'>%s</h3>
-                    <p style='color: #666; line-height: 1.6; text-align: center;'>
+            <div style='max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; background-color: #FFF7ED;'>
+                <div style='text-align: center; padding: 20px 0;'>
+                    <h2 style='color: #EA580C; margin: 0; font-size: 24px;'>AI 면접 시뮬레이터</h2>
+                    <p style='color: #F97316; margin: 5px 0 0 0; font-size: 14px;'>취업 면접 AI 코칭 서비스</p>
+                </div>
+                <div style='background-color: #FFFFFF; padding: 40px 30px; border-radius: 16px; box-shadow: 0 4px 6px rgba(234, 88, 12, 0.1);'>
+                    <h3 style='color: #EA580C; text-align: center; margin: 0 0 20px 0; font-size: 20px;'>%s</h3>
+                    <p style='color: #78716C; line-height: 1.8; text-align: center; margin: 0 0 30px 0;'>
                         %s
                     </p>
                     <div style='text-align: center; margin: 30px 0;'>
                         <a href='%s%s'
-                           style='background-color: #4F46E5; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center;'>
+                           style='display: inline-block; background: linear-gradient(135deg, #F97316 0%%, #EA580C 100%%); color: white; padding: 16px 40px; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);'>
                             %s
                         </a>
                     </div>
-                    <p style='color: #999; font-size: 12px;'>
-                        본 메일은 발신 전용입니다.<br>
-                        인증 링크는 10분 후 만료됩니다.
-                    </p>
+                    <div style='border-top: 1px solid #FED7AA; margin-top: 30px; padding-top: 20px;'>
+                        <p style='color: #A8A29E; font-size: 12px; text-align: center; margin: 0;'>
+                            본 메일은 발신 전용입니다.<br>
+                            인증 링크는 10분 후 만료됩니다.
+                        </p>
+                    </div>
+                </div>
+                <div style='text-align: center; padding: 20px 0;'>
+                    <p style='color: #D6D3D1; font-size: 11px; margin: 0;'>© 2024 AI 면접 시뮬레이터. All rights reserved.</p>
                 </div>
             </div>
             """.formatted(

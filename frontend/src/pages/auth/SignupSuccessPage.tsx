@@ -36,9 +36,6 @@ export default function SignupSuccessPage() {
     <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4">
       <div className="max-w-md w-full text-center">
         <div className="bg-white rounded-xl shadow-md p-8">
-          <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <div className="w-8 h-8 bg-primary rounded-full" />
-          </div>
 
           <h2 className="text-2xl font-bold text-text mb-2">이메일을 확인해주세요</h2>
 
