@@ -60,6 +60,8 @@ export interface InterviewStartRequest {
   type: InterviewType;
   difficulty: InterviewDifficulty;
   customType?: string;
+  questionLimit: number;
+  followUpEnabled: boolean;
 }
 
 export interface QuestionResponse {

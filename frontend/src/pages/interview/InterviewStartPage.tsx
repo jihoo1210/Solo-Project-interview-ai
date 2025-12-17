@@ -9,6 +9,7 @@ import { useAuthStore } from '../../store/authStore';
 const INTERVIEW_TYPES: InterviewType[] = ['FRONTEND', 'BACKEND', 'FULLSTACK', 'DEVOPS', 'DATA', 'MOBILE', 'OTHER'];
 const DIFFICULTIES: InterviewDifficulty[] = ['JUNIOR', 'MID', 'SENIOR'];
 const FREE_DAILY_LIMIT = 3;
+const QUESTION_LIMITS = [3, 5, 7, 10];
 
 export default function InterviewStartPage() {
   const navigate = useNavigate();
@@ -16,6 +17,8 @@ export default function InterviewStartPage() {
   const [selectedType, setSelectedType] = useState<InterviewType | null>(null);
   const [customType, setCustomType] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<InterviewDifficulty | null>(null);
+  const [questionLimit, setQuestionLimit] = useState<number>(5);
+  const [followUpEnabled, setFollowUpEnabled] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [todayCount, setTodayCount] = useState<number>(0);
@@ -54,6 +57,8 @@ export default function InterviewStartPage() {
         type: selectedType,
         difficulty: selectedDifficulty,
         customType: selectedType === 'OTHER' ? customType.trim() : undefined,
+        questionLimit: isFreeUser ? 5 : questionLimit,
+        followUpEnabled: isFreeUser ? false : followUpEnabled,
       });
 
       navigate(`/interview/${response.interviewId}`, {
@@ -161,6 +166,74 @@ export default function InterviewStartPage() {
                   </span>
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* Premium 옵션 */}
+          <div className="mb-10">
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-xl font-semibold text-text">면접 설정</h2>
+              {isFreeUser && (
+                <span className="text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-0.5 rounded-full font-medium">
+                  PREMIUM
+                </span>
+              )}
+            </div>
+
+            <div className={`p-6 rounded-xl border-2 ${isFreeUser ? 'border-background-dark bg-background-dark/30' : 'border-primary/30 bg-primary/5'}`}>
+              {isFreeUser && (
+                <div className="mb-4 text-center">
+                  <p className="text-text-muted text-sm">Premium 회원만 사용할 수 있는 기능입니다</p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* 질문 개수 선택 */}
+                <div className={isFreeUser ? 'opacity-50 pointer-events-none' : ''}>
+                  <label className="block text-sm font-medium text-text mb-3">질문 개수</label>
+                  <div className="flex gap-2">
+                    {QUESTION_LIMITS.map((limit) => (
+                      <button
+                        key={limit}
+                        onClick={() => setQuestionLimit(limit)}
+                        disabled={isFreeUser}
+                        className={`flex-1 py-3 px-4 border-2 rounded-lg font-medium transition-all cursor-pointer ${
+                          questionLimit === limit
+                            ? 'border-primary bg-primary text-white'
+                            : 'border-background-dark bg-white text-text hover:border-primary/50'
+                        } ${isFreeUser ? 'cursor-not-allowed' : ''}`}
+                      >
+                        {limit}개
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-text-muted mt-2">FREE: 5개 고정</p>
+                </div>
+
+                {/* 꼬리질문 토글 */}
+                <div className={isFreeUser ? 'opacity-50 pointer-events-none' : ''}>
+                  <label className="block text-sm font-medium text-text mb-3">꼬리질문</label>
+                  <button
+                    onClick={() => setFollowUpEnabled(!followUpEnabled)}
+                    disabled={isFreeUser}
+                    className={`w-full py-3 px-4 border-2 rounded-lg font-medium transition-all flex items-center justify-between cursor-pointer ${
+                      followUpEnabled
+                        ? 'border-primary bg-primary text-white'
+                        : 'border-background-dark bg-white text-text hover:border-primary/50'
+                    } ${isFreeUser ? 'cursor-not-allowed' : ''}`}
+                  >
+                    <span>답변 기반 꼬리질문</span>
+                    <span className={`w-12 h-6 rounded-full transition-all flex items-center ${
+                      followUpEnabled ? 'bg-white/30 justify-end' : 'bg-background-dark justify-start'
+                    }`}>
+                      <span className={`w-5 h-5 rounded-full mx-0.5 transition-all ${
+                        followUpEnabled ? 'bg-white' : 'bg-text-muted'
+                      }`} />
+                    </span>
+                  </button>
+                  <p className="text-xs text-text-muted mt-2">FREE: 사용 불가</p>
+                </div>
+              </div>
             </div>
           </div>
 

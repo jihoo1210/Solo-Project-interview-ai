@@ -146,6 +146,67 @@ export default function MyPage() {
         </div>
       </div>
 
+      {/* Premium Subscription Card */}
+      <div className="bg-white shadow rounded-xl p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-lg font-semibold text-text">구독 플랜</h3>
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                user?.subscriptionType === 'PREMIUM'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
+                  : 'bg-background-dark text-text-muted'
+              }`}>
+                {user?.subscriptionType}
+              </span>
+            </div>
+            {user?.subscriptionType === 'FREE' ? (
+              <p className="text-sm text-text-muted">
+                일일 면접 3회 제한 | 질문 5개 고정 | 꼬리질문 비활성화
+              </p>
+            ) : (
+              <p className="text-sm text-text-muted">
+                무제한 면접 | 질문 개수 설정 | 꼬리질문 활성화
+                {user?.subscriptionExpiresAt && (
+                  <span className="ml-2">
+                    (만료: {new Date(user.subscriptionExpiresAt).toLocaleDateString()})
+                  </span>
+                )}
+              </p>
+            )}
+          </div>
+
+          {user?.subscriptionType === 'FREE' && (
+            <button
+              onClick={() => alert('결제 시스템 준비 중입니다.')}
+              className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg cursor-pointer"
+            >
+              Upgrade Preminum
+            </button>
+          )}
+        </div>
+
+        {user?.subscriptionType === 'FREE' && (
+          <div className="mt-4 pt-4 border-t border-background-dark">
+            <h4 className="text-sm font-medium text-text mb-3">Premium 혜택</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="flex items-center gap-2 text-sm text-text-muted">
+                <span className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center text-primary text-xs">1</span>
+                무제한 면접 진행
+              </div>
+              <div className="flex items-center gap-2 text-sm text-text-muted">
+                <span className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center text-primary text-xs">2</span>
+                질문 개수 자유 설정 (3~10개)
+              </div>
+              <div className="flex items-center gap-2 text-sm text-text-muted">
+                <span className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center text-primary text-xs">3</span>
+                답변 기반 꼬리질문
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Tabs */}
       <div className="bg-white shadow rounded-xl">
         <div className="border-b border-background-dark">

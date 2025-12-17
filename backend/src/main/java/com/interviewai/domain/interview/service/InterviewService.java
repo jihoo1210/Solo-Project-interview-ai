@@ -37,6 +37,7 @@ public class InterviewService {
 
         if(user.getSubscriptionType().equals(SubscriptionType.FREE)) {
             user.increaseAndCheckInterviewCount();
+            if(request.getQuestionLimit() != 5 || request.isFollowUpEnabled()) throw new CustomException(ErrorCode.PREMIUM_REQUIRED);
         }
 
         Interview interview = Interview.builder()
@@ -44,6 +45,8 @@ public class InterviewService {
                 .type(request.getType())
                 .customType(request.getCustomType())
                 .difficulty(request.getDifficulty())
+                .questionLimit(request.getQuestionLimit())
+                .followUpEnabled(request.isFollowUpEnabled())
                 .build();
 
         interviewRepository.save(interview);
@@ -92,9 +95,9 @@ public class InterviewService {
         EvaluationResult evaluation = aiService.evaluateAnswer(question, answer);
         answer.evaluate(evaluation.getScore(), evaluation.getFeedback(), evaluation.getModelAnswer());
 
-        // 다음 질문 생성 (최대 5개)
+        // 다음 질문 생성
         QuestionResponse nextQuestion = null;
-        if (interview.getQuestionCount() < 5) {
+        if (interview.getQuestionCount() < interview.getQuestionLimit()) {
             String nextQuestionContent = aiService.generateQuestion(interview, answer);
             int nextOrderNumber = interview.getQuestionCount() + 1;
 
@@ -179,8 +182,7 @@ public class InterviewService {
             return InterviewResumeResponse.of(interview, unansweredQuestion, answeredCount);
         }
 
-        // 모든 질문에 답변했고, 아직 5개 미만이면 새 질문 생성
-        if (interview.getQuestionCount() < 5) {
+        if (interview.getQuestionCount() < interview.getQuestionLimit()) {
             Answer lastAnswer = interview.getQuestions().get(interview.getQuestionCount() - 1).getAnswer();
             String newQuestionContent = aiService.generateQuestion(interview, lastAnswer);
 
@@ -197,7 +199,7 @@ public class InterviewService {
             return InterviewResumeResponse.of(interview, newQuestion, answeredCount);
         }
 
-        // 5개 질문 모두 답변 완료 - 마지막 질문 반환 (프론트에서 면접 종료 유도)
+        // 모두 답변 완료 - 마지막 질문 반환 (프론트에서 면접 종료 유도)
         Question lastQuestion = interview.getQuestions().get(interview.getQuestionCount() - 1);
         return InterviewResumeResponse.of(interview, lastQuestion, answeredCount);
     }

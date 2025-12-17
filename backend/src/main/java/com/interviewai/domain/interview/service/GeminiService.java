@@ -37,10 +37,21 @@ public class GeminiService implements AiService {
     @Override
     public String generateQuestion(Interview interview, Answer previousAnswer) {
         String systemPrompt = buildQuestionSystemPrompt(interview);
-        String userPrompt = buildQuestionUserPrompt(interview, previousAnswer);
+        String userPrompt;
 
-        log.debug("질문 생성 요청 - 유형: {}, 난이도: {}",
-                interview.getType(), interview.getDifficulty());
+        if (previousAnswer == null) {
+            // 첫 질문
+            userPrompt = buildFirstQuestionUserPrompt(interview);
+        } else if (interview.isFollowUpEnabled()) {
+            // 꼬리질문 활성화: 이전 답변 기반 질문
+            userPrompt = buildFollowUpQuestionUserPrompt(interview, previousAnswer);
+        } else {
+            // 꼬리질문 비활성화: 새로운 주제 질문
+            userPrompt = buildNewTopicQuestionUserPrompt(interview, previousAnswer);
+        }
+
+        log.debug("질문 생성 요청 - 유형: {}, 난이도: {}, 꼬리질문: {}",
+                interview.getType(), interview.getDifficulty(), interview.isFollowUpEnabled());
 
         String response = chatClient.prompt()
                 .system(systemPrompt)
@@ -217,7 +228,7 @@ public class GeminiService implements AiService {
             sb.append("\n");
         }
 
-        sb.append("위 면접 내용을 바탕으로 종합 평가와 카테고리별 점수를 작성해주세요.");
+        sb.append("위 면접 내용을 바탕으로 종합 평가와 카테고리별 점수를 작성해주세요. 응답이 제공되지 않았다면 해당 응답에 대한 모든 점수를 0점으로 해주세요.");
         return sb.toString();
     }
 
@@ -226,12 +237,12 @@ public class GeminiService implements AiService {
      */
     private SummaryResult parseSummaryResponse(String response, List<String> categories) {
         StringBuilder summaryBuilder = new StringBuilder();
-        int overallScore = 5;
+        int overallScore = 0;
         Map<String, Integer> categoryScores = new LinkedHashMap<>();
 
-        // 기본값으로 카테고리 초기화
+        // 기본값으로 카테고리 초기화 (무응답 시 0점)
         for (String category : categories) {
-            categoryScores.put(category, 5);
+            categoryScores.put(category, 0);
         }
 
         String currentSection = null;
@@ -307,26 +318,46 @@ public class GeminiService implements AiService {
     }
 
     /**
-     * 질문 생성을 위한 사용자 프롬프트 구성
+     * 첫 번째 질문 생성을 위한 사용자 프롬프트
      */
-    private String buildQuestionUserPrompt(Interview interview, Answer previousAnswer) {
-        if (previousAnswer == null) {
-            // 첫 질문
-            return String.format(
-                    "면접을 시작합니다. %s 개발자 면접의 첫 번째 기술 질문을 해주세요. 질문은 오늘 가장 이슈된 문제와 연관지어 5개 이상 생각한 후에 무작위적으로 하나를 선택하여 시작하세요.",
-                    interview.getType().getDescription()
-            );
-        }
+    private String buildFirstQuestionUserPrompt(Interview interview) {
+        return String.format(
+                "면접을 시작합니다. %s 개발자 면접의 첫 번째 기술 질문을 해주세요. "
+                + "새롭고 특이한 질문을 다수 생성한 후 무작위적으로 하나를 선택해주세요. "
+                + "질문은 오늘 신문 또는 기사에서 가장 조회수가 높거나 인기가 많은 주제 기반으로 생성해주세요.",
+                interview.getType().getDescription()
+        );
+    }
 
-        // 후속 질문
+    /**
+     * 꼬리질문 활성화 시: 이전 답변 기반 후속 질문 프롬프트
+     */
+    private String buildFollowUpQuestionUserPrompt(Interview interview, Answer previousAnswer) {
         return String.format(
                 "이전 질문: %s\n\n" +
                 "지원자 답변: %s\n\n" +
-                "위 답변을 참고하여 다음 질문을 해주세요.\n" +
-                "- 답변이 부족했다면 관련된 심화 질문을 하거나\n" +
-                "- 충분했다면 새로운 주제의 질문을 해주세요.",
+                "위 답변을 참고하여 꼬리질문을 해주세요.\n" +
+                "- 답변이 부족했다면 같은 주제에서 더 깊이 파고드는 질문\n" +
+                "- 답변에서 언급된 개념에 대한 심화 질문\n" +
+                "- 신입 개발자가 아니라면 실무 적용 사례를 묻는 질문",
                 previousAnswer.getQuestion().getContent(),
                 previousAnswer.getContent()
+        );
+    }
+
+    /**
+     * 꼬리질문 비활성화 시: 새로운 주제 질문 프롬프트
+     */
+    private String buildNewTopicQuestionUserPrompt(Interview interview, Answer previousAnswer) {
+        return String.format(
+                "현재 %d번째 질문까지 완료했습니다.\n\n" +
+                "이전에 다룬 주제와 완전히 다른 새로운 기술 영역에서 질문해주세요.\n" +
+                "- %s 분야의 다양한 주제를 고르게 다루세요\n" +
+                "- 이전 질문: %s (이 주제는 피해주세요)\n" +
+                "- 새롭고 흥미로운 주제로 질문해주세요.",
+                interview.getQuestionCount(),
+                interview.getType().getDescription(),
+                previousAnswer.getQuestion().getContent()
         );
     }
 
@@ -363,7 +394,7 @@ public class GeminiService implements AiService {
      * AI 응답을 파싱하여 EvaluationResult로 변환
      */
     private EvaluationResult parseEvaluationResponse(String response) {
-        int score = 5; // 기본값
+        int score = 0; // 기본값 (파싱 실패 시 0점)
         StringBuilder feedbackBuilder = new StringBuilder();
         StringBuilder modelAnswerBuilder = new StringBuilder();
 
@@ -422,7 +453,7 @@ public class GeminiService implements AiService {
         if (matcher.find()) {
             int score = Integer.parseInt(matcher.group());
             // 1-10 범위로 제한
-            return Math.max(1, Math.min(10, score));
+            return Math.max( 1, Math.min(10, score));
         }
 
         return 5; // 기본값

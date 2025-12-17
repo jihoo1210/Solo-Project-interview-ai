@@ -53,13 +53,21 @@ public class Interview extends BaseTimeEntity {
     @OneToMany(mappedBy = "interview", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions = new ArrayList<>();
 
+    @Column(name = "question_limit")
+    private Integer questionLimit;
+
+    @Column(name = "follow_up_enabled")
+    private boolean followUpEnabled;
+
     @Builder
-    public Interview(User user, InterviewType type, String customType, InterviewDifficulty difficulty) {
+    public Interview(User user, InterviewType type, String customType, InterviewDifficulty difficulty, Integer questionLimit, boolean followUpEnabled) {
         this.user = user;
         this.type = type;
         this.customType = customType;
         this.difficulty = difficulty;
         this.status = InterviewStatus.IN_PROGRESS;
+        this.questionLimit = questionLimit;
+        this.followUpEnabled = followUpEnabled;
         this.startedAt = LocalDateTime.now();
     }
 
