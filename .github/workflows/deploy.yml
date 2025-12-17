@@ -80,8 +80,8 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
           aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
-          application_name: "interbit-backend"
-          environment_name: "Interbit-backend-env"
+          application_name: "interbit-app"
+          environment_name: "Interbit-app-env"
           region: "ap-northeast-2"
           version_label: github-${{ github.sha }}
           deployment_package: backend/build/libs/backend-package.zip
