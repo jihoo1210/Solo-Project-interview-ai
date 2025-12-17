@@ -17,7 +17,8 @@
       "Bash(git commit:*)",
       "Bash(./gradlew build:*)",
       "Bash(npm run build:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(powershell -Command:*)"
     ]
   }
 }

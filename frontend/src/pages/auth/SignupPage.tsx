@@ -123,7 +123,7 @@ export default function SignupPage() {
                 </button>
               </div>
               <p className="mt-1 text-xs text-text-muted">
-                8자 이상, 대문자, 소문자, 숫자, 특수문자 포함
+              8자 이상, 대문자, 소문자, 숫자, 특수문자(!@#$%^&*) 포함
               </p>
             </div>
 

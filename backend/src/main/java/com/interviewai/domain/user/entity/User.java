@@ -66,6 +66,12 @@ public class User extends BaseTimeEntity {
     @Column(name = "subscription_expires_at")
     private LocalDateTime subscriptionExpiresAt;
 
+    @Column(name = "billing_key", length = 200)
+    private String billingKey;
+
+    @Column(name = "subscription_cancelled")
+    private boolean subscriptionCancelled;
+
     @Column(name = "daily_interview_count")
     private int dailyInterviewCount;
 
@@ -94,5 +100,28 @@ public class User extends BaseTimeEntity {
             throw new CustomException(ErrorCode.PREMIUM_REQUIRED);
         }
         this.dailyInterviewCount = getDailyInterviewCount() + 1;
+    }
+
+    public void upgradeToPremium(LocalDateTime expiresAt, String billingKey) {
+        this.subscriptionType = SubscriptionType.PREMIUM;
+        this.subscriptionExpiresAt = expiresAt;
+        this.billingKey = billingKey;
+        this.subscriptionCancelled = false;
+        this.dailyInterviewCount = 0; // 횟수 초기화
+    }
+
+    public void cancelSubscription() {
+        this.subscriptionCancelled = true;
+    }
+
+    public void downgradeToFree() {
+        this.subscriptionType = SubscriptionType.FREE;
+        this.subscriptionExpiresAt = null;
+        this.billingKey = null;
+        this.subscriptionCancelled = false;
+    }
+
+    public void renewSubscription(LocalDateTime expiresAt) {
+        this.subscriptionExpiresAt = expiresAt;
     }
 }

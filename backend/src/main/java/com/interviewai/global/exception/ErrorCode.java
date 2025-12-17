@@ -52,6 +52,12 @@ public enum ErrorCode {
     PAYMENT_ALREADY_PROCESSED(5003, HttpStatus.BAD_REQUEST, "이미 처리된 결제입니다."),
     REFUND_FAILED(5004, HttpStatus.BAD_REQUEST, "환불에 실패했습니다."),
     REFUND_PERIOD_EXCEEDED(5005, HttpStatus.BAD_REQUEST, "환불 가능 기간을 초과했습니다."),
+    ALREADY_PREMIUM(5006, HttpStatus.BAD_REQUEST, "이미 Premium 회원입니다."),
+    PAYMENT_USER_MISMATCH(5007, HttpStatus.FORBIDDEN, "결제 정보에 대한 접근 권한이 없습니다."),
+    PAYMENT_AMOUNT_MISMATCH(5008, HttpStatus.BAD_REQUEST, "결제 금액이 일치하지 않습니다."),
+    PAYMENT_CONFIRM_FAILED(5009, HttpStatus.BAD_REQUEST, "결제 승인에 실패했습니다."),
+    SUBSCRIPTION_NOT_FOUND(5010, HttpStatus.NOT_FOUND, "구독 정보를 찾을 수 없습니다."),
+    SUBSCRIPTION_ALREADY_CANCELLED(5011, HttpStatus.BAD_REQUEST, "이미 취소된 구독입니다."),
 
     // AI Service Errors (6xxx)
     AI_SERVICE_UNAVAILABLE(6000, HttpStatus.SERVICE_UNAVAILABLE, "AI 서비스를 일시적으로 사용할 수 없습니다."),

@@ -21,6 +21,9 @@ import InterviewPage from './pages/interview/InterviewPage';
 import InterviewResultPage from './pages/interview/InterviewResultPage';
 import InterviewListPage from './pages/interview/InterviewListPage';
 import InterviewDetailPage from './pages/interview/InterviewDetailPage';
+import PaymentPage from './pages/payment/PaymentPage';
+import PaymentSuccessPage from './pages/payment/PaymentSuccessPage';
+import PaymentFailPage from './pages/payment/PaymentFailPage';
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
@@ -107,6 +110,9 @@ function App() {
           <Route path="/interview/start" element={<InterviewStartPage />} />
           <Route path="/interview/:id" element={<InterviewPage />} />
           <Route path="/interview/:id/result" element={<InterviewResultPage />} />
+          <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/payment/success" element={<PaymentSuccessPage />} />
+          <Route path="/payment/fail" element={<PaymentFailPage />} />
         </Route>
 
         {/* Fallback */}

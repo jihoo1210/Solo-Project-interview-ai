@@ -1,15 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useAuthStore } from '../store/authStore';
 import { userApi } from '../api/user';
 import { authApi } from '../api/auth';
+import { getPaymentHistory, cancelSubscription } from '../api/payment';
 import DashboardTab from '../components/dashboard/DashboardTab';
-import type { ApiError } from '../types';
+import { LoadingSpinner } from '../components/common';
+import type { ApiError, PaymentResponse } from '../types';
+import { PLAN_TYPE_LABELS, PAYMENT_STATUS_LABELS } from '../types';
 
 export default function MyPage() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { setUser } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'password'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'password' | 'payments'>('dashboard');
 
   // Profile form state
   const [nickname, setNickname] = useState(user?.nickname || '');
@@ -37,7 +42,38 @@ export default function MyPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
 
+  // Payment history state
+  const [payments, setPayments] = useState<PaymentResponse[]>([]);
+  const [paymentsLoading, setPaymentsLoading] = useState(false);
+  const [paymentsError, setPaymentsError] = useState<string | null>(null);
+
+  // Subscription cancel state
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+  const [cancelSuccess, setCancelSuccess] = useState(false);
+
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,}).*$/;
+
+  // Fetch payment history when payments tab is active
+  useEffect(() => {
+    if (activeTab === 'payments') {
+      const fetchPayments = async () => {
+        setPaymentsLoading(true);
+        setPaymentsError(null);
+        try {
+          const data = await getPaymentHistory();
+          setPayments(data);
+        } catch (err) {
+          const apiError = err as ApiError;
+          setPaymentsError(apiError.message || '결제 내역을 불러오는데 실패했습니다.');
+        } finally {
+          setPaymentsLoading(false);
+        }
+      };
+      fetchPayments();
+    }
+  }, [activeTab]);
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,6 +132,24 @@ export default function MyPage() {
   };
 
   const isOAuthUser = user?.provider !== 'LOCAL';
+
+  const handleCancelSubscription = async () => {
+    setCancelError(null);
+    setCancelLoading(true);
+
+    try {
+      await cancelSubscription();
+      setCancelSuccess(true);
+      // 사용자 정보 갱신
+      const updatedUser = await userApi.getMyProfile();
+      setUser(updatedUser);
+    } catch (err) {
+      const apiError = err as ApiError;
+      setCancelError(apiError.message || '구독 취소에 실패했습니다.');
+    } finally {
+      setCancelLoading(false);
+    }
+  };
 
   const handleDeleteAccount = async () => {
     if (!user?.email) return;
@@ -165,23 +219,38 @@ export default function MyPage() {
                 일일 면접 3회 제한 | 질문 5개 고정 | 꼬리질문 비활성화
               </p>
             ) : (
-              <p className="text-sm text-text-muted">
-                무제한 면접 | 질문 개수 설정 | 꼬리질문 활성화
+              <div className="text-sm text-text-muted">
+                <p>무제한 면접 | 질문 개수 설정 | 꼬리질문 활성화</p>
                 {user?.subscriptionExpiresAt && (
-                  <span className="ml-2">
-                    (만료: {new Date(user.subscriptionExpiresAt).toLocaleDateString()})
-                  </span>
+                  <p className="mt-1">
+                    {user?.subscriptionCancelled ? (
+                      <span className="text-orange-600">
+                        구독 취소됨 - {new Date(user.subscriptionExpiresAt).toLocaleDateString()}까지 이용 가능
+                      </span>
+                    ) : (
+                      <span>
+                        다음 결제일: {new Date(user.subscriptionExpiresAt).toLocaleDateString()}
+                      </span>
+                    )}
+                  </p>
                 )}
-              </p>
+              </div>
             )}
           </div>
 
-          {user?.subscriptionType === 'FREE' && (
+          {user?.subscriptionType === 'FREE' ? (
             <button
-              onClick={() => alert('결제 시스템 준비 중입니다.')}
+              onClick={() => navigate('/payment')}
               className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg cursor-pointer"
             >
               Upgrade Premium
+            </button>
+          ) : !user?.subscriptionCancelled && (
+            <button
+              onClick={() => setShowCancelModal(true)}
+              className="px-4 py-2 text-sm font-medium text-error bg-error/10 border border-error/30 rounded-lg hover:bg-error/20 cursor-pointer"
+            >
+              구독 취소
             </button>
           )}
         </div>
@@ -245,7 +314,17 @@ export default function MyPage() {
               } ${isOAuthUser ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               비밀번호 변경
-              {isOAuthUser && <span className="ml-1 text-xs">(불가)</span>}
+              {isOAuthUser && <span className="ml-1 text-xs">(SNS 불가)</span>}
+            </button>
+            <button
+              onClick={() => setActiveTab('payments')}
+              className={`flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm cursor-pointer ${
+                activeTab === 'payments'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-text-muted hover:text-text hover:border-background-dark'
+              }`}
+            >
+              결제 내역
             </button>
           </nav>
         </div>
@@ -404,6 +483,78 @@ export default function MyPage() {
               </button>
             </form>
           )}
+
+          {activeTab === 'payments' && (
+            <div className="space-y-4">
+              {paymentsLoading ? (
+                <div className="flex justify-center py-8">
+                  <LoadingSpinner size="lg" />
+                </div>
+              ) : paymentsError ? (
+                <div className="bg-error/10 border border-error/30 text-error px-4 py-3 rounded-lg text-sm">
+                  {paymentsError}
+                </div>
+              ) : payments.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-text-muted mb-4">결제 내역이 없습니다.</p>
+                  {user?.subscriptionType === 'FREE' && (
+                    <button
+                      onClick={() => navigate('/payment')}
+                      className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg cursor-pointer"
+                    >
+                      Premium 구독하기
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-background-dark">
+                        <th className="text-left py-3 px-2 text-sm font-medium text-text-muted">주문번호</th>
+                        <th className="text-left py-3 px-2 text-sm font-medium text-text-muted">플랜</th>
+                        <th className="text-right py-3 px-2 text-sm font-medium text-text-muted">금액</th>
+                        <th className="text-center py-3 px-2 text-sm font-medium text-text-muted">상태</th>
+                        <th className="text-left py-3 px-2 text-sm font-medium text-text-muted">결제일</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {payments.map((payment) => (
+                        <tr key={payment.id} className="border-b border-background-dark/50 hover:bg-background/50">
+                          <td className="py-3 px-2 text-sm text-text font-mono">
+                            {payment.orderId.slice(0, 15)}...
+                          </td>
+                          <td className="py-3 px-2 text-sm text-text">
+                            {PLAN_TYPE_LABELS[payment.planType]?.name || payment.planType}
+                          </td>
+                          <td className="py-3 px-2 text-sm text-text text-right">
+                            {payment.amount.toLocaleString()}원
+                          </td>
+                          <td className="py-3 px-2 text-sm text-center">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                              PAYMENT_STATUS_LABELS[payment.status]?.color || 'text-text-muted'
+                            }`}>
+                              {PAYMENT_STATUS_LABELS[payment.status]?.label || payment.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-2 text-sm text-text-muted">
+                            {payment.approvedAt
+                              ? new Date(payment.approvedAt).toLocaleDateString('ko-KR', {
+                                  year: 'numeric',
+                                  month: 'short',
+                                  day: 'numeric',
+                                })
+                              : '-'
+                            }
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -478,6 +629,74 @@ export default function MyPage() {
                     className="flex-1 py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-error hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {deleteLoading ? '요청 중...' : '탈퇴 진행'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Subscription Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 bg-text/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            {cancelSuccess ? (
+              <>
+                <div className="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-8 h-8 bg-success rounded-full" />
+                </div>
+                <h3 className="text-lg font-medium text-text text-center mb-2">구독이 취소되었습니다</h3>
+                <p className="text-sm text-text-muted text-center mb-4">
+                  {user?.subscriptionExpiresAt && (
+                    <>
+                      {new Date(user.subscriptionExpiresAt).toLocaleDateString()}까지 Premium 혜택을 이용할 수 있습니다.
+                      <br />
+                      이후 자동 갱신되지 않습니다.
+                    </>
+                  )}
+                </p>
+                <button
+                  onClick={() => {
+                    setShowCancelModal(false);
+                    setCancelSuccess(false);
+                  }}
+                  className="w-full py-2 px-4 border border-background-dark rounded-lg shadow-sm text-sm font-medium text-text bg-white hover:bg-background cursor-pointer"
+                >
+                  확인
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-medium text-text text-center mb-2">구독을 취소하시겠습니까?</h3>
+                <p className="text-sm text-text-muted text-center mb-4">
+                  구독 취소 시 현재 결제 기간 종료 후 자동 갱신되지 않습니다.
+                  <br />
+                  남은 기간은 계속 Premium 혜택을 이용할 수 있습니다.
+                </p>
+
+                {cancelError && (
+                  <div className="bg-error/10 border border-error/30 text-error px-4 py-3 rounded-lg text-sm mb-4">
+                    {cancelError}
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setShowCancelModal(false);
+                      setCancelError(null);
+                    }}
+                    className="flex-1 py-2 px-4 border border-background-dark rounded-lg shadow-sm text-sm font-medium text-text bg-white hover:bg-background cursor-pointer"
+                  >
+                    취소
+                  </button>
+                  <button
+                    onClick={handleCancelSubscription}
+                    disabled={cancelLoading}
+                    className="flex-1 py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    {cancelLoading ? '처리 중...' : '구독 취소'}
                   </button>
                 </div>
               </>

@@ -6,6 +6,7 @@ export interface User {
   profileImage?: string;
   subscriptionType: 'FREE' | 'PREMIUM';
   subscriptionExpiresAt?: string;
+  subscriptionCancelled?: boolean;
   emailVerified: boolean;
   provider: 'LOCAL' | 'GOOGLE' | 'NAVER';
   createdAt: string;
@@ -231,3 +232,51 @@ export interface PageResponse<T> {
   currentPage: number;
   size: number;
 }
+
+// Payment Types
+export type PlanType = 'PREMIUM_MONTHLY';
+export type PaymentStatus = 'COMPLETED' | 'CANCELLED' | 'FAILED';
+
+export interface PaymentPrepareResponse {
+  customerKey: string;
+  amount: number;
+  orderName: string;
+  customerEmail: string;
+  customerName: string;
+}
+
+export interface BillingKeyIssueRequest {
+  authKey: string;
+}
+
+export interface BillingKeyIssueResponse {
+  paymentId: number;
+  cardNumber: string | null;
+  subscriptionExpiresAt: string;
+}
+
+export interface SubscriptionCancelResponse {
+  message: string;
+  subscriptionExpiresAt: string;
+}
+
+export interface PaymentResponse {
+  id: number;
+  orderId: string;
+  planType: PlanType;
+  amount: number;
+  status: PaymentStatus;
+  method: string | null;
+  approvedAt: string | null;
+  createdAt: string;
+}
+
+export const PLAN_TYPE_LABELS: Record<PlanType, { name: string; price: number; duration: string }> = {
+  PREMIUM_MONTHLY: { name: 'Premium 월간 구독', price: 9900, duration: '30일' },
+};
+
+export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, { label: string; color: string }> = {
+  COMPLETED: { label: '완료', color: 'text-green-600' },
+  CANCELLED: { label: '취소', color: 'text-gray-600' },
+  FAILED: { label: '실패', color: 'text-red-600' },
+};
