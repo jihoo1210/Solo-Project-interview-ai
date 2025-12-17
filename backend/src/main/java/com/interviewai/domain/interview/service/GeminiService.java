@@ -61,6 +61,16 @@ public class GeminiService implements AiService {
      */
     @Override
     public EvaluationResult evaluateAnswer(Question question, Answer answer) {
+        // 무응답(빈 답변)인 경우 0점 처리
+        if (answer.getContent() == null || answer.getContent().trim().isEmpty()) {
+            log.debug("무응답 감지 - 질문 ID: {}, 0점 처리", question.getId());
+            return EvaluationResult.builder()
+                    .score(0)
+                    .feedback("답변이 제출되지 않았습니다.")
+                    .modelAnswer("질문에 대한 답변을 작성해주세요.")
+                    .build();
+        }
+
         String systemPrompt = buildEvaluationSystemPrompt();
         String userPrompt = buildEvaluationUserPrompt(question, answer);
 

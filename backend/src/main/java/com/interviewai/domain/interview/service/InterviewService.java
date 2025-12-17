@@ -219,7 +219,7 @@ public class InterviewService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
-        return interviewRepository.countByUserAndCreatedAtAfter(user, startOfDay);
+        return interviewRepository.countByUserAndCreatedAtGreaterThanEqual(user, startOfDay);
     }
 
 }

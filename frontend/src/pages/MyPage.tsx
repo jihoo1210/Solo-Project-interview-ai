@@ -3,12 +3,13 @@ import { useAuth } from '../hooks/useAuth';
 import { useAuthStore } from '../store/authStore';
 import { userApi } from '../api/user';
 import { authApi } from '../api/auth';
+import DashboardTab from '../components/dashboard/DashboardTab';
 import type { ApiError } from '../types';
 
 export default function MyPage() {
   const { user } = useAuth();
   const { setUser } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<'profile' | 'password'>('profile');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'password'>('dashboard');
 
   // Profile form state
   const [nickname, setNickname] = useState(user?.nickname || '');
@@ -150,8 +151,18 @@ export default function MyPage() {
         <div className="border-b border-background-dark">
           <nav className="-mb-px flex">
             <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm cursor-pointer ${
+                activeTab === 'dashboard'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-text-muted hover:text-text hover:border-background-dark'
+              }`}
+            >
+              대시보드
+            </button>
+            <button
               onClick={() => setActiveTab('profile')}
-              className={`w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm cursor-pointer ${
+              className={`flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm cursor-pointer ${
                 activeTab === 'profile'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-text-muted hover:text-text hover:border-background-dark'
@@ -162,19 +173,21 @@ export default function MyPage() {
             <button
               onClick={() => setActiveTab('password')}
               disabled={isOAuthUser}
-              className={`w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm cursor-pointer ${
+              className={`flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm cursor-pointer ${
                 activeTab === 'password'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-text-muted hover:text-text hover:border-background-dark'
               } ${isOAuthUser ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               비밀번호 변경
-              {isOAuthUser && <span className="ml-1 text-xs">(소셜 로그인 불가)</span>}
+              {isOAuthUser && <span className="ml-1 text-xs">(불가)</span>}
             </button>
           </nav>
         </div>
 
         <div className="p-6">
+          {activeTab === 'dashboard' && <DashboardTab />}
+
           {activeTab === 'profile' && (
             <form onSubmit={handleProfileSubmit} className="space-y-4">
               {profileError && (

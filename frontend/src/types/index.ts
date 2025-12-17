@@ -155,17 +155,49 @@ export interface InterviewDetailResponse {
 }
 
 // Dashboard Types
-export interface DashboardSummary {
+export interface DashboardStatsResponse {
   totalInterviews: number;
-  avgScore: number;
-  streakDays: number;
-  weakAreas: string[];
+  completedInterviews: number;
+  averageScore: number | null;
+  highestScore: number | null;
+  lowestScore: number | null;
+  thisMonthCount: number;
 }
 
-export interface WeaknessAnalysis {
-  categories: string[];
-  scores: number[];
-  recommendations: string[];
+export interface ScoreTrendResponse {
+  interviewId: number;
+  score: number;
+  type: InterviewType;
+  difficulty: InterviewDifficulty;
+  date: string;
+}
+
+export interface TypeScore {
+  type: InterviewType;
+  avgScore: number;
+  count: number;
+}
+
+export interface DifficultyScore {
+  difficulty: InterviewDifficulty;
+  avgScore: number;
+  count: number;
+}
+
+export interface CategoryAnalysisResponse {
+  byType: TypeScore[];
+  byDifficulty: DifficultyScore[];
+  weakCategories: string[];
+  strongCategories: string[];
+}
+
+export interface RecentInterviewResponse {
+  id: number;
+  type: InterviewType;
+  difficulty: InterviewDifficulty;
+  totalScore: number;
+  questionCount: number;
+  createdAt: string;
 }
 
 // API Response Types

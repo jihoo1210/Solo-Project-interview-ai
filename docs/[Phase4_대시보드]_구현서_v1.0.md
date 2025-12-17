@@ -1,14 +1,14 @@
 # [Phase 4] 대시보드 및 통계 구현서 v1.0
 
 > 작성일: 2025-12-17
-> 버전: 1.0 (초안)
+> 버전: 1.0 (구현 완료)
 > 작성자: AI Interview Simulator Team
 
 ---
 
 ## 1. 개요
 
-Phase 4에서는 사용자의 면접 성과를 시각화하고 분석하는 대시보드 기능을 구현합니다. 면접 이력을 기반으로 성장 추이, 강약점 분석, 학습 추천 기능을 제공합니다.
+Phase 4에서는 사용자의 면접 성과를 시각화하고 분석하는 대시보드 기능을 구현합니다. 면접 이력을 기반으로 성장 추이, 강약점 분석 기능을 제공합니다.
 
 ---
 
@@ -16,22 +16,24 @@ Phase 4에서는 사용자의 면접 성과를 시각화하고 분석하는 대�
 
 ### 2.1 면접 통계 대시보드
 - 총 면접 횟수
-- 평균 점수 및 추이
-- 최근 면접 성과
+- 완료된 면접 횟수
+- 평균 점수 (정수)
+- 최고/최저 점수
+- 이번 달 면접 횟수
 
 ### 2.2 성장 추이 차트
 - 시간대별 점수 변화 (라인 차트)
-- 월별/주별 면접 횟수
-- 점수 분포 히스토그램
+- 최근 10개 면접 점수 추이
 
 ### 2.3 카테고리별 강약점 분석
-- 면접 유형별 평균 점수 비교
-- 난이도별 성과 분석
-- 약점 카테고리 식별
+- 면접 유형별 평균 점수 비교 (바 차트)
+- 난이도별 성과 분석 (바 차트)
+- 강점 분야 (평균 7점 이상)
+- 약점 분야 (평균 5점 이하)
 
-### 2.4 학습 추천 (Phase 5에서 고도화)
-- 약점 기반 추천 토픽
-- 재도전 추천 면접 유형
+### 2.4 최근 면접 목록
+- 최근 5개 면접 표시
+- 클릭 시 상세 페이지로 이동
 
 ---
 
@@ -39,12 +41,12 @@ Phase 4에서는 사용자의 면접 성과를 시각화하고 분석하는 대�
 
 ### 3.1 Backend
 - Spring Boot 3.4.x
-- JPA 집계 쿼리 (GROUP BY, AVG, COUNT)
-- DTO Projection
+- JPA/JPQL 집계 쿼리 (GROUP BY, AVG, COUNT)
+- DTO Projection (Object[] 매핑)
 
 ### 3.2 Frontend
 - React 18 + TypeScript
-- Recharts (차트 라이브러리)
+- Recharts 2.x (차트 라이브러리)
 - Tailwind CSS v4
 
 ---
@@ -53,19 +55,18 @@ Phase 4에서는 사용자의 면접 성과를 시각화하고 분석하는 대�
 
 ### Backend
 
-- [ ] Task 1: 통계 DTO 설계 (DashboardStats, ScoreTrend, CategoryAnalysis)
-- [ ] Task 2: InterviewRepository 집계 쿼리 추가
-- [ ] Task 3: DashboardService 구현
-- [ ] Task 4: DashboardController REST API 구현
+- [x] Task 1: 통계 DTO 설계 (DashboardStats, ScoreTrend, CategoryAnalysis, RecentInterview)
+- [x] Task 2: InterviewRepository 집계 쿼리 추가
+- [x] Task 3: DashboardService 구현
+- [x] Task 4: DashboardController REST API 구현
 
 ### Frontend
 
-- [ ] Task 5: 대시보드 메인 페이지 레이아웃
-- [ ] Task 6: 통계 카드 컴포넌트 (총 면접, 평균 점수 등)
-- [ ] Task 7: 성장 추이 라인 차트
-- [ ] Task 8: 카테고리별 점수 바 차트
-- [ ] Task 9: 최근 면접 목록 위젯
-- [ ] Task 10: 홈페이지에서 대시보드 링크 추가
+- [x] Task 5: Dashboard 타입 정의 추가
+- [x] Task 6: Dashboard API 함수 작성
+- [x] Task 7: Recharts 설치
+- [x] Task 8: DashboardTab 컴포넌트 구현 (MyPage 내 탭)
+- [x] Task 9: 빌드 테스트
 
 ---
 
@@ -75,27 +76,30 @@ Phase 4에서는 사용자의 면접 성과를 시각화하고 분석하는 대�
 
 기존 `interviews`, `questions`, `answers` 테이블의 데이터를 집계하여 통계를 생성합니다.
 
-### 5.2 집계 쿼리 예시
+### 5.2 JPQL 집계 쿼리
 
-```sql
--- 총 면접 횟수
-SELECT COUNT(*) FROM interviews WHERE user_id = ? AND status = 'COMPLETED';
+```java
+// 평균 점수
+@Query("SELECT AVG(i.totalScore) FROM Interview i WHERE i.user = :user AND i.status = 'COMPLETED'")
+Double calculateAverageScore(@Param("user") User user);
 
--- 평균 점수
-SELECT AVG(total_score) FROM interviews WHERE user_id = ? AND status = 'COMPLETED';
+// 최고 점수
+@Query("SELECT MAX(i.totalScore) FROM Interview i WHERE i.user = :user AND i.status = 'COMPLETED'")
+Integer findMaxScore(@Param("user") User user);
 
--- 유형별 평균 점수
-SELECT type, AVG(total_score) as avg_score, COUNT(*) as count
-FROM interviews
-WHERE user_id = ? AND status = 'COMPLETED'
-GROUP BY type;
+// 최저 점수
+@Query("SELECT MIN(i.totalScore) FROM Interview i WHERE i.user = :user AND i.status = 'COMPLETED'")
+Integer findMinScore(@Param("user") User user);
 
--- 최근 N개 면접 점수 추이
-SELECT id, total_score, created_at
-FROM interviews
-WHERE user_id = ? AND status = 'COMPLETED'
-ORDER BY created_at DESC
-LIMIT ?;
+// 유형별 통계 (유형, 평균점수, 개수)
+@Query("SELECT i.type, AVG(i.totalScore), COUNT(i) FROM Interview i " +
+       "WHERE i.user = :user AND i.status = 'COMPLETED' GROUP BY i.type")
+List<Object[]> findStatsByType(@Param("user") User user);
+
+// 난이도별 통계 (난이도, 평균점수, 개수)
+@Query("SELECT i.difficulty, AVG(i.totalScore), COUNT(i) FROM Interview i " +
+       "WHERE i.user = :user AND i.status = 'COMPLETED' GROUP BY i.difficulty")
+List<Object[]> findStatsByDifficulty(@Param("user") User user);
 ```
 
 ---
@@ -112,10 +116,9 @@ Response:
   "data": {
     "totalInterviews": 25,
     "completedInterviews": 20,
-    "averageScore": 7.2,
+    "averageScore": 7,
     "highestScore": 9,
     "lowestScore": 4,
-    "currentStreak": 5,
     "thisMonthCount": 8
   }
 }
@@ -135,13 +138,6 @@ Response:
       "type": "BACKEND",
       "difficulty": "MID",
       "date": "2025-12-17"
-    },
-    {
-      "interviewId": 24,
-      "score": 7,
-      "type": "FRONTEND",
-      "difficulty": "JUNIOR",
-      "date": "2025-12-16"
     }
   ]
 }
@@ -156,17 +152,13 @@ Response:
   "success": true,
   "data": {
     "byType": [
-      { "type": "BACKEND", "avgScore": 7.5, "count": 10 },
-      { "type": "FRONTEND", "avgScore": 6.8, "count": 8 },
-      { "type": "FULLSTACK", "avgScore": 7.0, "count": 2 }
+      { "type": "BACKEND", "avgScore": 7, "count": 10 }
     ],
     "byDifficulty": [
-      { "difficulty": "JUNIOR", "avgScore": 8.0, "count": 8 },
-      { "difficulty": "MID", "avgScore": 7.0, "count": 10 },
-      { "difficulty": "SENIOR", "avgScore": 5.5, "count": 2 }
+      { "difficulty": "JUNIOR", "avgScore": 8, "count": 8 }
     ],
-    "weakCategories": ["DEVOPS", "DATA"],
-    "strongCategories": ["BACKEND", "FRONTEND"]
+    "weakCategories": ["DEVOPS"],
+    "strongCategories": ["BACKEND"]
   }
 }
 ```
@@ -193,7 +185,7 @@ Response:
 
 ---
 
-## 7. DTO 설계
+## 7. DTO 설계 (구현 완료)
 
 ### 7.1 DashboardStatsResponse
 
@@ -201,13 +193,17 @@ Response:
 @Getter
 @Builder
 public class DashboardStatsResponse {
-    private Long totalInterviews;
-    private Long completedInterviews;
-    private Double averageScore;
-    private Integer highestScore;
-    private Integer lowestScore;
-    private Integer currentStreak;
-    private Long thisMonthCount;
+    private Long totalInterviews;        // 총 면접 횟수
+    private Long completedInterviews;    // 완료된 면접 횟수
+    private Integer averageScore;        // 평균 점수 (정수)
+    private Integer highestScore;        // 최고 점수
+    private Integer lowestScore;         // 최저 점수
+    private Long thisMonthCount;         // 이번 달 면접 횟수
+
+    public static DashboardStatsResponse of(..., Double averageScore, ...) {
+        // Double → Integer 변환
+        .averageScore(averageScore != null ? averageScore.intValue() : null)
+    }
 }
 ```
 
@@ -240,7 +236,7 @@ public class CategoryAnalysisResponse {
     @Builder
     public static class TypeScore {
         private InterviewType type;
-        private Double avgScore;
+        private Integer avgScore;  // 정수
         private Long count;
     }
 
@@ -248,114 +244,158 @@ public class CategoryAnalysisResponse {
     @Builder
     public static class DifficultyScore {
         private InterviewDifficulty difficulty;
-        private Double avgScore;
+        private Integer avgScore;  // 정수
         private Long count;
     }
 }
 ```
 
+### 7.4 RecentInterviewResponse
+
+```java
+@Getter
+@Builder
+public class RecentInterviewResponse {
+    private Long id;
+    private InterviewType type;
+    private InterviewDifficulty difficulty;
+    private Integer totalScore;
+    private Integer questionCount;
+    private LocalDateTime createdAt;
+}
+```
+
 ---
 
-## 8. Frontend 컴포넌트 설계
+## 8. Frontend 컴포넌트 설계 (구현 완료)
 
-### 8.1 페이지 구조
+### 8.1 구조
+
+대시보드는 별도 페이지가 아닌 **MyPage 내 탭**으로 구현되었습니다.
 
 ```
-DashboardPage
-├── StatsCards (통계 카드 4개)
-│   ├── TotalInterviewsCard
-│   ├── AverageScoreCard
-│   ├── StreakCard
-│   └── ThisMonthCard
-├── ScoreTrendChart (라인 차트)
-├── CategoryAnalysisSection
-│   ├── TypeBarChart (유형별 점수)
-│   └── DifficultyBarChart (난이도별 점수)
-├── WeakPointsSection (약점 분석)
-└── RecentInterviewsWidget (최근 면접)
+MyPage
+├── 탭 네비게이션
+│   ├── 대시보드 (기본 탭)
+│   ├── 프로필 수정
+│   └── 비밀번호 변경
+└── DashboardTab
+    ├── StatsCards (4개: 총 면접, 완료된 면접, 평균 점수, 이번 달)
+    ├── ScoreRange (최고/최저 점수)
+    ├── ScoreTrendChart (LineChart)
+    ├── CategoryAnalysis
+    │   ├── TypeBarChart (유형별 점수, 가로 BarChart)
+    │   └── DifficultyBarChart (난이도별 점수, 가로 BarChart)
+    ├── StrengthWeakness (강점/약점 분야 배지)
+    └── RecentInterviews (최근 면접 목록, 클릭 가능)
 ```
 
 ### 8.2 차트 라이브러리
 
-Recharts 사용 예정:
+Recharts 사용:
 - `<LineChart>` - 점수 추이
-- `<BarChart>` - 카테고리별 비교
-- `<RadarChart>` - 종합 역량 (기존 결과 페이지 재활용)
+- `<BarChart layout="vertical">` - 카테고리별 비교
+- `<ResponsiveContainer>` - 반응형 차트
 
-### 8.3 반응형 디자인
+### 8.3 점수별 색상
 
-- Desktop: 2열 그리드
-- Tablet: 1열 그리드
-- Mobile: 스택 레이아웃
-
----
-
-## 9. 라우팅
-
-| 경로 | 페이지 | 접근 권한 |
-|------|--------|-----------|
-| `/dashboard` | 대시보드 메인 | Private |
-
-### 9.1 네비게이션 수정
-
-```
-홈페이지 헤더에 "대시보드" 링크 추가
-└── 면접 시작 | 면접 기록 | 대시보드 | 마이페이지
+```typescript
+const getScoreColor = (score: number) => {
+  if (score >= 8) return '#22C55E'; // 초록 (success)
+  if (score >= 6) return '#F59E0B'; // 노랑 (warning)
+  return '#EF4444';                  // 빨강 (error)
+};
 ```
 
 ---
 
-## 10. 진행 상황
+## 9. 파일 구조
 
-### 10.1 대기 중
+### Backend
+```
+backend/src/main/java/com/interviewai/domain/dashboard/
+├── controller/
+│   └── DashBoardController.java
+├── service/
+│   └── DashboardService.java
+└── dto/
+    ├── DashboardStatsResponse.java
+    ├── ScoreTrendResponse.java
+    ├── CategoryAnalysisResponse.java
+    └── RecentInterviewResponse.java
+```
 
-Phase 3 완료 후 진행 예정
-
-### 10.2 예상 작업량
-
-- Backend: Task 1-4 (약 4개 Task)
-- Frontend: Task 5-10 (약 6개 Task)
-- 총 10개 Task
+### Frontend
+```
+frontend/src/
+├── api/
+│   └── dashboard.ts
+├── components/
+│   └── dashboard/
+│       └── DashboardTab.tsx
+├── pages/
+│   └── MyPage.tsx (수정)
+└── types/
+    └── index.ts (Dashboard 타입 추가)
+```
 
 ---
 
-## 11. 다음 단계
+## 10. 구현 체크리스트
 
-### 11.1 Phase 5: Premium 기능
+### Backend
+- [x] DashboardStatsResponse DTO
+- [x] ScoreTrendResponse DTO
+- [x] CategoryAnalysisResponse DTO
+- [x] RecentInterviewResponse DTO
+- [x] InterviewRepository 집계 메서드 추가
+- [x] DashboardService 구현
+- [x] DashboardController 구현
+- [x] @RequestParam name 속성 추가 (파라미터 이름 명시)
+- [x] 빌드 테스트
+
+### Frontend
+- [x] Recharts 설치 (`npm install recharts`)
+- [x] Dashboard 타입 정의 (types/index.ts)
+- [x] dashboard API 함수 작성 (api/dashboard.ts)
+- [x] DashboardTab 컴포넌트 구현
+- [x] MyPage에 대시보드 탭 추가
+- [x] Tooltip formatter 타입 오류 수정
+- [x] 빌드 테스트
+
+---
+
+## 11. 추가 수정 사항
+
+### 11.1 무응답 0점 처리
+
+면접 시 빈 답변(무응답)을 제출하면 AI 호출 없이 즉시 0점이 부여됩니다.
+
+```java
+// GeminiService.java
+if (answer.getContent() == null || answer.getContent().trim().isEmpty()) {
+    return EvaluationResult.builder()
+            .score(0)
+            .feedback("답변이 제출되지 않았습니다.")
+            .modelAnswer("질문에 대한 답변을 작성해주세요.")
+            .build();
+}
+```
+
+---
+
+## 12. 다음 단계
+
+### 12.1 Phase 5: Premium 기능
 - 면접 질문 갯수 설정
 - 꼬리질문 기능
 - 무제한 면접
 
-### 11.2 Phase 6: 결제 시스템
+### 12.2 Phase 6: 결제 시스템
 - 구독 결제 연동
 - 결제 내역 관리
 
 ---
 
-## 12. 구현 체크리스트
-
-### Backend
-- [ ] DashboardStatsResponse DTO
-- [ ] ScoreTrendResponse DTO
-- [ ] CategoryAnalysisResponse DTO
-- [ ] InterviewRepository 집계 메서드 추가
-- [ ] DashboardService 구현
-- [ ] DashboardController 구현
-- [ ] API 테스트
-
-### Frontend
-- [ ] Recharts 설치 (`npm install recharts`)
-- [ ] dashboard API 함수 작성
-- [ ] DashboardPage 레이아웃
-- [ ] StatsCards 컴포넌트
-- [ ] ScoreTrendChart 컴포넌트
-- [ ] CategoryBarCharts 컴포넌트
-- [ ] RecentInterviewsWidget 컴포넌트
-- [ ] App.tsx 라우트 추가
-- [ ] 네비게이션 메뉴 추가
-- [ ] 빌드 테스트
-
----
-
-> **Phase 4 구현 준비 완료!**
-> 코드 작성을 요청하시면 Task별로 진행합니다.
+> **Phase 4 구현 완료!**
+> 2025-12-17
