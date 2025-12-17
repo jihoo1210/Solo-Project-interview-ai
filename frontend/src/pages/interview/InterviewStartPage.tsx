@@ -187,17 +187,17 @@ export default function InterviewStartPage() {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-4 sm:gap-6">
                 {/* 질문 개수 선택 */}
                 <div className={isFreeUser ? 'opacity-50 pointer-events-none' : ''}>
-                  <label className="block text-sm font-medium text-text mb-3">질문 개수</label>
-                  <div className="flex gap-2">
+                  <label className="block text-sm font-medium text-text mb-2 sm:mb-3">질문 개수</label>
+                  <div className="grid grid-cols-2 gap-1.5 sm:flex sm:gap-2">
                     {QUESTION_LIMITS.map((limit) => (
                       <button
                         key={limit}
                         onClick={() => setQuestionLimit(limit)}
                         disabled={isFreeUser}
-                        className={`flex-1 py-3 px-4 border-2 rounded-lg font-medium transition-all cursor-pointer ${
+                        className={`flex-1 py-2 px-2 sm:py-3 sm:px-4 border-2 rounded-lg font-medium text-sm sm:text-base transition-all cursor-pointer ${
                           questionLimit === limit
                             ? 'border-primary bg-primary text-white'
                             : 'border-background-dark bg-white text-text hover:border-primary/50'
@@ -212,21 +212,22 @@ export default function InterviewStartPage() {
 
                 {/* 꼬리질문 토글 */}
                 <div className={isFreeUser ? 'opacity-50 pointer-events-none' : ''}>
-                  <label className="block text-sm font-medium text-text mb-3">꼬리질문</label>
+                  <label className="block text-sm font-medium text-text mb-2 sm:mb-3">꼬리질문</label>
                   <button
                     onClick={() => setFollowUpEnabled(!followUpEnabled)}
                     disabled={isFreeUser}
-                    className={`w-full py-3 px-4 border-2 rounded-lg font-medium transition-all flex items-center justify-between cursor-pointer ${
+                    className={`w-full py-2 px-3 sm:py-3 sm:px-4 border-2 rounded-lg font-medium text-sm sm:text-base transition-all flex items-center justify-between cursor-pointer ${
                       followUpEnabled
                         ? 'border-primary bg-primary text-white'
                         : 'border-background-dark bg-white text-text hover:border-primary/50'
                     } ${isFreeUser ? 'cursor-not-allowed' : ''}`}
                   >
-                    <span>답변 기반 꼬리질문</span>
-                    <span className={`w-12 h-6 rounded-full transition-all flex items-center ${
+                    <span className="hidden sm:inline">답변 기반 꼬리질문</span>
+                    <span className="sm:hidden">꼬리질문</span>
+                    <span className={`w-10 h-5 sm:w-12 sm:h-6 rounded-full transition-all flex items-center ${
                       followUpEnabled ? 'bg-white/30 justify-end' : 'bg-background-dark justify-start'
                     }`}>
-                      <span className={`w-5 h-5 rounded-full mx-0.5 transition-all ${
+                      <span className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full mx-0.5 transition-all ${
                         followUpEnabled ? 'bg-white' : 'bg-text-muted'
                       }`} />
                     </span>

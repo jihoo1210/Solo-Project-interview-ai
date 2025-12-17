@@ -148,7 +148,7 @@ export default function MyPage() {
 
       {/* Premium Subscription Card */}
       <div className="bg-white shadow rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h3 className="text-lg font-semibold text-text">구독 플랜</h3>
@@ -179,9 +179,9 @@ export default function MyPage() {
           {user?.subscriptionType === 'FREE' && (
             <button
               onClick={() => alert('결제 시스템 준비 중입니다.')}
-              className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg cursor-pointer"
+              className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg cursor-pointer"
             >
-              Upgrade Preminum
+              Upgrade Premium
             </button>
           )}
         </div>
@@ -189,14 +189,14 @@ export default function MyPage() {
         {user?.subscriptionType === 'FREE' && (
           <div className="mt-4 pt-4 border-t border-background-dark">
             <h4 className="text-sm font-medium text-text mb-3">Premium 혜택</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
               <div className="flex items-center gap-2 text-sm text-text-muted">
                 <span className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center text-primary text-xs">1</span>
                 무제한 면접 진행
               </div>
               <div className="flex items-center gap-2 text-sm text-text-muted">
                 <span className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center text-primary text-xs">2</span>
-                질문 개수 자유 설정 (3~10개)
+                질문 개수 자유 설정
               </div>
               <div className="flex items-center gap-2 text-sm text-text-muted">
                 <span className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center text-primary text-xs">3</span>
