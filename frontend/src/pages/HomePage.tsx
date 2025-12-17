@@ -32,7 +32,7 @@ export default function HomePage() {
             {/* 텍스트 콘텐츠 */}
             <div className="text-center lg:text-left">
               <p className="text-sm font-medium text-primary mb-4">
-                AI 면접 코칭 서비스
+                AI 면접 코칭 서비스 
               </p>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-text mb-6 leading-tight">

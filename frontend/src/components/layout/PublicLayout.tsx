@@ -33,9 +33,9 @@ export default function PublicLayout() {
             {/* 로고 */}
             <Link
               to="/"
-              className="text-xl sm:text-2xl font-bold text-text hover:text-primary transition-colors"
+              className="text-xl sm:text-2xl font-bold text-primary hover:text-primary-dark transition-colors"
             >
-              AI 면접 코치
+              인터빗
             </Link>
 
             {/* 데스크탑 내비게이션 */}
@@ -168,7 +168,7 @@ export default function PublicLayout() {
       <footer className="bg-white border-t border-background-dark py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-sm text-text-muted">
-            AI 면접 코치 - 당신의 성공적인 면접을 응원합니다
+            인터빗 - AI 면접 코칭 서비스
           </p>
         </div>
       </footer>

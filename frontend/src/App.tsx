@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import PrivateRoute from './components/auth/PrivateRoute';
-import MainLayout from './components/layout/MainLayout';
 import PublicLayout from './components/layout/PublicLayout';
 import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
@@ -91,28 +90,22 @@ function App() {
         {/* Error Page */}
         <Route path="/error" element={<ErrorPage />} />
 
-        {/* Public Home with PublicLayout (비로그인 사용자용) */}
+        {/* Public Routes with PublicLayout */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<HomePage />} />
-        </Route>
 
-        {/* Protected Routes with MainLayout */}
-        <Route
-          element={
-            <PrivateRoute>
-              <MainLayout />
-            </PrivateRoute>
-          }
-        >
-          <Route path="/mypage" element={<MyPage />} />
-          <Route path="/interviews" element={<InterviewListPage />} />
-          <Route path="/interviews/:id" element={<InterviewDetailPage />} />
-          <Route path="/interview/start" element={<InterviewStartPage />} />
-          <Route path="/interview/:id" element={<InterviewPage />} />
-          <Route path="/interview/:id/result" element={<InterviewResultPage />} />
-          <Route path="/payment" element={<PaymentPage />} />
-          <Route path="/payment/success" element={<PaymentSuccessPage />} />
-          <Route path="/payment/fail" element={<PaymentFailPage />} />
+          {/* Protected Routes */}
+          <Route element={<PrivateRoute />}>
+            <Route path="/mypage" element={<MyPage />} />
+            <Route path="/interviews" element={<InterviewListPage />} />
+            <Route path="/interviews/:id" element={<InterviewDetailPage />} />
+            <Route path="/interview/start" element={<InterviewStartPage />} />
+            <Route path="/interview/:id" element={<InterviewPage />} />
+            <Route path="/interview/:id/result" element={<InterviewResultPage />} />
+            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/payment/success" element={<PaymentSuccessPage />} />
+            <Route path="/payment/fail" element={<PaymentFailPage />} />
+          </Route>
         </Route>
 
         {/* Fallback */}
