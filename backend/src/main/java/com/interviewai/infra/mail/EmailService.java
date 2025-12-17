@@ -26,6 +26,12 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String mailSender;
 
+    @Value("${app.backend-url:http://localhost:8080}")
+    private String backendUrl;
+
+    @Value("${app.frontend-url:http://localhost:5173}")
+    private String frontendUrl;
+
     // MAIN 
     public void sendVerificationEmail(String email, String token) {
         sendEmail(email, token, EmailType.VERIFICATION);
@@ -99,6 +105,9 @@ public class EmailService {
     // Background: #FFFBEB, Background-dark: #FEF3C7
     // Text: #292524, Text-muted: #78716C
     private String getEmailHtml(String token, EmailType type) {
+        String baseUrl = type.isUseBackendUrl() ? backendUrl : frontendUrl;
+        String fullLink = baseUrl + type.getLinkPath() + token;
+
         return """
             <div style='max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; background-color: #FFFBEB;'>
                 <div style='text-align: center; padding: 20px 0;'>
@@ -111,7 +120,7 @@ public class EmailService {
                         %s
                     </p>
                     <div style='text-align: center; margin: 30px 0;'>
-                        <a href='%s%s'
+                        <a href='%s'
                            style='display: inline-block; background: linear-gradient(135deg, #F59E0B 0%%, #FBBF24 100%%); color: white; padding: 14px 36px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 15px;'>
                             %s
                         </a>
@@ -130,8 +139,7 @@ public class EmailService {
             """.formatted(
                 type.getTitle(),
                 type.getDescription(),
-                type.getLinkPrefix(),
-                token,
+                fullLink,
                 type.getButtonText()
             );
     }

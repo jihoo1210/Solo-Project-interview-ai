@@ -20,6 +20,12 @@ jobs:
           node-version: '24'
 
       - name: Build frontend
+        env:
+          VITE_API_URL: https://interbit.p-e.kr
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          VITE_GOOGLE_REDIRECT_URI: https://interbit.p-e.kr/oauth/callback/google
+          VITE_NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          VITE_NAVER_REDIRECT_URI: https://interbit.p-e.kr/oauth/callback/naver
         run: |
           npm install
           npm run build

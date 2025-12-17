@@ -105,6 +105,11 @@ springdoc:
     tags-sorter: alpha
     operations-sorter: alpha
 
+# App URLs (for emails)
+app:
+  backend-url: http://localhost:8080
+  frontend-url: http://localhost:5173
+
 # Logging
 logging:
   level:
@@ -198,3 +203,8 @@ jwt:
   secret: ${JWT_SECRET:your-256-bit-secret-key-here-must-be-at-least-32-characters-long}
   access-token-validity: 3600000      # 1 hour
   refresh-token-validity: 604800000   # 7 days
+
+# App URLs (for emails)
+app:
+  backend-url: https://interbit.p-e.kr
+  frontend-url: https://interbit.p-e.kr

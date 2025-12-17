@@ -12,7 +12,8 @@ public enum EmailType {
         "이메일 인증",
         "안녕하세요! AI 면접 시뮬레이터에 가입해 주셔서 감사합니다.<br>아래 버튼을 클릭하여 이메일 인증을 완료해 주세요.",
         "이메일 인증하기",
-        "http://localhost:8080/api/v1/auth/verify-email?token="
+        "/api/v1/auth/verify-email?token=",
+        true  // 백엔드 URL 사용
     ),
 
     PASSWORD_RESET(
@@ -20,7 +21,8 @@ public enum EmailType {
         "비밀번호 재설정",
         "안녕하세요! AI 면접 시뮬레이터 비밀번호 재설정 링크입니다.<br>아래 버튼을 클릭하여 비밀번호를 재설정해 주세요.",
         "비밀번호 재설정하기",
-        "http://localhost:5173/reset-password?token="
+        "/reset-password?token=",
+        false  // 프론트엔드 URL 사용
     ),
 
     DELETE_ACCOUNT(
@@ -28,12 +30,14 @@ public enum EmailType {
         "회원 탈퇴",
         "안녕하세요! AI 면접 시뮬레이터 회원 탈퇴 링크입니다.<br>아래 버튼을 클릭하여 회원 탈퇴를 진행해 주세요.",
         "회원 탈퇴하기",
-        "http://localhost:8080/api/v1/auth/confirm-delete-account?token="
+        "/api/v1/auth/confirm-delete-account?token=",
+        true  // 백엔드 URL 사용
     );
 
     private final String subject;
     private final String title;
     private final String description;
     private final String buttonText;
-    private final String linkPrefix;
+    private final String linkPath;
+    private final boolean useBackendUrl;
 }
