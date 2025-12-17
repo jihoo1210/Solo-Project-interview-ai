@@ -453,7 +453,7 @@ public class GeminiService implements AiService {
         if (matcher.find()) {
             int score = Integer.parseInt(matcher.group());
             // 1-10 범위로 제한
-            return Math.max( 1, Math.min(10, score));
+            return Math.max(1, Math.min(10, score));
         }
 
         return 5; // 기본값

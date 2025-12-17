@@ -2,8 +2,6 @@ package com.interviewai.domain.dashboard.dto;
 
 import java.time.LocalDate;
 
-import org.checkerframework.checker.units.qual.s;
-
 import com.interviewai.domain.interview.entity.InterviewDifficulty;
 import com.interviewai.domain.interview.entity.InterviewType;
 
