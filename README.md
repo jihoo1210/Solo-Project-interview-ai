@@ -23,7 +23,7 @@
 - [시스템 아키텍처](#시스템-아키텍처)
 - [프로젝트 구조](#프로젝트-구조)
 - [개발 진행 과정](#개발-진행-과정)
-- [트러블슈팅](#트러블슈팅)
+- [학습노트](#학습노트)
 - [API 문서](#api-문서)
 - [실행 방법](#실행-방법)
 - [배포](#배포)
@@ -69,9 +69,10 @@
 - **세부 카테고리**: 직무별 상세 토픽 선택
 
 ### 5. 결제 시스템
-- **토스페이먼츠 연동**: 카드 결제, 간편결제
-- **정기 구독**: 월간/연간 플랜
+- **토스페이먼츠 연동**: 카드 정기결제
+- **구독 플랜**: 월간(9,900원) / 연간(99,000원, 16% 할인)
 - **자동 갱신**: 구독 자동 연장
+- **구독 취소**: 만료일까지 서비스 이용 가능
 
 ---
 
@@ -108,7 +109,7 @@
 | Google Gemini 2.0 Flash | AI 질문 생성 및 답변 평가 |
 | Google OAuth 2.0 | 소셜 로그인 |
 | Naver OAuth 2.0 | 소셜 로그인 |
-| 토스페이먼츠 | 결제 처리 |
+| 토스페이먼츠 | 정기결제 처리 |
 | Gmail SMTP | 이메일 발송 |
 
 ### Infrastructure
@@ -188,7 +189,7 @@ Solo-Project-interview-ai/
 │   │   │   ├── interview/      # 면접 관련 페이지
 │   │   │   └── payment/        # 결제 페이지
 │   │   ├── hooks/              # Custom Hooks
-│   │   ├── store/              # 전역 상태 (AuthContext)
+│   │   ├── store/              # 전역 상태 (Zustand)
 │   │   └── types/              # TypeScript 타입
 │   └── index.html
 │
@@ -242,71 +243,66 @@ Solo-Project-interview-ai/
 - 세부 카테고리 선택
 
 ### Phase 6: 결제 시스템 (완료)
-- 토스페이먼츠 연동
-- 정기 구독 (월간/연간)
-- 구독 관리 (일시정지, 재개, 해지)
+- 토스페이먼츠 정기결제 연동
+- 월간/연간 구독 플랜
+- 구독 관리 (취소, 자동 갱신)
 - 결제 내역 조회
 
 ---
 
-## 트러블슈팅
+## 학습노트
 
-### 1. Spring AI Google GenAI project-id 오류
+프로젝트 개발 과정에서 학습한 내용을 정리한 문서입니다.
 
-**문제**: 배포 환경에서 `Google GenAI project-id must be set!` 오류 발생
+### 공통
+- [프로젝트 학습 규칙](docs/학습노트/공통/00_프로젝트_학습_규칙.md)
+- [Git 브랜치 전략](docs/학습노트/공통/01_Git_브랜치_전략.md)
+- [TypeScript 기초](docs/학습노트/공통/02_TypeScript_기초.md)
+- [Tailwind CSS 기초](docs/학습노트/공통/03_Tailwind_CSS_기초.md)
 
-**원인**:
-- 로컬에서는 Google SDK fallback으로 project-id 없이 작동
-- Elastic Beanstalk에는 Google SDK가 없어 fallback 불가
+### Phase 1: 프로젝트 셋업
+- [Swagger Config 설정 이해](docs/학습노트/Phase1_프로젝트셋업/02_SwaggerConfig_설정_이해.md)
+- [ErrorCode 구조화 이유](docs/학습노트/Phase1_프로젝트셋업/03_ErrorCode_구조화_이유.md)
+- [Axios 인터셉터 토큰갱신](docs/학습노트/Phase1_프로젝트셋업/04_Axios_인터셉터_토큰갱신.md)
+- [Bearer vs Cookie 인증방식](docs/학습노트/Phase1_프로젝트셋업/05_Bearer_vs_Cookie_인증방식.md)
 
-**해결**:
-```yaml
-# application.yml (prod)
-spring:
-  ai:
-    google:
-      genai:
-        api-key: ${GOOGLE_AI_API_KEY}
-        project-id: ${GOOGLE_AI_PROJECT_ID:gen-lang-client-0514433569}
-```
+### Phase 2: 인증 시스템
+- [JWT 핵심개념 HMAC Claims](docs/학습노트/Phase2_인증시스템/01_JWT_핵심개념_HMAC_Claims.md)
+- [Authentication Details 이해](docs/학습노트/Phase2_인증시스템/02_Authentication_Details_이해.md)
+- [보안 로그 및 알림 구현방법](docs/학습노트/Phase2_인증시스템/03_보안_로그_및_알림_구현방법.md)
+- [이메일인증 토큰 설계](docs/학습노트/Phase2_인증시스템/04_이메일인증_토큰_설계.md)
+- [Java 제네릭 타입추론](docs/학습노트/Phase2_인증시스템/05_Java_제네릭_타입추론.md)
+- [스케줄러 개념](docs/학습노트/Phase2_인증시스템/06_스케줄러_개념.md)
+- [토큰 삭제 vs 사용처리](docs/학습노트/Phase2_인증시스템/07_토큰_삭제_vs_사용처리.md)
+- [로그인 설계 결정사항](docs/학습노트/Phase2_인증시스템/08_로그인_설계_결정사항.md)
+- [정적팩토리메서드 from vs of](docs/학습노트/Phase2_인증시스템/09_정적팩토리메서드_from_vs_of.md)
+- [Refresh Token 설계](docs/학습노트/Phase2_인증시스템/10_Refresh_Token_설계.md)
+- [Redis 기초](docs/학습노트/Phase2_인증시스템/11_Redis_기초.md)
+- [Google OAuth 연동 개념](docs/학습노트/Phase2_인증시스템/12_Google_OAuth_연동_개념.md)
+- [GoogleOAuthClient 구조와 레이어](docs/학습노트/Phase2_인증시스템/13_GoogleOAuthClient_구조와_레이어.md)
+- [ConfigurationProperties vs Value](docs/학습노트/Phase2_인증시스템/14_ConfigurationProperties_vs_Value.md)
+- [DTO Jackson 초기화 원리](docs/학습노트/Phase2_인증시스템/15_DTO_Jackson_초기화_원리.md)
+- [RestTemplate 기초 사용법](docs/학습노트/Phase2_인증시스템/16_RestTemplate_기초_사용법.md)
+- [Google OAuth2 공식문서 찾기](docs/학습노트/Phase2_인증시스템/17_Google_OAuth2_공식문서_찾기.md)
+- [OAuth 구현 상세 QnA](docs/학습노트/Phase2_인증시스템/17_OAuth_구현_상세_QnA.md)
+- [React useCallback과 의존성배열](docs/학습노트/Phase2_인증시스템/18_React_useCallback과_의존성배열.md)
+- [React useEffect setState 경고](docs/학습노트/Phase2_인증시스템/19_React_useEffect_setState_경고.md)
+- [Spring 예외처리 필터vs컨트롤러](docs/학습노트/Phase2_인증시스템/20_Spring_예외처리_필터vs컨트롤러.md)
+- [OAuth 구현 트러블슈팅](docs/학습노트/Phase2_인증시스템/21_OAuth_구현_트러블슈팅.md)
+- [정규식 기초](docs/학습노트/Phase2_인증시스템/22_정규식_기초.md)
 
-> 상세 내용: [docs/학습노트/배포/01_Spring_AI_Google_GenAI_project-id_오류_해결.md](docs/학습노트/배포/01_Spring_AI_Google_GenAI_project-id_오류_해결.md)
+### Phase 3: 면접 시뮬레이션
+- [JPA Repository 메서드 네이밍](docs/학습노트/Phase3_면접시뮬레이션/01_JPA_Repository_메서드_네이밍.md)
+- [FETCH JOIN과 N+1 문제](docs/학습노트/Phase3_면접시뮬레이션/02_FETCH_JOIN과_N+1_문제.md)
+- [Spring AI ChatClient](docs/학습노트/Phase3_면접시뮬레이션/03_Spring_AI_ChatClient.md)
 
-### 2. 이메일 URL 하드코딩 문제
+### Phase 4: 대시보드
+- [JPQL 기초](docs/학습노트/Phase4_대시보드/01_JPQL_기초.md)
 
-**문제**: 이메일 인증 링크가 `localhost:8080`으로 고정
-
-**해결**:
-- `EmailType`에서 URL 경로만 유지
-- `EmailService`에서 `app.backend-url`, `app.frontend-url` 설정 읽어서 동적 생성
-
-```java
-// EmailService.java
-@Value("${app.backend-url:http://localhost:8080}")
-private String backendUrl;
-
-@Value("${app.frontend-url:http://localhost:5173}")
-private String frontendUrl;
-```
-
-### 3. OAuth Redirect URI 불일치
-
-**문제**: 배포 후 OAuth 로그인 시 redirect_uri 불일치 오류
-
-**해결**:
-- Google/Naver OAuth 콘솔에서 `https://interbit.p-e.kr/oauth/callback/*` 등록
-- `application.yml` prod 프로필에 배포 URL 설정
-
-### 4. Redis 연결 실패 (배포)
-
-**문제**: Elastic Beanstalk에서 Redis 연결 실패
-
-**원인**: ElastiCache 보안 그룹에서 EB 인스턴스 인바운드 미허용
-
-**해결**:
-- ElastiCache 보안 그룹 → 인바운드 규칙 추가
-- Source: EB 인스턴스 보안 그룹
-- Port: 6379
+### Phase 6: 결제 시스템
+- [토스페이먼츠 기초개념](docs/학습노트/Phase6_결제시스템/01_토스페이먼츠_기초개념.md)
+- [정기결제 구현 절차](docs/학습노트/Phase6_결제시스템/02_정기결제_구현_절차.md)
+- [토스페이먼츠 정기결제 FAQ](docs/학습노트/Phase6_결제시스템/03_토스페이먼츠_정기결제_FAQ.md)
 
 ---
 
@@ -336,9 +332,10 @@ private String frontendUrl;
 | GET | `/api/v1/dashboard/summary` | 대시보드 요약 |
 | GET | `/api/v1/dashboard/score-trend` | 점수 추이 |
 | **결제** |||
-| POST | `/api/v1/payments/subscription` | 구독 시작 |
-| POST | `/api/v1/payments/confirm` | 결제 승인 |
-| GET | `/api/v1/subscriptions/current` | 현재 구독 조회 |
+| POST | `/api/payments/prepare` | 결제 준비 |
+| POST | `/api/payments/billing-key` | 빌링키 발급 |
+| DELETE | `/api/payments/subscription` | 구독 취소 |
+| GET | `/api/payments` | 결제 내역 |
 
 ---
 
@@ -360,6 +357,8 @@ GOOGLE_AI_API_KEY=your-gemini-api-key
 JWT_SECRET=your-jwt-secret-at-least-32-characters
 MAIL_USERNAME=your-email@gmail.com
 MAIL_PASSWORD=your-app-password
+TOSS_CLIENT_KEY=your-toss-client-key
+TOSS_SECRET_KEY=your-toss-secret-key
 
 # 실행
 ./gradlew bootRun
@@ -369,11 +368,6 @@ MAIL_PASSWORD=your-app-password
 
 ```bash
 cd frontend
-
-# 환경변수 설정 (.env 파일 생성)
-VITE_API_URL=http://localhost:8080
-VITE_GOOGLE_CLIENT_ID=your-google-client-id
-VITE_NAVER_CLIENT_ID=your-naver-client-id
 
 # 의존성 설치 및 실행
 npm install
@@ -413,6 +407,8 @@ npm run dev
 | `JWT_SECRET` | JWT 시크릿 |
 | `MAIL_USERNAME` | Gmail 주소 |
 | `MAIL_PASSWORD` | Gmail 앱 비밀번호 |
+| `TOSS_CLIENT_KEY` | 토스 클라이언트 키 |
+| `TOSS_SECRET_KEY` | 토스 시크릿 키 |
 
 ---
 

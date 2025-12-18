@@ -38,17 +38,23 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* OAuth Callback Routes (No Layout - 처리 후 리다이렉트) */}
+        {/* Auth Routes (No Layout) - OAuth Callback, Email Verify 등 */}
+        <Route path="/signup-success" element={<SignupSuccessPage />} />
+        <Route path="/verify-email" element={<EmailVerifyPage />} />
+        <Route path="/confirm-delete-account" element={<DeleteAccountConfirmPage />} />
+
+        {/* OAuth Callback Routes */}
         <Route path="/oauth/callback/google" element={<GoogleCallbackPage />} />
         <Route path="/oauth/callback/naver" element={<NaverCallbackPage />} />
 
-        {/* All Routes with PublicLayout */}
-        <Route element={<PublicLayout />}>
-          {/* Public Routes */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/error" element={<ErrorPage />} />
+        {/* Error Page */}
+        <Route path="/error" element={<ErrorPage />} />
 
-          {/* Auth Routes (비로그인 사용자 전용) */}
+        {/* All Routes with PublicLayout (Navigation) */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<HomePage />} />
+
+          {/* Auth Routes (비로그인 전용) */}
           <Route
             path="/login"
             element={
@@ -65,8 +71,6 @@ function App() {
               </PublicRoute>
             }
           />
-          <Route path="/signup-success" element={<SignupSuccessPage />} />
-          <Route path="/verify-email" element={<EmailVerifyPage />} />
           <Route
             path="/forgot-password"
             element={
@@ -91,9 +95,8 @@ function App() {
               </PublicRoute>
             }
           />
-          <Route path="/confirm-delete-account" element={<DeleteAccountConfirmPage />} />
 
-          {/* Protected Routes (로그인 사용자 전용) */}
+          {/* Protected Routes */}
           <Route element={<PrivateRoute />}>
             <Route path="/mypage" element={<MyPage />} />
             <Route path="/interviews" element={<InterviewListPage />} />

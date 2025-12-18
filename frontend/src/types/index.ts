@@ -234,7 +234,7 @@ export interface PageResponse<T> {
 }
 
 // Payment Types
-export type PlanType = 'PREMIUM_MONTHLY';
+export type PlanType = 'PREMIUM_MONTHLY' | 'PREMIUM_YEARLY';
 export type PaymentStatus = 'COMPLETED' | 'CANCELLED' | 'FAILED';
 
 export interface PaymentPrepareResponse {
@@ -247,6 +247,7 @@ export interface PaymentPrepareResponse {
 
 export interface BillingKeyIssueRequest {
   authKey: string;
+  planType: PlanType;
 }
 
 export interface BillingKeyIssueResponse {
@@ -271,8 +272,9 @@ export interface PaymentResponse {
   createdAt: string;
 }
 
-export const PLAN_TYPE_LABELS: Record<PlanType, { name: string; price: number; duration: string }> = {
+export const PLAN_TYPE_LABELS: Record<PlanType, { name: string; price: number; originalPrice?: number; duration: string; discount?: string }> = {
   PREMIUM_MONTHLY: { name: 'Premium 월간 구독', price: 9900, duration: '30일' },
+  PREMIUM_YEARLY: { name: 'Premium 연간 구독', price: 99000, originalPrice: 118800, duration: '365일', discount: '16% 할인' },
 };
 
 export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, { label: string; color: string }> = {

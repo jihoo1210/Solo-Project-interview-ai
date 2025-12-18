@@ -7,7 +7,12 @@ export default function PublicLayout() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    // 홈 경로는 정확히 일치해야 함
+    if (path === '/') return location.pathname === '/';
+    // 그 외 경로는 시작 부분이 일치하면 활성화 (예: /interviews/1 -> /interviews 활성화)
+    return location.pathname === path || location.pathname.startsWith(path + '/');
+  };
 
   // 로그인된 사용자용 네비게이션
   const authNavLinks = [
@@ -35,8 +40,7 @@ export default function PublicLayout() {
             {/* 로고 */}
             <Link
               to="/"
-              className="text-2xl sm:text-3xl text-primary hover:text-primary-dark transition-colors"
-              style={{ fontFamily: "'Jua', sans-serif" }}
+              className="text-xl sm:text-2xl font-bold text-primary hover:text-primary-dark transition-colors"
             >
               인터빗
             </Link>
@@ -58,7 +62,7 @@ export default function PublicLayout() {
               ))}
             </nav>
 
-            {/* 사용자 정보 / 로그아웃 버튼 (로그인 시에만) */}
+            {/* 사용자 정보 (로그인 시에만 표시) */}
             {isAuthenticated && (
               <div className="hidden md:flex items-center gap-4">
                 <span className="text-sm text-text-light">
@@ -137,7 +141,7 @@ export default function PublicLayout() {
       <footer className="bg-white border-t border-background-dark py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-sm text-text-muted">
-            <span style={{ fontFamily: "'Jua', sans-serif" }} className="text-primary">인터빗</span> - AI 면접 코칭 서비스
+            인터빗 - AI 면접 코칭 서비스
           </p>
         </div>
       </footer>

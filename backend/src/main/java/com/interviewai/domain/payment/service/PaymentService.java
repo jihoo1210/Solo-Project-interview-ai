@@ -76,7 +76,7 @@ public class PaymentService {
         }
 
         String customerKey = "CUSTOMER_" + user.getId();
-        PlanType planType = PlanType.PREMIUM_MONTHLY;
+        PlanType planType = dto.planType();
 
         try {
             // 1. 빌링키 발급
@@ -111,7 +111,7 @@ public class PaymentService {
 
             // 4. Premium 업그레이드
             LocalDateTime expiresAt = LocalDateTime.now().plusDays(planType.getDurationDays());
-            user.upgradeToPremium(expiresAt, billingKey);
+            user.upgradeToPremium(expiresAt, billingKey, planType);
 
             log.info("빌링키 발급 및 결제 완료 - email: {}, expiresAt: {}", email, expiresAt);
 
@@ -166,7 +166,7 @@ public class PaymentService {
         }
 
         String customerKey = "CUSTOMER_" + user.getId();
-        PlanType planType = PlanType.PREMIUM_MONTHLY;
+        PlanType planType = user.getPlanType() != null ? user.getPlanType() : PlanType.PREMIUM_MONTHLY;
         String orderId = "ORDER_" + UUID.randomUUID().toString().replace("-", "").substring(0, 20);
 
         try {

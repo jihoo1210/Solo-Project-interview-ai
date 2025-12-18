@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import org.springframework.util.StringUtils;
 
+import com.interviewai.domain.payment.entity.PlanType;
 import com.interviewai.domain.user.dto.UpdateProfileRequest;
 import com.interviewai.global.common.BaseTimeEntity;
 import com.interviewai.global.exception.CustomException;
@@ -69,6 +70,10 @@ public class User extends BaseTimeEntity {
     @Column(name = "billing_key", length = 200)
     private String billingKey;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "plan_type", length = 20)
+    private PlanType planType;
+
     @Column(name = "subscription_cancelled")
     private boolean subscriptionCancelled;
 
@@ -102,10 +107,11 @@ public class User extends BaseTimeEntity {
         this.dailyInterviewCount = getDailyInterviewCount() + 1;
     }
 
-    public void upgradeToPremium(LocalDateTime expiresAt, String billingKey) {
+    public void upgradeToPremium(LocalDateTime expiresAt, String billingKey, PlanType planType) {
         this.subscriptionType = SubscriptionType.PREMIUM;
         this.subscriptionExpiresAt = expiresAt;
         this.billingKey = billingKey;
+        this.planType = planType;
         this.subscriptionCancelled = false;
         this.dailyInterviewCount = 0; // 횟수 초기화
     }
@@ -118,6 +124,7 @@ public class User extends BaseTimeEntity {
         this.subscriptionType = SubscriptionType.FREE;
         this.subscriptionExpiresAt = null;
         this.billingKey = null;
+        this.planType = null;
         this.subscriptionCancelled = false;
     }
 
