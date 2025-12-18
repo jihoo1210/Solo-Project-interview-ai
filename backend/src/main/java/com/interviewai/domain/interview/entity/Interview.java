@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "interviews")
@@ -43,6 +45,12 @@ public class Interview extends BaseTimeEntity {
 
     @Column(name = "total_score")
     private Integer totalScore;
+
+    @ElementCollection
+    @CollectionTable(name = "interview_category_scores", joinColumns = @JoinColumn(name = "interview_id"))
+    @MapKeyColumn(name = "category")
+    @Column(name = "score")
+    private Map<String, Integer> categoryScores = new HashMap<>();
 
     @Column(name = "started_at")
     private LocalDateTime startedAt;
@@ -81,9 +89,12 @@ public class Interview extends BaseTimeEntity {
         return type.getDescription();
     }
 
-    public void complete(int totalScore) {
+    public void complete(int totalScore, Map<String, Integer> categoryScores) {
         this.status = InterviewStatus.COMPLETED;
         this.totalScore = totalScore;
+        if (categoryScores != null) {
+            this.categoryScores = new HashMap<>(categoryScores);
+        }
         this.endedAt = LocalDateTime.now();
     }
 

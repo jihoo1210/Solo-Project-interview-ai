@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Builder
@@ -16,6 +17,7 @@ public class InterviewDetailResponse {
     private InterviewDifficulty difficulty;
     private InterviewStatus status;
     private Integer totalScore;
+    private Map<String, Integer> categoryScores;
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;
     private List<QuestionWithAnswerResponse> questions;
@@ -27,6 +29,7 @@ public class InterviewDetailResponse {
                 .difficulty(interview.getDifficulty())
                 .status(interview.getStatus())
                 .totalScore(interview.getTotalScore())
+                .categoryScores(interview.getCategoryScores())
                 .startedAt(interview.getStartedAt())
                 .endedAt(interview.getEndedAt())
                 .questions(interview.getQuestions().stream()

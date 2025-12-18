@@ -14,26 +14,10 @@ export default function InterviewDetailPage() {
   const [isResuming, setIsResuming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 카테고리별 점수 계산
+  // 카테고리별 점수 (API에서 받은 값 사용)
   const getCategoryScores = (): [string, number][] => {
-    if (!interview) return [];
-
-    const categoryMap: { [key: string]: { total: number; count: number } } = {};
-
-    interview.questions.forEach((question) => {
-      if (question.answer?.score) {
-        if (!categoryMap[question.category]) {
-          categoryMap[question.category] = { total: 0, count: 0 };
-        }
-        categoryMap[question.category].total += question.answer.score;
-        categoryMap[question.category].count += 1;
-      }
-    });
-
-    return Object.entries(categoryMap).map(([category, data]) => [
-      category,
-      Math.round(data.total / data.count),
-    ]);
+    if (!interview || !interview.categoryScores) return [];
+    return Object.entries(interview.categoryScores);
   };
 
   const getScoreBgColor = (score: number) => {

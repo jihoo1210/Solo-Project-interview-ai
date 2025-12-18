@@ -152,6 +152,7 @@ export interface InterviewDetailResponse {
   difficulty: InterviewDifficulty;
   status: InterviewStatus;
   totalScore: number | null;
+  categoryScores: Record<string, number>;
   startedAt: string;
   endedAt: string | null;
   questions: InterviewDetailQuestion[];

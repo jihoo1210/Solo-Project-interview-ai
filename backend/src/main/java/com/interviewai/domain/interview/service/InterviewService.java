@@ -124,14 +124,15 @@ public class InterviewService {
         validateInterviewOwner(interview, email);
         validateInterviewInProgress(interview);
 
+        // AI로 종합 평가 (먼저 생성하여 categoryScores 획득)
+        SummaryResult summary = aiService.generateSummary(interview);
+
         // 평균 점수 계산
         Double avgScore = answerRepository.calculateAverageScoreByInterview(interview);
         int totalScore = avgScore != null ? avgScore.intValue() : 0;
 
-        interview.complete(totalScore);
-
-        // AI로 종합 평가
-        SummaryResult summary = aiService.generateSummary(interview);
+        // 면접 완료 처리 (categoryScores 포함)
+        interview.complete(totalScore, summary.getCategoryScores());
 
         return InterviewEndResponse.of(interview, summary);
     }
