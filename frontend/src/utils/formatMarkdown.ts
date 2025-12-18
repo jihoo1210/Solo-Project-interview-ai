@@ -30,6 +30,11 @@ export function formatMarkdown(text: string): string {
   // 한글 또는 영문으로 된 섹션 제목 (예: 장점:, 단점:, 예시:, 결론:, Note:, Example:)
   result = result.replace(/([.!?])\s+([가-힣A-Za-z]+:)\s*/g, '$1\n\n$2\n');
 
+  // 전처리: 하위 항목 패턴 앞에 줄바꿈 추가
+  // "장점: 검색 속도 향상: 내용" → "장점:\n검색 속도 향상: 내용"
+  // 콜론 뒤에 한글/영문 텍스트 + 콜론이 오는 패턴
+  result = result.replace(/:\s+([가-힣A-Za-z][가-힣A-Za-z\s]+:)/g, ':\n$1');
+
   // 전처리: 번호 리스트 패턴 앞에 줄바꿈 추가 (1. 2. 3. 등)
   // "... 내용 1. 항목" → "... 내용\n1. 항목"
   result = result.replace(/([^\n])\s+(\d+)\.\s+/g, '$1\n$2. ');

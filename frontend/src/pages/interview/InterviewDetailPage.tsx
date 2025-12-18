@@ -44,7 +44,7 @@ export default function InterviewDetailPage() {
 
   // 레이더 차트 렌더링
   const renderRadarChart = (categoryScores: [string, number][]) => {
-    if (categoryScores.length < 3) return null;
+    if (categoryScores.length < 2) return null;
 
     const size = 280;
     const center = size / 2;
@@ -254,7 +254,7 @@ export default function InterviewDetailPage() {
       </div>
 
       {/* 분야별 점수 차트 (완료된 면접만) */}
-      {interview.status === 'COMPLETED' && getCategoryScores().length >= 3 && (
+      {interview.status === 'COMPLETED' && getCategoryScores().length >= 2 && (
         <div className="bg-white shadow rounded-xl p-6 sm:p-8 mb-6">
           <h2 className="text-xl font-semibold text-text mb-6">분야별 점수</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
