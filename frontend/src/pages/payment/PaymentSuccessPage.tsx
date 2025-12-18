@@ -4,6 +4,7 @@ import { issueBillingKey } from '../../api/payment';
 import { userApi } from '../../api/user';
 import { LoadingSpinner } from '../../components/common';
 import { useAuthStore } from '../../store/authStore';
+import { PLAN_TYPE_LABELS, type PlanType } from '../../types';
 
 export default function PaymentSuccessPage() {
   const [searchParams] = useSearchParams();
@@ -16,6 +17,7 @@ export default function PaymentSuccessPage() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>(hasValidParams ? 'loading' : 'error');
   const [error, setError] = useState<string | null>(hasValidParams ? null : '잘못된 결제 정보입니다.');
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
+  const [planType, setPlanType] = useState<PlanType>('PREMIUM_MONTHLY');
   const isProcessed = useRef(false);
 
   useEffect(() => {
@@ -25,8 +27,15 @@ export default function PaymentSuccessPage() {
 
     const processPayment = async () => {
       try {
+        // localStorage에서 선택한 플랜 정보 가져오기
+        const savedPlanType = localStorage.getItem('selectedPlanType') as PlanType || 'PREMIUM_MONTHLY';
+        setPlanType(savedPlanType);
+
         // 빌링키 발급 및 첫 결제
-        const response = await issueBillingKey({ authKey: authKey! });
+        const response = await issueBillingKey({ authKey: authKey!, planType: savedPlanType });
+
+        // localStorage 정리
+        localStorage.removeItem('selectedPlanType');
 
         setExpiresAt(response.subscriptionExpiresAt);
         setStatus('success');
@@ -91,7 +100,14 @@ export default function PaymentSuccessPage() {
           <span className="text-3xl text-white">V</span>
         </div>
         <h1 className="text-2xl font-bold text-text mb-2">정기구독이 시작되었습니다!</h1>
-        <p className="text-text-muted mb-2">Premium 구독이 활성화되었습니다.</p>
+        <p className="text-text-muted mb-2">
+          {PLAN_TYPE_LABELS[planType].name}이 활성화되었습니다.
+          {planType === 'PREMIUM_YEARLY' && (
+            <span className="ml-2 text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-0.5 rounded-full">
+              16% 할인 적용
+            </span>
+          )}
+        </p>
         {expiresAt && (
           <p className="text-sm text-text-muted mb-6">
             다음 결제일: {new Date(expiresAt).toLocaleDateString('ko-KR')}
@@ -110,7 +126,7 @@ export default function PaymentSuccessPage() {
 
         <div className="bg-blue-50 rounded-xl p-4 mb-6 border border-blue-200">
           <p className="text-xs text-blue-700">
-            매월 자동으로 결제됩니다. 마이페이지에서 언제든지 구독을 취소할 수 있습니다.
+            {planType === 'PREMIUM_YEARLY' ? '매년' : '매월'} 자동으로 결제됩니다. 마이페이지에서 언제든지 구독을 취소할 수 있습니다.
           </p>
         </div>
 

@@ -1,7 +1,8 @@
 package com.interviewai.domain.payment.entity;
 
 public enum PlanType {
-    PREMIUM_MONTHLY("Premium 월간 구독", 9900, 30);
+    PREMIUM_MONTHLY("Premium 월간 구독", 9900, 30),
+    PREMIUM_YEARLY("Premium 연간 구독", 99000, 365);
 
     private final String displayName;
     private final int price;

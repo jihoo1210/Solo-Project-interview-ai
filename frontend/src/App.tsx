@@ -38,49 +38,9 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Auth Routes (No Layout) */}
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
-              <LoginPage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            <PublicRoute>
-              <SignupPage />
-            </PublicRoute>
-          }
-        />
+        {/* Auth Routes (No Layout) - OAuth Callback, Email Verify 등 */}
         <Route path="/signup-success" element={<SignupSuccessPage />} />
         <Route path="/verify-email" element={<EmailVerifyPage />} />
-        <Route
-          path="/forgot-password"
-          element={
-            <PublicRoute>
-              <ForgotPasswordPage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/reset-password"
-          element={
-            <PublicRoute>
-              <ResetPasswordPage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/delete-account"
-          element={
-            <PublicRoute>
-              <DeleteAccountPage />
-            </PublicRoute>
-          }
-        />
         <Route path="/confirm-delete-account" element={<DeleteAccountConfirmPage />} />
 
         {/* OAuth Callback Routes */}
@@ -90,9 +50,51 @@ function App() {
         {/* Error Page */}
         <Route path="/error" element={<ErrorPage />} />
 
-        {/* Public Routes with PublicLayout */}
+        {/* All Routes with PublicLayout (Navigation) */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<HomePage />} />
+
+          {/* Auth Routes (비로그인 전용) */}
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <PublicRoute>
+                <SignupPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/forgot-password"
+            element={
+              <PublicRoute>
+                <ForgotPasswordPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/reset-password"
+            element={
+              <PublicRoute>
+                <ResetPasswordPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/delete-account"
+            element={
+              <PublicRoute>
+                <DeleteAccountPage />
+              </PublicRoute>
+            }
+          />
 
           {/* Protected Routes */}
           <Route element={<PrivateRoute />}>

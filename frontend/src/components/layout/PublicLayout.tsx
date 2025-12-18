@@ -7,7 +7,12 @@ export default function PublicLayout() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    // 홈 경로는 정확히 일치해야 함
+    if (path === '/') return location.pathname === '/';
+    // 그 외 경로는 시작 부분이 일치하면 활성화 (예: /interviews/1 -> /interviews 활성화)
+    return location.pathname === path || location.pathname.startsWith(path + '/');
+  };
 
   // 로그인된 사용자용 네비게이션
   const authNavLinks = [
@@ -20,6 +25,8 @@ export default function PublicLayout() {
   // 비로그인 사용자용 네비게이션
   const publicNavLinks = [
     { path: '/', label: '홈' },
+    { path: '/login', label: '로그인' },
+    { path: '/signup', label: '회원가입' },
   ];
 
   const navLinks = isAuthenticated ? authNavLinks : publicNavLinks;
@@ -55,37 +62,20 @@ export default function PublicLayout() {
               ))}
             </nav>
 
-            {/* 사용자 정보 / 로그인 버튼 */}
-            <div className="hidden md:flex items-center gap-4">
-              {isAuthenticated ? (
-                <>
-                  <span className="text-sm text-text-light">
-                    <strong className="text-text">{user?.nickname}</strong>님
-                  </span>
-                  <button
-                    onClick={logout}
-                    className="px-4 py-2 text-sm font-medium text-text-light border border-background-dark rounded-lg hover:border-primary hover:text-primary transition-all cursor-pointer"
-                  >
-                    로그아웃
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/login"
-                    className="px-4 py-2 text-sm font-medium text-text-light border border-background-dark rounded-lg hover:border-primary hover:text-primary transition-all"
-                  >
-                    로그인
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-all"
-                  >
-                    회원가입
-                  </Link>
-                </>
-              )}
-            </div>
+            {/* 사용자 정보 (로그인 시에만 표시) */}
+            {isAuthenticated && (
+              <div className="hidden md:flex items-center gap-4">
+                <span className="text-sm text-text-light">
+                  <strong className="text-text">{user?.nickname}</strong>님
+                </span>
+                <button
+                  onClick={logout}
+                  className="px-4 py-2 text-sm font-medium text-text-light border border-background-dark rounded-lg hover:border-primary hover:text-primary transition-all cursor-pointer"
+                >
+                  로그아웃
+                </button>
+              </div>
+            )}
 
             {/* 모바일 메뉴 버튼 */}
             <button
@@ -125,7 +115,7 @@ export default function PublicLayout() {
                     {link.label}
                   </Link>
                 ))}
-                {isAuthenticated ? (
+                {isAuthenticated && (
                   <button
                     onClick={() => {
                       logout();
@@ -135,23 +125,6 @@ export default function PublicLayout() {
                   >
                     로그아웃
                   </button>
-                ) : (
-                  <>
-                    <Link
-                      to="/login"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="px-4 py-3 text-sm font-medium text-text-light hover:bg-background-dark rounded-lg transition-all"
-                    >
-                      로그인
-                    </Link>
-                    <Link
-                      to="/signup"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="px-4 py-3 text-sm font-medium text-white bg-primary rounded-lg transition-all"
-                    >
-                      회원가입
-                    </Link>
-                  </>
                 )}
               </nav>
             </div>
