@@ -25,6 +25,14 @@ export function formatMarkdown(text: string): string {
 
   let result = text;
 
+  // 전처리: 번호 리스트 패턴 앞에 줄바꿈 추가 (1. 2. 3. 등)
+  // "... 내용 1. 항목" → "... 내용\n1. 항목"
+  result = result.replace(/([^\n])\s+(\d+)\.\s+/g, '$1\n$2. ');
+
+  // 전처리: 글머리 기호 리스트 패턴 앞에 줄바꿈 추가 (- * + 등)
+  // "... 내용 - 항목" → "... 내용\n- 항목"
+  result = result.replace(/([^\n])\s+([-*+])\s+(?=[^\s])/g, '$1\n$2 ');
+
   // 코드 블록을 먼저 처리하고 플레이스홀더로 대체 (다른 변환에 영향받지 않도록)
   const codeBlocks: string[] = [];
   result = result.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
