@@ -208,3 +208,136 @@ body {
   border-radius: 0.375rem;
   opacity: .8;
 }
+
+/* Markdown Headings */
+.markdown-h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 1.5rem 0 1rem;
+  color: var(--color-text);
+  border-bottom: 2px solid var(--color-primary);
+  padding-bottom: 0.5rem;
+}
+
+.markdown-h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 1.25rem 0 0.75rem;
+  color: var(--color-text);
+}
+
+.markdown-h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+  color: var(--color-text);
+}
+
+.markdown-h4,
+.markdown-h5,
+.markdown-h6 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.75rem 0 0.5rem;
+  color: var(--color-text);
+}
+
+/* Markdown Code Block */
+.markdown-code-block {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.markdown-code-block code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* Markdown List */
+.markdown-list {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.markdown-list li {
+  margin: 0.25rem 0;
+  line-height: 1.6;
+}
+
+.markdown-ol {
+  list-style-type: decimal;
+}
+
+/* Markdown Checkbox */
+.markdown-checklist {
+  list-style: none;
+  padding-left: 0.5rem;
+}
+
+.markdown-checkbox-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.markdown-checkbox {
+  margin-top: 0.3rem;
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--color-primary);
+}
+
+/* Markdown Blockquote */
+.markdown-blockquote {
+  border-left: 4px solid var(--color-primary);
+  background-color: var(--color-background-dark);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  border-radius: 0 0.5rem 0.5rem 0;
+  color: var(--color-text-light);
+  font-style: italic;
+}
+
+/* Markdown Horizontal Rule */
+.markdown-hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+  margin: 1.5rem 0;
+  border-radius: 1px;
+}
+
+/* Markdown Link */
+.markdown-link {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s;
+}
+
+.markdown-link:hover {
+  color: var(--color-accent-dark);
+}
+
+/* Markdown Image */
+.markdown-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Markdown Strikethrough */
+del {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
