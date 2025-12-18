@@ -32,7 +32,7 @@ export function formatMarkdown(text: string): string {
     const escapedCode = escapeHtml(code.trim());
     const langClass = lang ? ` data-lang="${lang}"` : '';
     codeBlocks.push(`<pre class="markdown-code-block"${langClass}><code>${escapedCode}</code></pre>`);
-    return `___CODE_BLOCK_${index}___`;
+    return `\x00CODE_BLOCK_${index}\x00`;
   });
 
   // 인라인 코드도 먼저 처리
@@ -40,7 +40,7 @@ export function formatMarkdown(text: string): string {
   result = result.replace(/`([^`\n]+)`/g, (_, code) => {
     const index = inlineCodes.length;
     inlineCodes.push(`<span class="code-badge">${escapeHtml(code)}</span>`);
-    return `___INLINE_CODE_${index}___`;
+    return `\x00INLINE_CODE_${index}\x00`;
   });
 
   // 줄 단위로 처리
@@ -175,12 +175,12 @@ export function formatMarkdown(text: string): string {
 
   // 코드 블록 플레이스홀더 복원
   codeBlocks.forEach((block, index) => {
-    result = result.replace(`___CODE_BLOCK_${index}___`, block);
+    result = result.replace(`\x00CODE_BLOCK_${index}\x00`, block);
   });
 
   // 인라인 코드 플레이스홀더 복원
   inlineCodes.forEach((code, index) => {
-    result = result.replace(`___INLINE_CODE_${index}___`, code);
+    result = result.replace(`\x00INLINE_CODE_${index}\x00`, code);
   });
 
   // 연속된 빈 <p> 태그 정리
