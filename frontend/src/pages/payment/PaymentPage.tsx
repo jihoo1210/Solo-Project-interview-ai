@@ -44,8 +44,8 @@ export default function PaymentPage() {
       const tossPayments = window.TossPayments(clientKey);
       const payment = tossPayments.payment({ customerKey: prepareResponse.customerKey });
 
-      await payment.requestBillingKeyAuth('카드', {
-        scope: 'BILLING',
+      await payment.requestBillingAuth({
+        method: 'CARD',
         customerEmail: prepareResponse.customerEmail,
         customerName: prepareResponse.customerName,
         successUrl: `${window.location.origin}/payment/success`,
