@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://interbit.kr/sitemap.xml
+Sitemap: https://interbit.p-e.kr/sitemap.xml
