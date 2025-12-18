@@ -291,7 +291,7 @@ export default function DashboardTab() {
             {recentInterviews.map((interview) => (
               <div
                 key={interview.id}
-                onClick={() => navigate(`/interview/${interview.id}`)}
+                onClick={() => navigate(`/interviews/${interview.id}`)}
                 className="flex items-center justify-between p-3 bg-white rounded-lg hover:shadow-md transition-shadow cursor-pointer"
               >
                 <div className="flex items-center gap-3">

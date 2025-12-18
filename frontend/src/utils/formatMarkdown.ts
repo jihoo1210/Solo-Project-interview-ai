@@ -25,6 +25,11 @@ export function formatMarkdown(text: string): string {
 
   let result = text;
 
+  // 전처리: 섹션 제목 패턴 앞에 줄바꿈 추가
+  // "... 내용 장점:" → "... 내용\n\n장점:"
+  // 한글 또는 영문으로 된 섹션 제목 (예: 장점:, 단점:, 예시:, 결론:, Note:, Example:)
+  result = result.replace(/([.!?])\s+([가-힣A-Za-z]+:)\s*/g, '$1\n\n$2\n');
+
   // 전처리: 번호 리스트 패턴 앞에 줄바꿈 추가 (1. 2. 3. 등)
   // "... 내용 1. 항목" → "... 내용\n1. 항목"
   result = result.replace(/([^\n])\s+(\d+)\.\s+/g, '$1\n$2. ');
@@ -139,8 +144,25 @@ export function formatMarkdown(text: string): string {
       continue;
     }
 
-    // 리스트가 아닌 줄이면 리스트 종료
+    // 리스트 내 들여쓰기된 연속 줄 처리 (리스트 항목의 부가 내용)
+    // 들여쓰기(공백 2개 이상)로 시작하거나 **해결책**: 같은 패턴은 이전 리스트 항목에 추가
     if (inList && line.trim() !== '') {
+      const isIndented = /^[\s]{2,}/.test(line);
+      const isContinuation = /^\*\*[^*]+\*\*:/.test(line.trim());
+      if (isIndented || isContinuation) {
+        // 마지막 li 태그에 내용 추가 (br로 줄바꿈)
+        const lastIndex = processedLines.length - 1;
+        if (lastIndex >= 0 && processedLines[lastIndex].startsWith('<li>')) {
+          processedLines[lastIndex] = processedLines[lastIndex].replace(
+            /<\/li>$/,
+            `<br/>${processInline(line.trim())}</li>`
+          );
+        } else {
+          processedLines.push(`<p>${processInline(line)}</p>`);
+        }
+        continue;
+      }
+      // 리스트 연속이 아니면 리스트 종료
       closeList();
     }
 

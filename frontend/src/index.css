@@ -200,13 +200,13 @@ body {
 .code-badge {
   display: inline-block;
   padding: 0.15rem 0.4rem;
-  background-color: #f3f4f6;
-  color: #dc2626;
+  background-color: #fff7ed;
+  color: #ea580c;
   font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
   font-size: 0.85em;
   font-weight: 500;
   border-radius: 0.25rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #fed7aa;
 }
 
 /* Markdown Headings */
@@ -248,13 +248,15 @@ body {
   color: #d4d4d4;
   padding: 1rem 1.25rem;
   border-radius: 0.5rem;
-  overflow-x: auto;
   margin: 1rem 0;
   font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
   font-size: 0.8rem;
   line-height: 1.6;
   max-height: 400px;
   overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .markdown-code-block code {
