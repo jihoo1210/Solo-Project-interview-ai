@@ -40,7 +40,7 @@ export default function PaymentPage() {
       // 4. 선택한 플랜 정보를 localStorage에 저장 (success 페이지에서 사용)
       localStorage.setItem('selectedPlanType', selectedPlan);
 
-      // 5. 토스페이먼츠 빌링키 발급 요청
+      // 5. 토스페이먼츠 빌링키 발급 요청 (v2 SDK)
       const tossPayments = window.TossPayments(clientKey);
       const payment = tossPayments.payment({ customerKey: prepareResponse.customerKey });
 
