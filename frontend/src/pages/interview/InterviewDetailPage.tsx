@@ -14,6 +14,99 @@ export default function InterviewDetailPage() {
   const [isResuming, setIsResuming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // 카테고리별 점수 계산
+  const getCategoryScores = (): [string, number][] => {
+    if (!interview) return [];
+
+    const categoryMap: { [key: string]: { total: number; count: number } } = {};
+
+    interview.questions.forEach((question) => {
+      if (question.answer?.score) {
+        if (!categoryMap[question.category]) {
+          categoryMap[question.category] = { total: 0, count: 0 };
+        }
+        categoryMap[question.category].total += question.answer.score;
+        categoryMap[question.category].count += 1;
+      }
+    });
+
+    return Object.entries(categoryMap).map(([category, data]) => [
+      category,
+      Math.round(data.total / data.count),
+    ]);
+  };
+
+  const getScoreBgColor = (score: number) => {
+    if (score >= 8) return 'bg-success';
+    if (score >= 6) return 'bg-primary';
+    return 'bg-error';
+  };
+
+  // 레이더 차트 렌더링
+  const renderRadarChart = (categoryScores: [string, number][]) => {
+    if (categoryScores.length < 3) return null;
+
+    const size = 280;
+    const center = size / 2;
+    const radius = size / 2 - 40;
+    const angleStep = (2 * Math.PI) / categoryScores.length;
+
+    const points = categoryScores.map(([, score], index) => {
+      const angle = index * angleStep - Math.PI / 2;
+      const normalizedScore = score / 10;
+      const x = center + radius * normalizedScore * Math.cos(angle);
+      const y = center + radius * normalizedScore * Math.sin(angle);
+      return { x, y };
+    });
+
+    const gridLines = [0.2, 0.4, 0.6, 0.8, 1.0].map((scale) => {
+      const gridPoints = categoryScores.map((_, index) => {
+        const angle = index * angleStep - Math.PI / 2;
+        const x = center + radius * scale * Math.cos(angle);
+        const y = center + radius * scale * Math.sin(angle);
+        return `${x},${y}`;
+      });
+      return gridPoints.join(' ');
+    });
+
+    const axisLines = categoryScores.map((_, index) => {
+      const angle = index * angleStep - Math.PI / 2;
+      const x = center + radius * Math.cos(angle);
+      const y = center + radius * Math.sin(angle);
+      return { x1: center, y1: center, x2: x, y2: y };
+    });
+
+    const labels = categoryScores.map(([category], index) => {
+      const angle = index * angleStep - Math.PI / 2;
+      const labelRadius = radius + 25;
+      const x = center + labelRadius * Math.cos(angle);
+      const y = center + labelRadius * Math.sin(angle);
+      return { category, x, y };
+    });
+
+    const dataPointsString = points.map((p) => `${p.x},${p.y}`).join(' ');
+
+    return (
+      <svg width={size} height={size} className="overflow-visible">
+        {gridLines.map((pts, index) => (
+          <polygon key={index} points={pts} fill="none" stroke="#FEF3C7" strokeWidth="1" />
+        ))}
+        {axisLines.map((line, index) => (
+          <line key={index} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} stroke="#FEF3C7" strokeWidth="1" />
+        ))}
+        <polygon points={dataPointsString} fill="rgba(245, 158, 11, 0.3)" stroke="#F59E0B" strokeWidth="2" />
+        {points.map((point, index) => (
+          <circle key={index} cx={point.x} cy={point.y} r="5" fill="#F59E0B" />
+        ))}
+        {labels.map((label, index) => (
+          <text key={index} x={label.x} y={label.y} textAnchor="middle" dominantBaseline="middle" fontSize="11" fill="#57534E" fontWeight="500">
+            {label.category}
+          </text>
+        ))}
+      </svg>
+    );
+  };
+
   useEffect(() => {
     if (id) {
       fetchInterviewDetail(parseInt(id));
@@ -159,6 +252,34 @@ export default function InterviewDetailPage() {
           </div>
         )}
       </div>
+
+      {/* 분야별 점수 차트 (완료된 면접만) */}
+      {interview.status === 'COMPLETED' && getCategoryScores().length >= 3 && (
+        <div className="bg-white shadow rounded-xl p-6 sm:p-8 mb-6">
+          <h2 className="text-xl font-semibold text-text mb-6">분야별 점수</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* 레이더 차트 */}
+            <div className="flex justify-center items-center">
+              {renderRadarChart(getCategoryScores())}
+            </div>
+            {/* 상세 점수 바 */}
+            <div className="space-y-4">
+              {getCategoryScores().map(([category, score]) => (
+                <div key={category} className="flex items-center gap-4">
+                  <span className="w-28 text-sm text-text-light truncate">{category}</span>
+                  <div className="flex-1 h-3 bg-background-dark rounded-full overflow-hidden">
+                    <div
+                      className={`h-full ${getScoreBgColor(score)} rounded-full transition-all duration-500`}
+                      style={{ width: `${score * 10}%` }}
+                    />
+                  </div>
+                  <span className="w-12 text-right font-semibold text-text">{score}/10</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 질문 및 답변 목록 */}
       <div className="bg-white shadow rounded-xl p-6 sm:p-8">
