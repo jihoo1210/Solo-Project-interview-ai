@@ -47,6 +47,12 @@ apiClient.interceptors.response.use(
   async (error: AxiosError<ApiResponse<never>>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
+    console.log('[API Error]', {
+      url: originalRequest?.url,
+      status: error.response?.status,
+      message: error.message,
+    });
+
     // Token expired - try refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
       // refresh 엔드포인트 자체가 실패한 경우 바로 로그아웃
