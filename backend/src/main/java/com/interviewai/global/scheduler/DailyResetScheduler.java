@@ -23,9 +23,9 @@ public class DailyResetScheduler {
     private final PaymentService paymentService;
 
     /**
-     * 매일 자정에 FREE 사용자의 일일 면접 횟수 초기화
+     * 매일 자정에 FREE 사용자의 일일 면접 횟수 초기화 (한국 시간 기준)
      */
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     @Transactional
     public void resetDailyInterviewCount() {
         log.info("일일 면접 횟수 초기화 시작");
@@ -34,9 +34,9 @@ public class DailyResetScheduler {
     }
 
     /**
-     * 매일 자정에 구독 취소된 만료 사용자를 FREE로 다운그레이드
+     * 매일 자정에 구독 취소된 만료 사용자를 FREE로 다운그레이드 (한국 시간 기준)
      */
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     @Transactional
     public void processExpiredCancelledSubscriptions() {
         log.info("만료된 취소 구독 처리 시작");
@@ -45,10 +45,10 @@ public class DailyResetScheduler {
     }
 
     /**
-     * 매일 오전 9시에 구독 갱신이 필요한 사용자 정기결제 실행
+     * 매일 오전 9시에 구독 갱신이 필요한 사용자 정기결제 실행 (한국 시간 기준)
      * (만료 24시간 전 ~ 만료 시점 사이의 사용자 대상)
      */
-    @Scheduled(cron = "0 0 9 * * *")
+    @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul")
     @Transactional
     public void processRecurringPayments() {
         log.info("정기결제 처리 시작");
