@@ -304,6 +304,12 @@ Solo-Project-interview-ai/
 - [정기결제 구현 절차](docs/학습노트/Phase6_결제시스템/02_정기결제_구현_절차.md)
 - [토스페이먼츠 정기결제 FAQ](docs/학습노트/Phase6_결제시스템/03_토스페이먼츠_정기결제_FAQ.md)
 
+### 배포
+- [Spring AI Google GenAI 오류 해결](docs/학습노트/배포/01_Spring_AI_Google_GenAI_project-id_오류_해결.md)
+- [AWS ElastiCache Redis 연결 오류 해결](docs/학습노트/배포/02_AWS_ElastiCache_Serverless_Redis_연결_오류_해결.md)
+- [프로덕션 배포 트러블슈팅 모음](docs/학습노트/배포/03_프로덕션_배포_트러블슈팅_모음.md)
+- [AWS EC2 SSH 원격접속 가이드](docs/학습노트/배포/04_AWS_EC2_SSH_원격접속_가이드.md)
+
 ---
 
 ## API 문서
