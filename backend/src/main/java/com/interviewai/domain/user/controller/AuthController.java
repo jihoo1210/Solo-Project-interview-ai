@@ -28,7 +28,9 @@ import com.interviewai.global.common.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -85,7 +87,10 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ApiResponse<TokenRefreshResponse> refresh(@RequestBody @Valid TokenRefreshRequest request) {
-        return ApiResponse.success(authService.refresh(request));
+        log.info("[Token Refresh] Received refresh request");
+        TokenRefreshResponse response = authService.refresh(request);
+        log.info("[Token Refresh] Refresh successful");
+        return ApiResponse.success(response);
     }
 
     @PostMapping("/logout")
