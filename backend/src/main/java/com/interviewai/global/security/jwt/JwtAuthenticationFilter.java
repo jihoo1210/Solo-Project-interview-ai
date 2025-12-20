@@ -32,20 +32,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        try {
-            String token = jwtTokenProvider.resolveToken(request);
-            if (!StringUtils.isBlank(token) && jwtTokenProvider.validateToken(token)) {
-                String email = jwtTokenProvider.getUserEmail(token);
-                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                if (userDetails != null) {
-                    UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+        String token = jwtTokenProvider.resolveToken(request);
+
+        // 토큰이 있는 경우에만 검증
+        if (!StringUtils.isBlank(token)) {
+            if (jwtTokenProvider.validateToken(token)) {
+                // 유효한 토큰: 인증 정보 설정
+                try {
+                    String email = jwtTokenProvider.getUserEmail(token);
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                    if (userDetails != null) {
+                        UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+                } catch (Exception e) {
+                    log.debug("JWT 인증 실패: {}", e.getMessage());
                 }
+            } else {
+                // 토큰이 있지만 만료됨: 401 반환
+                log.debug("JWT 토큰 만료됨");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"success\":false,\"error\":{\"code\":401,\"name\":\"UNAUTHORIZED\",\"message\":\"토큰이 만료되었습니다.\"}}");
+                return;
             }
-        } catch (Exception e) {
-            log.debug("JWT 인증 실패: {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);
