@@ -33,7 +33,9 @@
       "Bash(git stash:*)",
       "Bash(./gradlew:*)",
       "Bash(del \"c:\\dev\\portfolio\\Solo-Project-interview-ai\\backend\\src\\main\\java\\com\\interviewai\\global\\config\\AiConfig.java\")",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "Bash(node test-markdown.js:*)",
+      "Bash(del \"c:\\\\dev\\\\portfolio\\\\Solo-Project-interview-ai\\\\frontend\\\\test-markdown.js\")"
     ]
   }
 }

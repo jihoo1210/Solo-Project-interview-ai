@@ -124,19 +124,26 @@ public class AuthService {
     }
 
     public TokenRefreshResponse refresh(TokenRefreshRequest request) {
-        String userId = refreshTokenRepository.findByRefreshToken(request.getRefreshToken());
-        if(userId == null) throw new CustomException(ErrorCode.INVALID_TOKEN);
+        try {
+            String userId = refreshTokenRepository.findByRefreshToken(request.getRefreshToken());
+            if(userId == null) throw new CustomException(ErrorCode.INVALID_TOKEN);
 
-        User user = userRepository.findById(Long.parseLong(userId)).orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
+            User user = userRepository.findById(Long.parseLong(userId)).orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
 
-        String accessToken = jwtTokenProvider.createJWT(user.getId(), user.getEmail(), user.getSubscriptionType());
-        String refreshToken = jwtTokenProvider.createRefreshToken();
+            String accessToken = jwtTokenProvider.createJWT(user.getId(), user.getEmail(), user.getSubscriptionType());
+            String refreshToken = jwtTokenProvider.createRefreshToken();
 
-        // 이전 RT 삭제
-        refreshTokenRepository.deleteByRefreshToken(request.getRefreshToken());
-        refreshTokenRepository.save(refreshToken, user.getId());
+            // 이전 RT 삭제
+            refreshTokenRepository.deleteByRefreshToken(request.getRefreshToken());
+            refreshTokenRepository.save(refreshToken, user.getId());
 
-        return TokenRefreshResponse.of(accessToken, refreshToken);
+            return TokenRefreshResponse.of(accessToken, refreshToken);
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            // Redis 연결 오류 등 예상치 못한 에러 처리
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
     }
 
     public void logout(TokenRefreshRequest request) {

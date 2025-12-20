@@ -77,6 +77,8 @@ apiClient.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem('refreshToken');
+        console.log('[Token Refresh] Starting refresh, has refreshToken:', !!refreshToken);
+
         if (!refreshToken) {
           throw new Error('No refresh token');
         }
@@ -85,9 +87,18 @@ apiClient.interceptors.response.use(
           refreshToken,
         });
 
+        console.log('[Token Refresh] Response:', response.data);
+
         const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+
+        if (!accessToken || !newRefreshToken) {
+          console.error('[Token Refresh] Invalid response - missing tokens');
+          throw new Error('Invalid refresh response');
+        }
+
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', newRefreshToken);
+        console.log('[Token Refresh] Tokens saved successfully');
 
         // 대기 중인 요청들 처리
         processQueue(null, accessToken);
@@ -96,6 +107,7 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         // Refresh failed - logout
+        console.error('[Token Refresh] Failed:', refreshError);
         processQueue(refreshError, null);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
