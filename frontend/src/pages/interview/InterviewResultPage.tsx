@@ -75,11 +75,11 @@ export default function InterviewResultPage() {
     return 'bg-error';
   };
 
-  // 레이더 차트 그리기
-  const renderRadarChart = () => {
-    const size = 300;
+  // 레이더 차트 그리기 (반응형 크기 지원)
+  const renderRadarChart = (chartSize: number = 300) => {
+    const size = chartSize;
     const center = size / 2;
-    const radius = size / 2 - 40;
+    const radius = size / 2 - 35;
     const angleStep = (2 * Math.PI) / categoryScores.length;
 
     const points = categoryScores.map(([, score], index) => {
@@ -160,24 +160,32 @@ export default function InterviewResultPage() {
           </div>
 
           {/* 레이더 차트 & 분야별 점수 */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            <div>
-              <h2 className="text-xl font-semibold text-text mb-6">분야별 점수</h2>
-              <div className="flex justify-center">{renderRadarChart()}</div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-8 sm:mb-12">
+            <div className="order-2 lg:order-1">
+              <h2 className="text-lg sm:text-xl font-semibold text-text mb-4 sm:mb-6">분야별 점수</h2>
+              <div className="flex justify-center">
+                {/* 모바일: 240px, 태블릿 이상: 300px */}
+                <div className="block sm:hidden">
+                  {renderRadarChart(240)}
+                </div>
+                <div className="hidden sm:block">
+                  {renderRadarChart(300)}
+                </div>
+              </div>
             </div>
-            <div>
-              <h2 className="text-xl font-semibold text-text mb-6">상세 점수</h2>
-              <div className="space-y-4">
+            <div className="order-1 lg:order-2">
+              <h2 className="text-lg sm:text-xl font-semibold text-text mb-4 sm:mb-6">상세 점수</h2>
+              <div className="space-y-3 sm:space-y-4">
                 {categoryScores.map(([category, score]) => (
-                  <div key={category} className="flex items-center gap-4">
-                    <span className="w-32 text-sm text-text-light">{category}</span>
-                    <div className="flex-1 h-3 bg-background-dark rounded-full overflow-hidden">
+                  <div key={category} className="flex items-center gap-2 sm:gap-4">
+                    <span className="w-20 sm:w-32 text-xs sm:text-sm text-text-light truncate flex-shrink-0">{category}</span>
+                    <div className="flex-1 h-2 sm:h-3 bg-background-dark rounded-full overflow-hidden">
                       <div
                         className={`h-full ${getScoreBgColor(score)} rounded-full transition-all duration-500`}
                         style={{ width: `${score * 10}%` }}
                       />
                     </div>
-                    <span className="w-12 text-right font-semibold text-text">{score}/10</span>
+                    <span className="w-10 sm:w-12 text-right text-sm sm:text-base font-semibold text-text flex-shrink-0">{score}/10</span>
                   </div>
                 ))}
               </div>

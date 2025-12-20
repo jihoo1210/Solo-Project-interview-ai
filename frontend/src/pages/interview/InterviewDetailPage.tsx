@@ -26,13 +26,13 @@ export default function InterviewDetailPage() {
     return 'bg-error';
   };
 
-  // 레이더 차트 렌더링
-  const renderRadarChart = (categoryScores: [string, number][]) => {
+  // 레이더 차트 렌더링 (반응형 크기 지원)
+  const renderRadarChart = (categoryScores: [string, number][], chartSize: number = 280) => {
     if (categoryScores.length < 2) return null;
 
-    const size = 280;
+    const size = chartSize;
     const center = size / 2;
-    const radius = size / 2 - 40;
+    const radius = size / 2 - 35;
     const angleStep = (2 * Math.PI) / categoryScores.length;
 
     const points = categoryScores.map(([, score], index) => {
@@ -239,25 +239,31 @@ export default function InterviewDetailPage() {
 
       {/* 분야별 점수 차트 (완료된 면접만) */}
       {interview.status === 'COMPLETED' && getCategoryScores().length >= 2 && (
-        <div className="bg-white shadow rounded-xl p-6 sm:p-8 mb-6">
-          <h2 className="text-xl font-semibold text-text mb-6">분야별 점수</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* 레이더 차트 */}
-            <div className="flex justify-center items-center">
-              {renderRadarChart(getCategoryScores())}
+        <div className="bg-white shadow rounded-xl p-4 sm:p-6 lg:p-8 mb-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-text mb-4 sm:mb-6">분야별 점수</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            {/* 레이더 차트 - 반응형 */}
+            <div className="flex justify-center items-center order-2 lg:order-1">
+              {/* 모바일: 220px, 태블릿 이상: 280px */}
+              <div className="block sm:hidden">
+                {renderRadarChart(getCategoryScores(), 220)}
+              </div>
+              <div className="hidden sm:block">
+                {renderRadarChart(getCategoryScores(), 280)}
+              </div>
             </div>
             {/* 상세 점수 바 */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4 order-1 lg:order-2">
               {getCategoryScores().map(([category, score]) => (
-                <div key={category} className="flex items-center gap-4">
-                  <span className="w-28 text-sm text-text-light truncate">{category}</span>
-                  <div className="flex-1 h-3 bg-background-dark rounded-full overflow-hidden">
+                <div key={category} className="flex items-center gap-2 sm:gap-4">
+                  <span className="w-20 sm:w-28 text-xs sm:text-sm text-text-light truncate flex-shrink-0">{category}</span>
+                  <div className="flex-1 h-2 sm:h-3 bg-background-dark rounded-full overflow-hidden">
                     <div
                       className={`h-full ${getScoreBgColor(score)} rounded-full transition-all duration-500`}
                       style={{ width: `${score * 10}%` }}
                     />
                   </div>
-                  <span className="w-12 text-right font-semibold text-text">{score}/10</span>
+                  <span className="w-10 sm:w-12 text-right text-sm sm:text-base font-semibold text-text flex-shrink-0">{score}/10</span>
                 </div>
               ))}
             </div>
@@ -266,52 +272,52 @@ export default function InterviewDetailPage() {
       )}
 
       {/* 질문 및 답변 목록 */}
-      <div className="bg-white shadow rounded-xl p-6 sm:p-8">
-        <h2 className="text-xl font-semibold text-text mb-6">
+      <div className="bg-white shadow rounded-xl p-4 sm:p-6 lg:p-8">
+        <h2 className="text-lg sm:text-xl font-semibold text-text mb-4 sm:mb-6">
           질문 및 답변 ({interview.questions.length}개)
         </h2>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {interview.questions.map((question) => (
-            <div key={question.id} className="border border-background-dark rounded-xl p-5 sm:p-6">
+            <div key={question.id} className="border border-background-dark rounded-xl p-4 sm:p-5 lg:p-6">
               {/* 질문 헤더 */}
-              <div className="flex gap-2 mb-3">
-                <span className="px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full">
+              <div className="flex flex-wrap gap-2 mb-3">
+                <span className="px-2 sm:px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full">
                   Q{question.orderNumber}
                 </span>
-                <span className="px-3 py-1 bg-background-dark text-text-light text-xs font-medium rounded-full">
+                <span className="px-2 sm:px-3 py-1 bg-background-dark text-text-light text-xs font-medium rounded-full">
                   {question.category}
                 </span>
               </div>
 
               {/* 질문 내용 */}
-              <p
-                className="text-lg font-medium text-text mb-4 leading-relaxed"
+              <div
+                className="text-base sm:text-lg font-medium text-text mb-4 leading-relaxed break-words"
                 dangerouslySetInnerHTML={{ __html: formatMarkdown(question.content) }}
               />
 
               {question.answer ? (
-                <div className="bg-background rounded-xl p-5 space-y-4">
+                <div className="bg-background rounded-xl p-3 sm:p-4 lg:p-5 space-y-3 sm:space-y-4">
                   {/* 내 답변 */}
                   <div>
                     <h4 className="text-xs font-semibold text-text-muted uppercase mb-2">내 답변</h4>
-                    <div className="bg-white border border-background-dark rounded-lg p-4">
-                      <p className="text-text-light leading-relaxed">{question.answer.content}</p>
+                    <div className="bg-white border border-background-dark rounded-lg p-3 sm:p-4">
+                      <p className="text-sm sm:text-base text-text-light leading-relaxed break-words">{question.answer.content}</p>
                     </div>
                   </div>
 
-                  {/* 점수 및 소요 시간 */}
-                  <div className="flex items-center gap-4">
+                  {/* 점수 및 소요 시간 - 반응형 배치 */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-text-muted">점수:</span>
-                      <span className={`text-xl font-bold ${getScoreColor(question.answer.score)}`}>
+                      <span className="text-xs sm:text-sm text-text-muted">점수:</span>
+                      <span className={`text-lg sm:text-xl font-bold ${getScoreColor(question.answer.score)}`}>
                         {question.answer.score}/10
                       </span>
                     </div>
                     {question.answer.answerTimeSeconds !== undefined && (
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-text-muted">소요 시간:</span>
-                        <span className="text-sm font-medium text-text">
+                        <span className="text-xs sm:text-sm text-text-muted">소요 시간:</span>
+                        <span className="text-xs sm:text-sm font-medium text-text">
                           {formatTime(question.answer.answerTimeSeconds)}
                         </span>
                       </div>
@@ -319,19 +325,19 @@ export default function InterviewDetailPage() {
                   </div>
 
                   {/* 피드백 */}
-                  <div className='bg-white border border-background-dark rounded-lg p-4'>
+                  <div className="bg-white border border-background-dark rounded-lg p-3 sm:p-4">
                     <h4 className="text-xs font-semibold text-text-muted uppercase mb-2">피드백</h4>
-                    <p className="text-text-light leading-relaxed" dangerouslySetInnerHTML={{ __html: formatMarkdown(question.answer.feedback) }} />
+                    <div className="text-sm sm:text-base text-text-light leading-relaxed break-words" dangerouslySetInnerHTML={{ __html: formatMarkdown(question.answer.feedback) }} />
                   </div>
 
                   {/* 모범 답안 */}
-                  <div className="bg-white border border-background-dark rounded-lg p-4">
+                  <div className="bg-white border border-background-dark rounded-lg p-3 sm:p-4">
                     <h4 className="text-xs font-semibold text-accent uppercase mb-2">모범 답안</h4>
-                    <p className="text-text-light leading-relaxed" dangerouslySetInnerHTML={{ __html: formatMarkdown(question.answer.modelAnswer) }} />
+                    <div className="text-sm sm:text-base text-text-light leading-relaxed break-words" dangerouslySetInnerHTML={{ __html: formatMarkdown(question.answer.modelAnswer) }} />
                   </div>
                 </div>
               ) : (
-                <p className="text-text-muted italic">답변 없음</p>
+                <p className="text-text-muted italic text-sm sm:text-base">답변 없음</p>
               )}
             </div>
           ))}
@@ -346,12 +352,12 @@ export default function InterviewDetailPage() {
       )}
 
       {/* 하단 버튼 */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mt-6 sm:mt-8">
         {interview.status === 'IN_PROGRESS' && (
           <button
             onClick={handleResumeInterview}
             disabled={isResuming}
-            className="px-8 py-4 text-lg font-bold text-white bg-primary rounded-xl hover:bg-primary-dark transition-colors shadow-lg disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer"
+            className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold text-white bg-primary rounded-xl hover:bg-primary-dark transition-colors shadow-lg disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer"
           >
             {isResuming ? (
               <>
@@ -365,7 +371,7 @@ export default function InterviewDetailPage() {
         )}
         <button
           onClick={() => navigate('/interviews')}
-          className="px-8 py-4 text-lg font-semibold text-text-light bg-white border-2 border-background-dark rounded-xl hover:border-primary hover:text-primary transition-all cursor-pointer"
+          className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold text-text-light bg-white border-2 border-background-dark rounded-xl hover:border-primary hover:text-primary transition-all cursor-pointer"
         >
           목록으로
         </button>
