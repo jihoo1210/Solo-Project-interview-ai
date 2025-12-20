@@ -161,7 +161,7 @@ spring:
         project-id: ${GOOGLE_AI_PROJECT_ID:gen-lang-client-0514433569}
         chat:
           options:
-            model: gemini-2.0-flash-lite
+            model: gemini-2.5-flash-lite
 
 server:
   port: ${SERVER_PORT:5000}
